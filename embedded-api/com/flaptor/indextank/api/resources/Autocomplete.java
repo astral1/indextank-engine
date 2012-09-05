@@ -16,11 +16,16 @@
 
 package com.flaptor.indextank.api.resources;
 
-import java.util.List;
-import java.util.logging.Logger;
-
 import com.flaptor.indextank.api.IndexEngineApi;
 import com.ghosthack.turismo.action.Action;
+
+import javax.servlet.http.HttpServletResponse;
+
+import org.json.simple.JSONObject;
+
+import java.io.UnsupportedEncodingException;
+import java.util.List;
+import java.util.logging.Logger;
 
 public class Autocomplete extends Action {
 
@@ -29,17 +34,35 @@ public class Autocomplete extends Action {
      */
     public void run() {
         IndexEngineApi api = (IndexEngineApi) ctx().getAttribute("api");
+        HttpServletResponse res = res();
+
+        String characterEncoding = api.getCharacterEncoding();
+        try {
+            req().setCharacterEncoding(characterEncoding);
+            res.setCharacterEncoding(characterEncoding);
+            res.setContentType("application/json");
+        } catch (UnsupportedEncodingException ignored) {
+        }
 
         String query = params("query");
         String field = params("field");
-        
-        if(field == null || field.isEmpty()) {
+        String callback = params("callback");
+
+        if (field == null || field.isEmpty()) {
             field = "text";
         }
 
         List<String> complete = api.complete(query, field);
-        
-        print(complete.toString());
+
+        JSONObject json = new JSONObject();
+        json.put("query", query);
+        json.put("suggestions", complete);
+
+        if(callback != null && !callback.trim().isEmpty()) {
+          print(callback.trim()+"("+json.toJSONString()+")");
+        } else {
+          print(json.toJSONString());
+        }
 
     }
 
