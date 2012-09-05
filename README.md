@@ -4,6 +4,8 @@ About IndexTank Engine
 This project contains IndexTank (http://indextank.com) search engine implementation.
 Includes features like variables (boosts), categories (facets), faceted search, snippeting, custom scoring functions, suggest, and autocomplete.
 
+For IndexTank's full administrative stack (which makes use of this engine) see http://github.com/linkedin/indextank-service
+
 ### Homepage:
 
 Find out more about at: TBD
@@ -29,7 +31,7 @@ Package generation:
 
 Build a single jar containing all dependencies by:
 
-    $ mvn package assembly:single
+    $ mvn compile package assembly:single
 
 This will create a single file in:
 
@@ -99,13 +101,23 @@ Sample engine configuration file contents:
     "xmx": 600
     }
 
+Tests:
+------
+
+Execute the following command to run:
+
+    mvn test
+
+Avoid running tests by adding:
+
+    mvn -Dmaven.test.skip=true compile
 
 Eclipse:
 --------
 
 Set up Eclipse for this project by executing the command below:
 
-mvn eclipse:eclipse
+    mvn eclipse:eclipse
 
 Inside Eclipse, select Preferences > Java > Build Path > Classpath Variables. Define a new classpath variable M2_REPO and assign maven repository.
 
