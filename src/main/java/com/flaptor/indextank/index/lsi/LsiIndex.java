@@ -27,9 +27,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.apache.log4j.Logger;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.PerFieldAnalyzerWrapper;
-import org.apache.lucene.index.CorruptIndexException;
-import org.apache.lucene.index.IndexWriter;
-import org.apache.lucene.index.Term;
+import org.apache.lucene.index.*;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.LockObtainFailedException;
@@ -46,6 +44,7 @@ import com.flaptor.util.Execute;
 import com.flaptor.util.Pair;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
+import org.apache.lucene.util.Version;
 
 
 public class LsiIndex {
@@ -87,8 +86,8 @@ public class LsiIndex {
         BlockingDeque<IndexSearcher> searcherPool= new LinkedBlockingDeque<IndexSearcher>();
         BlockingDeque<QueryMatcher> matcherPool = new LinkedBlockingDeque<QueryMatcher>();
         for (int i=0; i < SEARCHER_POOL_SIZE; i++) {
-            try { 
-                IndexSearcher searcher = new IndexSearcher(directory, true); //read-only for better concurrent performance.
+            try {
+                IndexSearcher searcher = new IndexSearcher(IndexReader.open(indexWriter, true)); //read-only for better concurrent performance.
                 TermMatcher termMatcher = new IndexReaderTermMatcher(searcher.getIndexReader(), PAYLOAD_TERM);
                 QueryMatcher matcher = new TermBasedQueryMatcher(scorer, termMatcher, this.facetingManager);		
                 searcherPool.addFirst(searcher); //no blocking, throws exception.
@@ -103,7 +102,7 @@ public class LsiIndex {
     }
 
     private void reopenWriter() throws CorruptIndexException, LockObtainFailedException, IOException {
-        indexWriter = new IndexWriter(this.directory, getAnalyzer(), IndexWriter.MaxFieldLength.UNLIMITED);
+        indexWriter = new IndexWriter(this.directory, new IndexWriterConfig(Version.LUCENE_31, getAnalyzer()));
     }
 
 	private Analyzer getAnalyzer() {

@@ -19,27 +19,27 @@ package com.flaptor.indextank.index.lsi;
 import java.io.IOException;
 import java.io.Reader;
 
-import org.apache.lucene.analysis.KeywordAnalyzer;
+import com.flaptor.indextank.query.analyzers.FilteredTokenStreamComponents;
+import org.apache.lucene.analysis.KeywordTokenizer;
+import org.apache.lucene.analysis.ReusableAnalyzerBase;
 import org.apache.lucene.analysis.TokenFilter;
 import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.analysis.tokenattributes.PayloadAttribute;
 import org.apache.lucene.analysis.tokenattributes.TermAttribute;
 import org.apache.lucene.index.Payload;
 
 import com.flaptor.indextank.index.lsi.term.PayloadEncoder;
 
-public class PayloadAnalyzer extends KeywordAnalyzer {
+public class PayloadAnalyzer extends ReusableAnalyzerBase {
 
-	@Override
-	public TokenStream tokenStream(String fieldName, Reader reader) {
-		return new Filter(super.tokenStream(fieldName, reader));
-	}
-	public TokenStream reusabletokenStream(String fieldName, Reader reader) {
-		return new Filter(super.tokenStream(fieldName, reader));
-	}
-	
-	
-	
+    @Override
+    protected FilteredTokenStreamComponents createComponents(String fieldName, Reader reader) {
+        FilteredTokenStreamComponents components = new FilteredTokenStreamComponents(new KeywordTokenizer(reader));
+
+        return components.add(Filter.class);
+    }
+
 	static class Filter extends TokenFilter {
 		private TermAttribute termAtt;
 		private PayloadAttribute payAtt;

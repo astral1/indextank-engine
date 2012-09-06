@@ -32,6 +32,7 @@ import com.flaptor.indextank.query.IndexEngineParser;
 import com.flaptor.util.FileUtil;
 import com.flaptor.util.TestCase;
 import com.flaptor.util.TestInfo;
+import org.apache.lucene.util.ReaderUtil;
 
 
 public class LsiIndexerTest extends TestCase {
@@ -68,7 +69,7 @@ public class LsiIndexerTest extends TestCase {
         lsiIndexer.makeDirectoryCheckpoint();
 
         assertEquals("Wrong document count", 1, index.getLuceneIndexWriter().numDocs());
-        assertTrue("fieldC not found", index.getLuceneIndexWriter().getReader().getFieldNames(IndexReader.FieldOption.INDEXED).contains("fieldC"));
+        assertTrue("fieldC not found", ReaderUtil.getMergedFieldInfos(IndexReader.open(index.getLuceneIndexWriter(), true)).fieldNumber("fieldC") >= 0);
 	}
 	
     @TestInfo(testType=UNIT)
