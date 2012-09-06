@@ -20,7 +20,7 @@ package com.flaptor.org.apache.lucene.util.automaton;
 import java.util.TreeMap;
 import java.util.Map;
 
-import com.flaptor.org.apache.lucene.util.RamUsageEstimator;
+import org.apache.lucene.util.RamUsageEstimator;
 import com.flaptor.org.apache.lucene.util.ArrayUtil2;
 
 // Just holds a set of int[] states, plus a corresponding

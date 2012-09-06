@@ -20,6 +20,7 @@ package com.flaptor.org.apache.lucene.util;
 import java.util.Collection;
 import java.util.Comparator;
 
+import org.apache.lucene.util.RamUsageEstimator;
 
 /**
  * Methods for manipulating arrays.
@@ -386,7 +387,7 @@ public final class ArrayUtil2 {
   public static char[] grow(char[] array, int minSize) {
     assert minSize >= 0: "size must be positive (got " + minSize + "): likely integer overflow?";
     if (array.length < minSize) {
-      char[] newArray = new char[oversize(minSize, RamUsageEstimator.NUM_BYTES_CHAR)];
+      char[] newArray = new char[oversize(minSize, org.apache.lucene.util.RamUsageEstimator.NUM_BYTES_CHAR)];
       System.arraycopy(array, 0, newArray, 0, array.length);
       return newArray;
     } else

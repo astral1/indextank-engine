@@ -38,7 +38,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import com.flaptor.org.apache.lucene.util.RamUsageEstimator;
+import org.apache.lucene.util.RamUsageEstimator;
 import com.flaptor.org.apache.lucene.util.ArrayUtil2;
 
 /**

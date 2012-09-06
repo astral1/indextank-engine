@@ -29,7 +29,7 @@
 
 package com.flaptor.org.apache.lucene.util.automaton;
 
-import com.flaptor.org.apache.lucene.util.RamUsageEstimator;
+import org.apache.lucene.util.RamUsageEstimator;
 import com.flaptor.org.apache.lucene.util.ArrayUtil2;
 
 import java.util.ArrayList;
