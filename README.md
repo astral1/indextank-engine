@@ -1,4 +1,4 @@
-Team SanUltari Patch
+IndexTank Engine Korean Patch
 ====================
 
 해당 리포지토리는 LinkedIn의 IndexTank 프로젝트에서 포크된 리포지토리입니다.
