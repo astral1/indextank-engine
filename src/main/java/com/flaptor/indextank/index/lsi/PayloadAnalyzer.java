@@ -19,47 +19,54 @@ package com.flaptor.indextank.index.lsi;
 import java.io.IOException;
 import java.io.Reader;
 
-import org.apache.lucene.analysis.KeywordAnalyzer;
+import com.flaptor.indextank.query.analyzers.FilteredTokenStreamComponents;
+import org.apache.lucene.analysis.KeywordTokenizer;
+import org.apache.lucene.analysis.ReusableAnalyzerBase;
 import org.apache.lucene.analysis.TokenFilter;
 import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.analysis.tokenattributes.PayloadAttribute;
 import org.apache.lucene.analysis.tokenattributes.TermAttribute;
 import org.apache.lucene.index.Payload;
 
 import com.flaptor.indextank.index.lsi.term.PayloadEncoder;
 
-public class PayloadAnalyzer extends KeywordAnalyzer {
+public class PayloadAnalyzer extends ReusableAnalyzerBase {
 
-	@Override
-	public TokenStream tokenStream(String fieldName, Reader reader) {
-		return new Filter(super.tokenStream(fieldName, reader));
-	}
-	public TokenStream reusabletokenStream(String fieldName, Reader reader) {
-		return new Filter(super.tokenStream(fieldName, reader));
-	}
-	
-	
-	
-	static class Filter extends TokenFilter {
-		private TermAttribute termAtt;
+    @Override
+    protected FilteredTokenStreamComponents createComponents(String fieldName, Reader reader) {
+        FilteredTokenStreamComponents components = new FilteredTokenStreamComponents(new KeywordTokenizer(reader));
+
+        return components.add(Filter.class);
+    }
+
+	public static class Filter extends TokenFilter {
+        private CharTermAttribute termAtt;
 		private PayloadAttribute payAtt;
-	
+
 		public Filter(TokenStream input) {
 			super(input);
-			termAtt = addAttribute(TermAttribute.class);
+            termAtt = addAttribute(CharTermAttribute.class);
 			payAtt = addAttribute(PayloadAttribute.class);
 		}
-	
+
 		@Override
-		public boolean incrementToken() throws IOException {
+		public final boolean incrementToken() throws IOException {
 			boolean result = false;
 			if (input.incrementToken()) {
-				String docid = termAtt.term();
-				termAtt.setTermBuffer(LsiIndex.PAYLOAD_TERM_TEXT);
+				String docid = termAtt.toString();
+                setTermBuffer(termAtt, LsiIndex.PAYLOAD_TERM_TEXT);
 				payAtt.setPayload(new Payload(PayloadEncoder.encodePayloadId(docid)));
 				return true;
 			}
 			return result;
 		}
+
+        private void setTermBuffer(CharTermAttribute termAttr, String buffer) {
+            int length = buffer.length();
+            termAttr.resizeBuffer(length);
+            termAttr.copyBuffer(buffer.toCharArray(), 0, length);
+            termAttr.setLength(length);
+        }
 	}
 }

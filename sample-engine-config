@@ -15,4 +15,5 @@
 "facets_bits": 5, 
 "base_port": 20220, 
 "xmx": 600
+"factory": "org.apache.lucene.analysis.kr.IndexEngineKoreanAnalyzer"
 }

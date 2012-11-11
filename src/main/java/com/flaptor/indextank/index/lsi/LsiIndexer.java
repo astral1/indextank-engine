@@ -91,7 +91,7 @@ public final class LsiIndexer implements Indexer {
 
     /**
      * Opens the writer.
-     * @throws RuntTimeException if there was a problem opening the writer.
+     * @throws RuntimeException if there was a problem opening the writer.
      */
     private void openWriter() {
         writer = workIndex.getLuceneIndexWriter();
@@ -102,7 +102,7 @@ public final class LsiIndexer implements Indexer {
      * then calls the shell command that makes a copy of it. Used to make a copy
      * of the directory while it's in a consistent state. If there is an index
      * optimization scheduled, it'll be performed here.
-     * @throws IllegasStateException if the index copy couldn't be made.
+     * @throws IllegalStateException if the index copy couldn't be made.
      * @throws RuntimeException if there was a problem opening the index.
      */
     public synchronized void makeDirectoryCheckpoint() {

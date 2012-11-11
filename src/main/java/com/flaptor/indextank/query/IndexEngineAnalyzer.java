@@ -16,20 +16,14 @@
 
 package com.flaptor.indextank.query;
 
-import java.io.IOException;
-import java.io.Reader;
-import java.util.Map;
-
-import org.apache.lucene.analysis.ASCIIFoldingFilter;
-import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.LowerCaseFilter;
-import org.apache.lucene.analysis.StopFilter;
-import org.apache.lucene.analysis.TokenStream;
-import org.apache.lucene.analysis.standard.StandardFilter;
-import org.apache.lucene.analysis.standard.StandardTokenizer;
-
+import com.flaptor.indextank.query.analyzers.FilteredTokenStreamComponents;
 import com.flaptor.indextank.query.analyzers.StopAnalyzer;
 import com.google.common.collect.Maps;
+import org.apache.lucene.analysis.ASCIIFoldingFilter;
+import org.apache.lucene.analysis.Analyzer;
+
+import java.io.Reader;
+import java.util.Map;
 
 public class IndexEngineAnalyzer extends StopAnalyzer {
 
@@ -41,20 +35,12 @@ public class IndexEngineAnalyzer extends StopAnalyzer {
     public IndexEngineAnalyzer() {
         this(Maps.newHashMap());
     }
-    
-    /** Constructs a {@link StandardTokenizer} filtered by a {@link
-      StandardFilter}, a {@link LowerCaseFilter} and a {@link StopFilter}. */
-    @Override
-    public TokenStream tokenStream(String fieldName, Reader reader) {
-        TokenStream result = super.tokenStream(fieldName, reader);
-        result = new ASCIIFoldingFilter(result);
-        
-        return result;
-    }
 
     @Override
-    public TokenStream reusableTokenStream(String fieldName, Reader reader) throws IOException {
-        return tokenStream(fieldName, reader);
+    protected FilteredTokenStreamComponents createComponents(String fieldName, Reader reader) {
+        FilteredTokenStreamComponents components = super.createComponents(fieldName, reader);
+
+        return components.add(ASCIIFoldingFilter.class);
     }
 
     public static Analyzer buildAnalyzer(Map<Object, Object> configuration) {
