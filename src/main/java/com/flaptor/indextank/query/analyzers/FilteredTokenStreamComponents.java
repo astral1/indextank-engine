@@ -27,21 +27,11 @@ public class FilteredTokenStreamComponents extends ReusableAnalyzerBase.TokenStr
         } catch (NoSuchMethodException e) {
             return this;
         } catch (InvocationTargetException e) {
-            return this;
+            throw new RuntimeException(e);
         } catch (InstantiationException e) {
-            return this;
+            throw new RuntimeException(e);
         } catch (IllegalAccessException e) {
-            return this;
+            throw new RuntimeException(e);
         }
-    }
-
-    @Override
-    public boolean reset(Reader reader) throws IOException {
-        return super.reset(reader);
-    }
-
-    @Override
-    public TokenStream getTokenStream() {
-        return super.getTokenStream();
     }
 }

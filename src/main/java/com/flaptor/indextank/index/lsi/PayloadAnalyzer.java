@@ -40,26 +40,33 @@ public class PayloadAnalyzer extends ReusableAnalyzerBase {
         return components.add(Filter.class);
     }
 
-	static class Filter extends TokenFilter {
-		private TermAttribute termAtt;
+	public static class Filter extends TokenFilter {
+        private CharTermAttribute termAtt;
 		private PayloadAttribute payAtt;
-	
+
 		public Filter(TokenStream input) {
 			super(input);
-			termAtt = addAttribute(TermAttribute.class);
+            termAtt = addAttribute(CharTermAttribute.class);
 			payAtt = addAttribute(PayloadAttribute.class);
 		}
-	
+
 		@Override
-		public boolean incrementToken() throws IOException {
+		public final boolean incrementToken() throws IOException {
 			boolean result = false;
 			if (input.incrementToken()) {
-				String docid = termAtt.term();
-				termAtt.setTermBuffer(LsiIndex.PAYLOAD_TERM_TEXT);
+				String docid = termAtt.toString();
+                setTermBuffer(termAtt, LsiIndex.PAYLOAD_TERM_TEXT);
 				payAtt.setPayload(new Payload(PayloadEncoder.encodePayloadId(docid)));
 				return true;
 			}
 			return result;
 		}
+
+        private void setTermBuffer(CharTermAttribute termAttr, String buffer) {
+            int length = buffer.length();
+            termAttr.resizeBuffer(length);
+            termAttr.copyBuffer(buffer.toCharArray(), 0, length);
+            termAttr.setLength(length);
+        }
 	}
 }
