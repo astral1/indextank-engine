@@ -1,6 +1,5 @@
 package org.apache.lucene.analysis.kr;
 
-import com.flaptor.indextank.query.IndexEngineAnalyzer;
 import com.google.common.collect.Maps;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.util.Version;

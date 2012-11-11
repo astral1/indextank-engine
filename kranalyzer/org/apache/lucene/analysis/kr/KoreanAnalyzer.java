@@ -118,7 +118,6 @@ public class KoreanAnalyzer extends Analyzer {
     public TokenStream tokenStream(String fieldName, Reader reader) {
         TokenStream result = null;
         KoreanTokenizer tokenStream = new KoreanTokenizer(matchVersion, reader);
-        result = tokenStream;
         result = new KoreanFilter(tokenStream, bigrammable, hasOrigin);
         result = new LowerCaseFilter(matchVersion, result);
         result = new StopFilter(matchVersion, result, stopSet);

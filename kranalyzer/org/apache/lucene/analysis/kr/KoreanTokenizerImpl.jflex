@@ -56,7 +56,7 @@ public static final String [] TOKEN_TYPES = new String [] {
     "<NUM>", 
     "<CJ>",   
     "<ACRONYM_DEP>",
-    "<KOREAN>"    
+    "<KOREAN>"
 };
 
 public final int yychar()
