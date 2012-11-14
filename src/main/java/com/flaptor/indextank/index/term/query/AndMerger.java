@@ -16,17 +16,17 @@
 
 package com.flaptor.indextank.index.term.query;
 
-import java.util.List;
-
 import com.flaptor.indextank.util.IdentityIntersection;
 import com.flaptor.indextank.util.PeekingSkippableIterator;
 import com.flaptor.indextank.util.SkippableIterable;
 
+import java.util.List;
+
 class AndMerger extends IdentityIntersection<RawMatch> {
-	
+
     @SuppressWarnings("unchecked")
-	AndMerger(SkippableIterable<RawMatch> l, SkippableIterable<RawMatch> r) {
-        super(l,r);
+    AndMerger(SkippableIterable<RawMatch> l, SkippableIterable<RawMatch> r) {
+        super(l, r);
     }
 
     @Override
@@ -38,9 +38,9 @@ class AndMerger extends IdentityIntersection<RawMatch> {
         result.setScore(score);
         return true;
     }
-    
+
     @Override
     protected void advanceTo(PeekingSkippableIterator<RawMatch> it, RawMatch current) {
-    	it.skipTo(current.getRawId());
+        it.skipTo(current.getRawId());
     }
 }

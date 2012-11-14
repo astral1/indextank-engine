@@ -16,17 +16,16 @@
 
 package org.cojen.classfile.attribute;
 
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.IOException;
 import org.cojen.classfile.Attribute;
 import org.cojen.classfile.ConstantPool;
 import org.cojen.classfile.constant.ConstantClassInfo;
 import org.cojen.classfile.constant.ConstantNameAndTypeInfo;
 
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
+
 /**
- * 
- *
  * @author Brian S O'Neill
  */
 public class EnclosingMethodAttr extends Attribute {
@@ -46,13 +45,12 @@ public class EnclosingMethodAttr extends Attribute {
         mClass = enclosingClass;
         mMethod = enclosingMethod;
     }
-    
+
     public EnclosingMethodAttr(ConstantPool cp, String name, int length, DataInput din)
-        throws IOException
-    {
+            throws IOException {
         super(cp, name);
-        mClass = (ConstantClassInfo)cp.getConstant(din.readUnsignedShort());
-        mMethod = (ConstantNameAndTypeInfo)cp.getConstant(din.readUnsignedShort());
+        mClass = (ConstantClassInfo) cp.getConstant(din.readUnsignedShort());
+        mMethod = (ConstantNameAndTypeInfo) cp.getConstant(din.readUnsignedShort());
         if ((length -= 4) > 0) {
             din.skipBytes(length);
         }
@@ -69,7 +67,7 @@ public class EnclosingMethodAttr extends Attribute {
     public int getLength() {
         return 4;
     }
-    
+
     public void writeDataTo(DataOutput dout) throws IOException {
         dout.writeShort(mClass.getIndex());
         dout.writeShort(mMethod.getIndex());

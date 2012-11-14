@@ -16,45 +16,45 @@
 
 package org.cojen.classfile.attribute;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.IOException;
 import org.cojen.classfile.Attribute;
 import org.cojen.classfile.ConstantPool;
 import org.cojen.classfile.FixedLocation;
 import org.cojen.classfile.Location;
 
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
+
 /**
  * This class corresponds to the LineNumberTable_attribute structure as
  * defined  in section 4.7.6 of <i>The Java Virtual Machine Specification</i>.
- * 
+ *
  * @author Brian S O'Neill
  */
 public class LineNumberTableAttr extends Attribute {
 
     private List<Entry> mEntries = new ArrayList<Entry>();
     private boolean mClean = false;
-    
+
     public LineNumberTableAttr(ConstantPool cp) {
         super(cp, LINE_NUMBER_TABLE);
     }
-    
+
     public LineNumberTableAttr(ConstantPool cp, String name) {
         super(cp, name);
     }
-    
+
     public LineNumberTableAttr(ConstantPool cp, String name, int length, DataInput din)
-        throws IOException
-    {
+            throws IOException {
         super(cp, name);
 
         int size = din.readUnsignedShort();
-        for (int i=0; i<size; i++) {
+        for (int i = 0; i < size; i++) {
             int start_pc = din.readUnsignedShort();
             int line_number = din.readUnsignedShort();
 
@@ -79,29 +79,29 @@ public class LineNumberTableAttr extends Attribute {
     public void addEntry(Location start, int line_number) throws IllegalArgumentException {
         if (line_number < 0 || line_number > 65535) {
             throw new IllegalArgumentException("Value for line number out of " +
-                                               "valid range: " + line_number);
+                    "valid range: " + line_number);
         }
         mEntries.add(new Entry(start, line_number));
         mClean = false;
     }
-    
+
     public int getLength() {
         clean();
         return 2 + 4 * mEntries.size();
     }
-    
+
     public void writeDataTo(DataOutput dout) throws IOException {
         int size = mEntries.size();
         dout.writeShort(size);
-        for (int i=0; i<size; i++) {
+        for (int i = 0; i < size; i++) {
             Entry entry = mEntries.get(i);
-            
+
             int start_pc = entry.mStart.getLocation();
 
             if (start_pc < 0 || start_pc > 65535) {
                 throw new IllegalStateException
-                    ("Value for line number table entry start PC out of " +
-                     "valid range: " + start_pc);
+                        ("Value for line number table entry start PC out of " +
+                                "valid range: " + start_pc);
             }
 
             dout.writeShort(start_pc);
@@ -131,7 +131,7 @@ public class LineNumberTableAttr extends Attribute {
     private static class Entry implements Comparable<Entry> {
         public final Location mStart;
         public final int mLineNumber;
-        
+
         public Entry(Location start, int line_number) {
             mStart = start;
             mLineNumber = line_number;
@@ -140,7 +140,7 @@ public class LineNumberTableAttr extends Attribute {
         public int compareTo(Entry other) {
             int thisLoc = mStart.getLocation();
             int thatLoc = other.mStart.getLocation();
-            
+
             if (thisLoc < thatLoc) {
                 return -1;
             } else if (thisLoc > thatLoc) {
@@ -152,14 +152,14 @@ public class LineNumberTableAttr extends Attribute {
 
         public boolean equals(Object other) {
             if (other instanceof Entry) {
-                return mStart.getLocation() == ((Entry)other).mStart.getLocation();
+                return mStart.getLocation() == ((Entry) other).mStart.getLocation();
             }
             return false;
         }
 
         public String toString() {
             return "start_pc=" + mStart.getLocation() + " => " +
-                "line_number=" + mLineNumber;
+                    "line_number=" + mLineNumber;
         }
     }
 }

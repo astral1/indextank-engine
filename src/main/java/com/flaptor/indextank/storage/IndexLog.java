@@ -16,32 +16,31 @@
 
 package com.flaptor.indextank.storage;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.List;
-
-import org.apache.thrift.TException;
-
 import com.flaptor.indextank.rpc.LogRecord;
 import com.flaptor.indextank.util.FormatLogger;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Iterators;
+import org.apache.thrift.TException;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.List;
 
 public class IndexLog {
 
     private static final FormatLogger alertLogger = FormatLogger.getAlertsLogger();
     private static final FormatLogger logger = new FormatLogger();
-    
+
     public static final int DEFAULT_SEGMENT_SIZE = 30 * 1024 * 1024;
 
     String code;
-    
+
     private final int segmentSize;
     private final LogRoot root;
 
-    
+
     public IndexLog(String code) throws FileNotFoundException {
         this(code, new LogRoot(), DEFAULT_SEGMENT_SIZE);
     }
@@ -57,7 +56,7 @@ public class IndexLog {
     public List<Segment> getSegments() {
         return Segment.getSegments(root, getSegmentsPath());
     }
-    
+
     public List<Segment> getSortedSegments() {
         return Segment.getSegments(root, getSegmentsPath(), true);
     }
@@ -76,32 +75,32 @@ public class IndexLog {
                 return true;
             }
         };
-        
+
         // write the actual segment
         Segment.createUnsortedSegment(root, getSegmentsPath(), initialTimestamp, Iterators.filter(new RecordIterator(null, buffer.protocol, "Buffer for " + this.code + " at " + initialTimestamp), isNonEmpty));
-        
+
         sort(false);
     }
-    
+
     public synchronized void sortNow() throws TException, IOException {
         sort(true);
     }
-    
+
     synchronized void sort(boolean now) throws TException, IOException {
         List<Segment> unsortedSegments = Segment.getSegments(root, getSegmentsPath(), false);
         if (!unsortedSegments.isEmpty()) {
             now = now || unsortedSegments.size() > 30;
             now = now || totalSize(unsortedSegments) > segmentSize;
-            
+
             if (now) {
                 // we should sort now
                 Segment sorted = Segment.createSortedSegment(root, getSegmentsPath(), unsortedSegments.get(0).timestamp, unsortedSegments);
-                
+
                 // and now delete the replaced segments
                 for (Segment segment : unsortedSegments) {
                     segment.delete();
                 }
-                
+
                 logger.info("Sorted %d unsorted segments into %s", unsortedSegments.size(), sorted);
             }
         }
@@ -122,7 +121,7 @@ public class IndexLog {
     public List<Segment> getOptimizedSegments() {
         return Segment.getSegments(root, getOptimizedPath());
     }
-    
+
     public Segment getOptimizedSegment(long timestamp) {
         return Segment.getSegment(root, getOptimizedPath(), timestamp, true);
     }
@@ -130,6 +129,7 @@ public class IndexLog {
     public File getSegmentsPath() {
         return new File(root.getIndexLogPath(code), "segments");
     }
+
     public File getOptimizedPath() {
         return new File(root.getIndexLogPath(code), "optimized");
     }
@@ -137,16 +137,19 @@ public class IndexLog {
     public Segment getSortedSegment(long timestamp) {
         return Segment.getSegment(root, getSegmentsPath(), timestamp, true);
     }
+
     public Segment getSegment(long timestamp) {
         return Segment.getSegment(root, getSegmentsPath(), timestamp, null);
     }
-    
+
     public Segment getFirstSortedSegment() {
         return Iterables.get(Segment.iterateSegments(root, getSegmentsPath(), true), 0, null);
     }
+
     public Segment getFirstSegment() {
         return Iterables.get(Segment.iterateSegments(root, getSegmentsPath()), 0, null);
     }
+
     public Segment getLastSegment() {
         return Iterables.getLast(Segment.iterateSegments(root, getSegmentsPath()), null);
     }
@@ -165,7 +168,7 @@ public class IndexLog {
             throw new RuntimeException(e);
         }
     }
-    
+
     public long getLastRead() {
         return getLastReadFile().lastModified();
     }
@@ -173,10 +176,10 @@ public class IndexLog {
     private File getLastReadFile() {
         return new File(root.getIndexLogPath(code), "last_read");
     }
-    
-    public boolean isValidRecord(LogRecord r) {   
+
+    public boolean isValidRecord(LogRecord r) {
         return r.is_set_docid() | !(r.is_set_fields() && r.is_set_variables() && r.is_set_categories());
     }
-       
+
 }
 

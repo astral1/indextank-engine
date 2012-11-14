@@ -18,11 +18,9 @@ package com.flaptor.indextank.api.resources;
 
 import com.flaptor.indextank.api.IndexEngineApi;
 import com.ghosthack.turismo.action.Action;
-
-import javax.servlet.http.HttpServletResponse;
-
 import org.json.simple.JSONObject;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.logging.Logger;
@@ -58,10 +56,10 @@ public class Autocomplete extends Action {
         json.put("query", query);
         json.put("suggestions", complete);
 
-        if(callback != null && !callback.trim().isEmpty()) {
-          print(callback.trim()+"("+json.toJSONString()+")");
+        if (callback != null && !callback.trim().isEmpty()) {
+            print(callback.trim() + "(" + json.toJSONString() + ")");
         } else {
-          print(json.toJSONString());
+            print(json.toJSONString());
         }
 
     }

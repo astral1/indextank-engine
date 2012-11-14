@@ -22,7 +22,6 @@
 package com.flaptor.indextank.index.scorer.parser;
 
 /**
- *
  * @author jorge
  */
 public class ParserException extends Exception {

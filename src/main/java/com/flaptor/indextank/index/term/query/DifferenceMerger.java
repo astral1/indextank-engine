@@ -49,40 +49,41 @@ class DifferenceMerger extends AbstractSkippableIterable<RawMatch> {
             this.excluded = new PeekingSkippableIterator<RawMatch>(excluded);
             this.boost = boost;
         }
-        
+
         private static int id(RawMatch r) {
-        	return r.getRawId();
+            return r.getRawId();
         }
+
         private static int id(PeekingIterator<RawMatch> i) {
-        	return id(i.peek());
+            return id(i.peek());
         }
-        
+
         @Override
         protected RawMatch computeNext() {
             while (included.hasNext()) {
-            	RawMatch candidate = included.next();
+                RawMatch candidate = included.next();
 
-            	// check if the candidate is excluded
-				while (excluded.hasNext() && id(excluded) < id(candidate)) {
-					excluded.skipTo(id(candidate));
-            		excluded.next(); // skip exclusions lower than candidate
-            	}
-				// if candidate was excluded search for another candidate
-				if (excluded.hasNext() && id(candidate) == id(excluded)) {
-					continue;
-				}
+                // check if the candidate is excluded
+                while (excluded.hasNext() && id(excluded) < id(candidate)) {
+                    excluded.skipTo(id(candidate));
+                    excluded.next(); // skip exclusions lower than candidate
+                }
+                // if candidate was excluded search for another candidate
+                if (excluded.hasNext() && id(candidate) == id(excluded)) {
+                    continue;
+                }
                 candidate.setScore(candidate.getBoostedScore());
                 candidate.setBoost(boost);
-				return candidate;
+                return candidate;
             }
-            
+
             return endOfData();
         }
 
-		@Override
-		public void skipTo(int i) {
-			this.included.skipTo(i);
-			this.excluded.skipTo(i-1);
-		}
+        @Override
+        public void skipTo(int i) {
+            this.included.skipTo(i);
+            this.excluded.skipTo(i - 1);
+        }
     }
 }

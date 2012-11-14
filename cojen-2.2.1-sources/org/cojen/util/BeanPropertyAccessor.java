@@ -16,21 +16,6 @@
 
 package org.cojen.util;
 
-import java.lang.ref.SoftReference;
-
-import java.lang.reflect.Method;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import java.math.BigInteger;
-
-import java.security.AccessController;
-import java.security.PrivilegedAction;
-
 import org.cojen.classfile.ClassFile;
 import org.cojen.classfile.CodeBuilder;
 import org.cojen.classfile.Label;
@@ -40,6 +25,17 @@ import org.cojen.classfile.Modifiers;
 import org.cojen.classfile.Opcode;
 import org.cojen.classfile.RuntimeClassFile;
 import org.cojen.classfile.TypeDesc;
+
+import java.lang.ref.SoftReference;
+import java.lang.reflect.Method;
+import java.math.BigInteger;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Provides a simple and efficient means of reading and writing bean
@@ -52,13 +48,21 @@ import org.cojen.classfile.TypeDesc;
  */
 public abstract class BeanPropertyAccessor<B> {
     public static enum PropertySet {
-        /** Set of all properties */
+        /**
+         * Set of all properties
+         */
         ALL,
-        /** Set of all properties which declare only unchecked exceptions */
+        /**
+         * Set of all properties which declare only unchecked exceptions
+         */
         UNCHECKED_EXCEPTIONS,
-        /** Set of all read-write properties */
+        /**
+         * Set of all read-write properties
+         */
         READ_WRITE,
-        /** Set of all read-write properties which declare only unchecked exceptions */
+        /**
+         * Set of all read-write properties which declare only unchecked exceptions
+         */
         READ_WRITE_UNCHECKED_EXCEPTIONS,
     }
 
@@ -70,8 +74,8 @@ public abstract class BeanPropertyAccessor<B> {
     private static final int HAS_WRITE_METHOD = 6;
 
     private static final
-        Map<PropertySet, Map<Class, SoftReference<BeanPropertyAccessor>>> cAccessors =
-        new HashMap<PropertySet, Map<Class, SoftReference<BeanPropertyAccessor>>>();
+    Map<PropertySet, Map<Class, SoftReference<BeanPropertyAccessor>>> cAccessors =
+            new HashMap<PropertySet, Map<Class, SoftReference<BeanPropertyAccessor>>>();
 
     /**
      * Returns a new or cached BeanPropertyAccessor for the given class.
@@ -103,8 +107,7 @@ public abstract class BeanPropertyAccessor<B> {
     }
 
     private static <B> BeanPropertyAccessor<B> generate(final Class<B> beanType,
-                                                        final PropertySet set)
-    {
+                                                        final PropertySet set) {
         return AccessController.doPrivileged(new PrivilegedAction<BeanPropertyAccessor<B>>() {
             public BeanPropertyAccessor<B> run() {
                 Class clazz = generateClassFile(beanType, set).defineClass();
@@ -123,9 +126,9 @@ public abstract class BeanPropertyAccessor<B> {
         BeanProperty[][] props = getBeanProperties(beanType, set);
 
         RuntimeClassFile cf = new RuntimeClassFile
-            (BeanPropertyAccessor.class.getName(),
-             BeanPropertyAccessor.class.getName(),
-             beanType.getClassLoader());
+                (BeanPropertyAccessor.class.getName(),
+                        BeanPropertyAccessor.class.getName(),
+                        beanType.getClassLoader());
         cf.markSynthetic();
         cf.setSourceFile(BeanPropertyAccessor.class.getName());
         try {
@@ -156,46 +159,46 @@ public abstract class BeanPropertyAccessor<B> {
     private static void generateAccessMethod(ClassFile cf,
                                              Class beanType,
                                              BeanProperty[] properties,
-                                             int methodType)
-    {
+                                             int methodType) {
         MethodInfo mi;
         switch (methodType) {
-        case READ_METHOD: default: {
-            TypeDesc[] params = {TypeDesc.OBJECT, TypeDesc.STRING};
-            mi = cf.addMethod
-                (Modifiers.PUBLIC, "getPropertyValue", TypeDesc.OBJECT, params);
-            break;
-        }
-        case WRITE_METHOD: {
-            TypeDesc[] params = new TypeDesc[] {
-                TypeDesc.OBJECT, TypeDesc.STRING, TypeDesc.OBJECT
-            };
-            mi = cf.addMethod(Modifiers.PUBLIC, "setPropertyValue", null, params);
-            break;
-        }
-        case TRY_READ_METHOD: {
-            TypeDesc[] params = {TypeDesc.OBJECT, TypeDesc.STRING};
-            mi = cf.addMethod
-                (Modifiers.PUBLIC, "tryGetPropertyValue", TypeDesc.OBJECT, params);
-            break;
-        }
-        case TRY_WRITE_METHOD: {
-            TypeDesc[] params = new TypeDesc[] {
-                TypeDesc.OBJECT, TypeDesc.STRING, TypeDesc.OBJECT
-            };
-            mi = cf.addMethod(Modifiers.PUBLIC, "trySetPropertyValue", TypeDesc.BOOLEAN, params);
-            break;
-        }
-        case HAS_READ_METHOD: {
-            TypeDesc[] params = {TypeDesc.STRING};
-            mi = cf.addMethod(Modifiers.PUBLIC, "hasReadableProperty", TypeDesc.BOOLEAN, params);
-            break;
-        }
-        case HAS_WRITE_METHOD: {
-            TypeDesc[] params = {TypeDesc.STRING};
-            mi = cf.addMethod(Modifiers.PUBLIC, "hasWritableProperty", TypeDesc.BOOLEAN, params);
-            break;
-        }
+            case READ_METHOD:
+            default: {
+                TypeDesc[] params = {TypeDesc.OBJECT, TypeDesc.STRING};
+                mi = cf.addMethod
+                        (Modifiers.PUBLIC, "getPropertyValue", TypeDesc.OBJECT, params);
+                break;
+            }
+            case WRITE_METHOD: {
+                TypeDesc[] params = new TypeDesc[]{
+                        TypeDesc.OBJECT, TypeDesc.STRING, TypeDesc.OBJECT
+                };
+                mi = cf.addMethod(Modifiers.PUBLIC, "setPropertyValue", null, params);
+                break;
+            }
+            case TRY_READ_METHOD: {
+                TypeDesc[] params = {TypeDesc.OBJECT, TypeDesc.STRING};
+                mi = cf.addMethod
+                        (Modifiers.PUBLIC, "tryGetPropertyValue", TypeDesc.OBJECT, params);
+                break;
+            }
+            case TRY_WRITE_METHOD: {
+                TypeDesc[] params = new TypeDesc[]{
+                        TypeDesc.OBJECT, TypeDesc.STRING, TypeDesc.OBJECT
+                };
+                mi = cf.addMethod(Modifiers.PUBLIC, "trySetPropertyValue", TypeDesc.BOOLEAN, params);
+                break;
+            }
+            case HAS_READ_METHOD: {
+                TypeDesc[] params = {TypeDesc.STRING};
+                mi = cf.addMethod(Modifiers.PUBLIC, "hasReadableProperty", TypeDesc.BOOLEAN, params);
+                break;
+            }
+            case HAS_WRITE_METHOD: {
+                TypeDesc[] params = {TypeDesc.STRING};
+                mi = cf.addMethod(Modifiers.PUBLIC, "hasWritableProperty", TypeDesc.BOOLEAN, params);
+                break;
+            }
         }
 
         mi.markSynthetic();
@@ -204,21 +207,25 @@ public abstract class BeanPropertyAccessor<B> {
         LocalVariable beanVar, propertyVar, valueVar;
 
         switch (methodType) {
-        case READ_METHOD: case TRY_READ_METHOD: default:
-            beanVar = b.getParameter(0);
-            propertyVar = b.getParameter(1);
-            valueVar = null;
-            break;
-        case WRITE_METHOD: case TRY_WRITE_METHOD:
-            beanVar = b.getParameter(0);
-            propertyVar = b.getParameter(1);
-            valueVar = b.getParameter(2);
-            break;
-        case HAS_READ_METHOD: case HAS_WRITE_METHOD:
-            beanVar = null;
-            propertyVar = b.getParameter(0);
-            valueVar = null;
-            break;
+            case READ_METHOD:
+            case TRY_READ_METHOD:
+            default:
+                beanVar = b.getParameter(0);
+                propertyVar = b.getParameter(1);
+                valueVar = null;
+                break;
+            case WRITE_METHOD:
+            case TRY_WRITE_METHOD:
+                beanVar = b.getParameter(0);
+                propertyVar = b.getParameter(1);
+                valueVar = b.getParameter(2);
+                break;
+            case HAS_READ_METHOD:
+            case HAS_WRITE_METHOD:
+                beanVar = null;
+                propertyVar = b.getParameter(0);
+                valueVar = null;
+                break;
         }
 
         if (beanVar != null) {
@@ -230,15 +237,15 @@ public abstract class BeanPropertyAccessor<B> {
         if (properties.length > 0) {
             int[] cases = new int[hashCapacity(properties.length)];
             int caseCount = cases.length;
-            for (int i=0; i<caseCount; i++) {
+            for (int i = 0; i < caseCount; i++) {
                 cases[i] = i;
             }
 
             Label[] switchLabels = new Label[caseCount];
             Label noMatch = b.createLabel();
             List[] caseMethods = caseMethods(caseCount, properties);
-            
-            for (int i=0; i<caseCount; i++) {
+
+            for (int i = 0; i < caseCount; i++) {
                 List matches = caseMethods[i];
                 if (matches == null || matches.size() == 0) {
                     switchLabels[i] = noMatch;
@@ -254,33 +261,33 @@ public abstract class BeanPropertyAccessor<B> {
                 b.math(Opcode.IAND);
                 b.loadConstant(caseCount);
                 b.math(Opcode.IREM);
-            
+
                 b.switchBranch(cases, switchLabels, noMatch);
             }
-            
+
             // Params to invoke String.equals.
             TypeDesc[] params = {TypeDesc.OBJECT};
-            
-            for (int i=0; i<caseCount; i++) {
+
+            for (int i = 0; i < caseCount; i++) {
                 List matches = caseMethods[i];
                 if (matches == null || matches.size() == 0) {
                     continue;
                 }
-                
+
                 switchLabels[i].setLocation();
-                
+
                 int matchCount = matches.size();
-                for (int j=0; j<matchCount; j++) {
-                    BeanProperty bp = (BeanProperty)matches.get(j);
-                    
+                for (int j = 0; j < matchCount; j++) {
+                    BeanProperty bp = (BeanProperty) matches.get(j);
+
                     // Test against name to find exact match.
-                    
+
                     b.loadConstant(bp.getName());
                     b.loadLocal(propertyVar);
                     b.invokeVirtual(String.class.getName(), "equals", TypeDesc.BOOLEAN, params);
-                    
+
                     Label notEqual;
-                    
+
                     if (j == matchCount - 1) {
                         notEqual = null;
                         b.ifZeroComparisonBranch(noMatch, "==");
@@ -288,50 +295,53 @@ public abstract class BeanPropertyAccessor<B> {
                         notEqual = b.createLabel();
                         b.ifZeroComparisonBranch(notEqual, "==");
                     }
-                    
+
                     switch (methodType) {
-                    case READ_METHOD: case TRY_READ_METHOD: default: {
-                        b.loadLocal(beanVar);
-                        b.invoke(bp.getReadMethod());
-                        TypeDesc type = TypeDesc.forClass(bp.getType());
-                        b.convert(type, type.toObjectType());
-                        b.returnValue(TypeDesc.OBJECT);
-                        break;
-                    }
-                    case WRITE_METHOD: case TRY_WRITE_METHOD: {
-                        b.loadLocal(beanVar);
-                        b.loadLocal(valueVar);
-                        TypeDesc type = TypeDesc.forClass(bp.getType());
-                        b.checkCast(type.toObjectType());
-                        b.convert(type.toObjectType(), type);
-                        b.invoke(bp.getWriteMethod());
-                        if (methodType == WRITE_METHOD) {
-                            b.returnVoid();
-                        } else {
+                        case READ_METHOD:
+                        case TRY_READ_METHOD:
+                        default: {
+                            b.loadLocal(beanVar);
+                            b.invoke(bp.getReadMethod());
+                            TypeDesc type = TypeDesc.forClass(bp.getType());
+                            b.convert(type, type.toObjectType());
+                            b.returnValue(TypeDesc.OBJECT);
+                            break;
+                        }
+                        case WRITE_METHOD:
+                        case TRY_WRITE_METHOD: {
+                            b.loadLocal(beanVar);
+                            b.loadLocal(valueVar);
+                            TypeDesc type = TypeDesc.forClass(bp.getType());
+                            b.checkCast(type.toObjectType());
+                            b.convert(type.toObjectType(), type);
+                            b.invoke(bp.getWriteMethod());
+                            if (methodType == WRITE_METHOD) {
+                                b.returnVoid();
+                            } else {
+                                b.loadConstant(true);
+                                b.returnValue(TypeDesc.BOOLEAN);
+                            }
+                            break;
+                        }
+                        case HAS_READ_METHOD:
+                        case HAS_WRITE_METHOD: {
                             b.loadConstant(true);
                             b.returnValue(TypeDesc.BOOLEAN);
+                            break;
                         }
-                        break;
                     }
-                    case HAS_READ_METHOD: case HAS_WRITE_METHOD: {
-                        b.loadConstant(true);
-                        b.returnValue(TypeDesc.BOOLEAN);
-                        break;
-                    }
-                    }
-                    
+
                     if (notEqual != null) {
                         notEqual.setLocation();
                     }
                 }
             }
-            
+
             noMatch.setLocation();
         }
 
         if (methodType == HAS_READ_METHOD || methodType == HAS_WRITE_METHOD
-            || methodType == TRY_WRITE_METHOD)
-        {
+                || methodType == TRY_WRITE_METHOD) {
             b.loadConstant(false);
             b.returnValue(TypeDesc.BOOLEAN);
         } else if (methodType == TRY_READ_METHOD) {
@@ -374,7 +384,7 @@ public abstract class BeanPropertyAccessor<B> {
                                       BeanProperty[] props) {
         List[] cases = new List[caseCount];
 
-        for (int i=0; i<props.length; i++) {
+        for (int i = 0; i < props.length; i++) {
             BeanProperty prop = props[i];
             int hashCode = prop.getName().hashCode();
             int caseValue = (hashCode & 0x7fffffff) % caseCount;
@@ -390,8 +400,7 @@ public abstract class BeanPropertyAccessor<B> {
 
     private static void generateSearchMethod(ClassFile cf,
                                              Class beanType,
-                                             BeanProperty[] properties)
-    {
+                                             BeanProperty[] properties) {
         MethodInfo mi;
         {
             TypeDesc[] params = {TypeDesc.OBJECT, TypeDesc.OBJECT};
@@ -480,19 +489,18 @@ public abstract class BeanPropertyAccessor<B> {
 
         Iterator it = map.values().iterator();
         while (it.hasNext()) {
-            BeanProperty bp = (BeanProperty)it.next();
+            BeanProperty bp = (BeanProperty) it.next();
 
             if (set == PropertySet.READ_WRITE ||
-                set == PropertySet.READ_WRITE_UNCHECKED_EXCEPTIONS)
-            {
+                    set == PropertySet.READ_WRITE_UNCHECKED_EXCEPTIONS) {
                 if (bp.getReadMethod() == null || bp.getWriteMethod() == null) {
                     continue;
                 }
             }
- 
-            boolean checkedAllowed = 
-                set != PropertySet.UNCHECKED_EXCEPTIONS &&
-                set != PropertySet.READ_WRITE_UNCHECKED_EXCEPTIONS;
+
+            boolean checkedAllowed =
+                    set != PropertySet.UNCHECKED_EXCEPTIONS &&
+                            set != PropertySet.READ_WRITE_UNCHECKED_EXCEPTIONS;
 
             if (bp.getReadMethod() != null) {
                 if (checkedAllowed || !throwsCheckedException(bp.getReadMethod())) {
@@ -507,7 +515,7 @@ public abstract class BeanPropertyAccessor<B> {
         }
 
         BeanProperty[][] props = new BeanProperty[2][];
-        
+
         props[0] = new BeanProperty[readProperties.size()];
         readProperties.toArray(props[0]);
         props[1] = new BeanProperty[writeProperties.size()];
@@ -541,10 +549,10 @@ public abstract class BeanPropertyAccessor<B> {
     // The actual public methods that will need to be defined.
 
     public abstract Object getPropertyValue(B bean, String property)
-        throws NoSuchPropertyException;
+            throws NoSuchPropertyException;
 
     public abstract void setPropertyValue(B bean, String property, Object value)
-        throws NoSuchPropertyException;
+            throws NoSuchPropertyException;
 
     /**
      * Returns true if readable bean property exists.

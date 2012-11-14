@@ -24,27 +24,27 @@ import java.util.Map;
  * A Map that weakly references its values and can be used as a simple cache.
  * WeakValuedHashMap is not thread-safe and must be wrapped with
  * Collections.synchronizedMap to be made thread-safe.
- * <p>
+ * <p/>
  * Note: Weakly referenced entries may be automatically removed during
  * either accessor or mutator operations, possibly causing a concurrent
  * modification to be detected. Therefore, even if multiple threads are only
  * accessing this map, be sure to synchronize this map first. Also, do not
  * rely on the value returned by size() when using an iterator from this map.
  * The iterators may return less entries than the amount reported by size().
- * 
+ *
  * @author Brian S O'Neill
  * @since 2.1
  */
 public class WeakValuedHashMap<K, V> extends ReferencedValueHashMap<K, V> {
 
     /**
-     * Constructs a new, empty map with the specified initial 
-     * capacity and the specified load factor. 
+     * Constructs a new, empty map with the specified initial
+     * capacity and the specified load factor.
      *
-     * @param      initialCapacity   the initial capacity of the HashMap.
-     * @param      loadFactor        the load factor of the HashMap
-     * @throws     IllegalArgumentException  if the initial capacity is less
-     *               than zero, or if the load factor is nonpositive.
+     * @param initialCapacity the initial capacity of the HashMap.
+     * @param loadFactor      the load factor of the HashMap
+     * @throws IllegalArgumentException if the initial capacity is less
+     *                                  than zero, or if the load factor is nonpositive.
      */
     public WeakValuedHashMap(int initialCapacity, float loadFactor) {
         super(initialCapacity, loadFactor);
@@ -54,9 +54,9 @@ public class WeakValuedHashMap<K, V> extends ReferencedValueHashMap<K, V> {
      * Constructs a new, empty map with the specified initial capacity
      * and default load factor, which is <tt>0.75</tt>.
      *
-     * @param   initialCapacity   the initial capacity of the HashMap.
-     * @throws    IllegalArgumentException if the initial capacity is less
-     *              than zero.
+     * @param initialCapacity the initial capacity of the HashMap.
+     * @throws IllegalArgumentException if the initial capacity is less
+     *                                  than zero.
      */
     public WeakValuedHashMap(int initialCapacity) {
         super(initialCapacity);

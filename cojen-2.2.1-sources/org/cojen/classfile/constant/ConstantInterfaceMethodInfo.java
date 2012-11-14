@@ -16,21 +16,21 @@
 
 package org.cojen.classfile.constant;
 
+import org.cojen.classfile.ConstantInfo;
+
 import java.io.DataOutput;
 import java.io.IOException;
-import org.cojen.classfile.ConstantInfo;
-import org.cojen.classfile.ConstantPool;
 
 /**
- * This class corresponds to the CONSTANT_InterfaceMethodRef_info structure as 
+ * This class corresponds to the CONSTANT_InterfaceMethodRef_info structure as
  * defined in section 4.4.2 of <i>The Java Virtual Machine Specification</i>.
- * 
+ *
  * @author Brian S O'Neill
  */
 public class ConstantInterfaceMethodInfo extends ConstantInfo {
     private final ConstantClassInfo mParentClass;
     private final ConstantNameAndTypeInfo mNameAndType;
-    
+
     public ConstantInterfaceMethodInfo(ConstantClassInfo parentClass,
                                        ConstantNameAndTypeInfo nameAndType) {
         super(TAG_INTERFACE_METHOD);
@@ -41,26 +41,26 @@ public class ConstantInterfaceMethodInfo extends ConstantInfo {
     public ConstantClassInfo getParentClass() {
         return mParentClass;
     }
-    
+
     public ConstantNameAndTypeInfo getNameAndType() {
         return mNameAndType;
     }
-    
+
     public int hashCode() {
         return mNameAndType.hashCode();
     }
-    
+
     public boolean equals(Object obj) {
         if (obj instanceof ConstantInterfaceMethodInfo) {
-            ConstantInterfaceMethodInfo other = 
-                (ConstantInterfaceMethodInfo)obj;
-            return (mParentClass.equals(other.mParentClass) && 
+            ConstantInterfaceMethodInfo other =
+                    (ConstantInterfaceMethodInfo) obj;
+            return (mParentClass.equals(other.mParentClass) &&
                     mNameAndType.equals(other.mNameAndType));
         }
-        
+
         return false;
     }
-    
+
     public void writeTo(DataOutput dout) throws IOException {
         super.writeTo(dout);
         dout.writeShort(mParentClass.getIndex());
@@ -68,8 +68,8 @@ public class ConstantInterfaceMethodInfo extends ConstantInfo {
     }
 
     public String toString() {
-        StringBuffer buf = 
-            new StringBuffer("CONSTANT_InterfaceMethodref_info: ");
+        StringBuffer buf =
+                new StringBuffer("CONSTANT_InterfaceMethodref_info: ");
         buf.append(getParentClass().getType().getFullName());
 
         ConstantNameAndTypeInfo cnati = getNameAndType();

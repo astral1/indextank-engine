@@ -16,8 +16,6 @@
 
 package com.flaptor.indextank.index.rti;
 
-import java.util.Map;
-
 import com.flaptor.indextank.Indexer;
 import com.flaptor.indextank.blender.BlendingQueryMatcher;
 import com.flaptor.indextank.index.Document;
@@ -29,26 +27,27 @@ import com.flaptor.indextank.query.IndexEngineParser;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 
+import java.util.Map;
+
 /**
- *
  * @author Flaptor Team
  */
 public class RealTimeIndex implements Indexer {
 
-	InvertedIndex markedIndex;
+    InvertedIndex markedIndex;
     InvertedIndex index;
     Scorer scorer;
-	private final int rtiSize;
-	private final IndexEngineParser parser;
-	private final FacetingManager facetingManager;
+    private final int rtiSize;
+    private final IndexEngineParser parser;
+    private final FacetingManager facetingManager;
 
     public RealTimeIndex(Scorer scorer, IndexEngineParser parser, int rtiSize, FacetingManager facetingManager) {
         this.parser = parser;
-		this.facetingManager = facetingManager;
-		Preconditions.checkNotNull(scorer);
+        this.facetingManager = facetingManager;
+        Preconditions.checkNotNull(scorer);
         Preconditions.checkArgument(rtiSize > 0);
         this.scorer = scorer;
-		this.rtiSize = rtiSize;
+        this.rtiSize = rtiSize;
         this.index = new InvertedIndex(scorer, parser, rtiSize, this.facetingManager);
         this.markedIndex = null;
     }
@@ -62,32 +61,32 @@ public class RealTimeIndex implements Indexer {
     }
 
     private QueryMatcher getMergedSearcher() {
-    	QueryMatcher matcher = index;
-    	QueryMatcher markedMatcher = markedIndex;
-    	if (markedMatcher != null) {
-    		return new BlendingQueryMatcher(markedMatcher, matcher);
-    	} else {
-    		return matcher;
-    	}
+        QueryMatcher matcher = index;
+        QueryMatcher markedMatcher = markedIndex;
+        if (markedMatcher != null) {
+            return new BlendingQueryMatcher(markedMatcher, matcher);
+        } else {
+            return matcher;
+        }
     }
-    
+
     public QueryMatcher getSearchSession() {
-    	return getMergedSearcher();
+        return getMergedSearcher();
     }
-    
+
     public void mark() {
-    	synchronized (this) {
-    		Preconditions.checkState(markedIndex == null, "Cannot mark twice. clearToMark should be called before marking again.");
-    		markedIndex = index; 
-    		index = new InvertedIndex(scorer, parser, rtiSize, facetingManager);
-    	}
+        synchronized (this) {
+            Preconditions.checkState(markedIndex == null, "Cannot mark twice. clearToMark should be called before marking again.");
+            markedIndex = index;
+            index = new InvertedIndex(scorer, parser, rtiSize, facetingManager);
+        }
     }
-    
+
     public void clearToMark() {
-    	synchronized (this) {
-    		Preconditions.checkState(markedIndex != null, "Mark not found. It was either never marked or already cleared.");
-    		markedIndex = null; 
-    	}
+        synchronized (this) {
+            Preconditions.checkState(markedIndex != null, "Mark not found. It was either never marked or already cleared.");
+            markedIndex = null;
+        }
     }
 
     public Map<String, String> getStats() {
@@ -101,5 +100,5 @@ public class RealTimeIndex implements Indexer {
         }
         return stats;
     }
-    
+
 }

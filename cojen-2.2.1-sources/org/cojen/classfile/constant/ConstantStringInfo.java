@@ -16,20 +16,21 @@
 
 package org.cojen.classfile.constant;
 
-import java.io.DataOutput;
-import java.io.IOException;
 import org.cojen.classfile.ConstantInfo;
 import org.cojen.classfile.ConstantPool;
+
+import java.io.DataOutput;
+import java.io.IOException;
 
 /**
  * This class corresponds to the CONSTANT_String_info structure as defined in
  * section 4.4.3 of <i>The Java Virtual Machine Specification</i>.
- * 
+ *
  * @author Brian S O'Neill
  */
 public class ConstantStringInfo extends ConstantInfo {
     private final ConstantUTFInfo mStringConstant;
-    
+
     public ConstantStringInfo(ConstantUTFInfo constant) {
         super(TAG_STRING);
         mStringConstant = constant;
@@ -39,7 +40,7 @@ public class ConstantStringInfo extends ConstantInfo {
         super(TAG_STRING);
         mStringConstant = cp.addConstantUTF(str);
     }
-    
+
     public String getValue() {
         return mStringConstant.getValue();
     }
@@ -47,18 +48,18 @@ public class ConstantStringInfo extends ConstantInfo {
     public int hashCode() {
         return mStringConstant.hashCode();
     }
-    
+
     public boolean equals(Object obj) {
         if (this == obj) {
             return true;
         }
         if (obj instanceof ConstantStringInfo) {
-            ConstantStringInfo other = (ConstantStringInfo)obj;
+            ConstantStringInfo other = (ConstantStringInfo) obj;
             return mStringConstant.equals(other.mStringConstant);
         }
         return false;
     }
-    
+
     protected boolean hasPriority() {
         return true;
     }

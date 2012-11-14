@@ -16,6 +16,16 @@
 
 package com.flaptor.indextank.index.scorer;
 
+import com.flaptor.indextank.index.DocId;
+import com.flaptor.indextank.index.scorer.CategoryMaskManager.CategoryInfo;
+import com.flaptor.indextank.index.scorer.CategoryMaskManager.CategoryValueInfo;
+import com.flaptor.indextank.index.scorer.DynamicBoostsManager.DynamicBoosts;
+import com.flaptor.util.Execute;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
+import org.apache.log4j.Logger;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
@@ -29,31 +39,20 @@ import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Scanner;
 import java.util.Set;
-import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import org.apache.log4j.Logger;
-
-import com.flaptor.indextank.index.DocId;
-import com.flaptor.indextank.index.scorer.CategoryMaskManager.CategoryInfo;
-import com.flaptor.indextank.index.scorer.CategoryMaskManager.CategoryValueInfo;
-import com.flaptor.indextank.index.scorer.DynamicBoostsManager.DynamicBoosts;
-import com.flaptor.util.Execute;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
-
 @SuppressWarnings("deprecation")
 public class DynamicDataManager implements BoostsManager {
-	private static final Logger logger = Logger.getLogger(Execute.whoAmI());
-	private static final String OLD_MAIN_FILE_NAME = "dynamicBoosts";
-	private static final String MAIN_FILE_NAME = "dynamicData";
+    private static final Logger logger = Logger.getLogger(Execute.whoAmI());
+    private static final String OLD_MAIN_FILE_NAME = "dynamicBoosts";
+    private static final String MAIN_FILE_NAME = "dynamicData";
 
-	private final int numberOfBoosts;
+    private final int numberOfBoosts;
     private final ConcurrentMap<DocId, DynamicData> dynamicDataMap;
     private final File backupDir;
     private final DynamicData emptyData;
@@ -62,15 +61,15 @@ public class DynamicDataManager implements BoostsManager {
 
     /**
      * Build a {@link DynamicDataManager} with a backupDir. If the directory containts a
-     * dynamic boosts file, it loads the data from it. Otherwise, creates a new boosts map  
-     * 
+     * dynamic boosts file, it loads the data from it. Otherwise, creates a new boosts map
+     *
      * @param numberOfBoosts the number of boosting doubles that this Scorer will store.
-     * @param backupDir the directory to which the data stored in this Scorer shall be
+     * @param backupDir      the directory to which the data stored in this Scorer shall be
      */
     @SuppressWarnings("unchecked")
-	public DynamicDataManager(int numberOfBoosts, File backupDir) {
-		Preconditions.checkArgument(numberOfBoosts > 0);
-    	checkDirArgument(backupDir);
+    public DynamicDataManager(int numberOfBoosts, File backupDir) {
+        Preconditions.checkArgument(numberOfBoosts > 0);
+        checkDirArgument(backupDir);
         this.numberOfBoosts = numberOfBoosts;
         this.backupDir = backupDir;
         this.emptyData = new DynamicData(numberOfBoosts);
@@ -85,7 +84,7 @@ public class DynamicDataManager implements BoostsManager {
                 is = new ObjectInputStream(new BufferedInputStream(new FileInputStream(oldFormatFile)));
                 int storedNumberOfBoosts = is.readInt();
                 if (storedNumberOfBoosts != numberOfBoosts) {
-                	throw new IllegalArgumentException("Number of boosts specified in Manager construction differ from the one stored in the backup file (" + numberOfBoosts + " vs. " + storedNumberOfBoosts +")");
+                    throw new IllegalArgumentException("Number of boosts specified in Manager construction differ from the one stored in the backup file (" + numberOfBoosts + " vs. " + storedNumberOfBoosts + ")");
                 }
                 try {
                     ConcurrentMap<?, ?> read = (ConcurrentMap<?, ?>) is.readObject();
@@ -98,11 +97,11 @@ public class DynamicDataManager implements BoostsManager {
                         // and check whether the keys are strings (v1) or DocIds (v2)
                         dynamicDataMap = new ConcurrentHashMap<DocId, DynamicData>();
                         boolean areDocids = keys.iterator().next() instanceof DocId;
-                        for (Map.Entry<?,?> e : read.entrySet()) {
+                        for (Map.Entry<?, ?> e : read.entrySet()) {
                             // convert key to docid if necessary
-                            DocId docId = areDocids ? (DocId)e.getKey() : new DocId((String)e.getKey());
+                            DocId docId = areDocids ? (DocId) e.getKey() : new DocId((String) e.getKey());
                             // convert value and add to the map
-                            dynamicDataMap.put(docId, new DynamicData((DynamicBoosts)e.getValue()));
+                            dynamicDataMap.put(docId, new DynamicData((DynamicBoosts) e.getValue()));
                         }
                     }
                     logger.info("State loaded.");
@@ -110,29 +109,29 @@ public class DynamicDataManager implements BoostsManager {
                     throw new IllegalStateException(e);
                 }
             } catch (FileNotFoundException e) {
-				throw new RuntimeException(e);
-			} catch (IOException e) {
-				throw new RuntimeException(e);
-			} finally {
+                throw new RuntimeException(e);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            } finally {
                 Execute.close(is);
             }
         } else {
-        	this.dynamicDataMap = new ConcurrentHashMap<DocId, DynamicData>();
-        	if (newFormatFile.exists()) {
-        	    readFromDisk();
-        	}
+            this.dynamicDataMap = new ConcurrentHashMap<DocId, DynamicData>();
+            if (newFormatFile.exists()) {
+                readFromDisk();
+            }
         }
     }
-    
-	@Override
-	public Boosts getBoosts(DocId documentId) {
-	    DynamicData data = dynamicDataMap.get(documentId);
-	    if (data == null) {
-	        logger.warn("Failed to find boosts for document " + documentId);
-	        return this.emptyData;
-	    }
-	    return data;
-	}
+
+    @Override
+    public Boosts getBoosts(DocId documentId) {
+        DynamicData data = dynamicDataMap.get(documentId);
+        if (data == null) {
+            logger.warn("Failed to find boosts for document " + documentId);
+            return this.emptyData;
+        }
+        return data;
+    }
 
     public Map<Integer, Double> getVariablesAsMap(DocId documentId) {
         DynamicData data = dynamicDataMap.get(documentId);
@@ -149,124 +148,124 @@ public class DynamicDataManager implements BoostsManager {
         } catch (IllegalArgumentException e) {
             logger.warn(e.getMessage());
         }
-        return ImmutableMap.of(); 
+        return ImmutableMap.of();
     }
 
-	public int getNumberOfBoosts() {
-		return numberOfBoosts;
-	}
-	
-	@Override
-	public int getDocumentCount() {
-		return dynamicDataMap.size();
-	}
+    public int getNumberOfBoosts() {
+        return numberOfBoosts;
+    }
 
-	DynamicData getDynamicData(DocId docId) {
-		return dynamicDataMap.get(docId);
-	}
-	
-	@Override
-	public void removeBoosts(String documentId) {
-		dynamicDataMap.remove(new DocId(documentId));
-	}
+    @Override
+    public int getDocumentCount() {
+        return dynamicDataMap.size();
+    }
 
-	@Override
-	public void setBoosts(String documentId, Map<Integer, Float> boosts) {
-		setBoosts(documentId, null, boosts);
-	}
-	
+    DynamicData getDynamicData(DocId docId) {
+        return dynamicDataMap.get(docId);
+    }
+
+    @Override
+    public void removeBoosts(String documentId) {
+        dynamicDataMap.remove(new DocId(documentId));
+    }
+
+    @Override
+    public void setBoosts(String documentId, Map<Integer, Float> boosts) {
+        setBoosts(documentId, null, boosts);
+    }
+
     public void setCategoryValues(String documentId, Map<String, String> categories) {
-    	DynamicData data = getOrCreateData(documentId);
+        DynamicData data = getOrCreateData(documentId);
         for (Map.Entry<String, String> entry : categories.entrySet()) {
             CategoryValueInfo catInfo = maskManager.getCategoryValueInfo(entry.getKey(), entry.getValue());
             if (catInfo != null) {
-            	data.setCategoryValue(catInfo.getBitmask(), catInfo.getValueCode());
+                data.setCategoryValue(catInfo.getBitmask(), catInfo.getValueCode());
             }
         }
     }
 
     public Map<String, String> getCategoryValues(DocId documentId) {
-    	DynamicData data = dynamicDataMap.get(documentId);
-    	if (null == data) {
-    		throw new IllegalArgumentException("no data for document " + documentId);
-    	}
-    	Map<String, String> results = Maps.newHashMap();
-    	
-    	Map<String, CategoryInfo> categoryInfos = maskManager.getCategoryInfos();
-    	
-    	for (Entry<String, CategoryInfo> entry : categoryInfos.entrySet()) {
-    		CategoryInfo categoryInfo = entry.getValue();
-    		int valueCode = data.getCategoryValue(categoryInfo.getBitmask());
-    		if (valueCode != 0) {
-    			results.put(entry.getKey(), categoryInfo.getValue(valueCode));
-    		}
-    	}
-    	
-    	return results;
+        DynamicData data = dynamicDataMap.get(documentId);
+        if (null == data) {
+            throw new IllegalArgumentException("no data for document " + documentId);
+        }
+        Map<String, String> results = Maps.newHashMap();
+
+        Map<String, CategoryInfo> categoryInfos = maskManager.getCategoryInfos();
+
+        for (Entry<String, CategoryInfo> entry : categoryInfos.entrySet()) {
+            CategoryInfo categoryInfo = entry.getValue();
+            int valueCode = data.getCategoryValue(categoryInfo.getBitmask());
+            if (valueCode != 0) {
+                results.put(entry.getKey(), categoryInfo.getValue(valueCode));
+            }
+        }
+
+        return results;
     }
 
     public interface FacetsCollector {
-    	public void addCategoryValue(String category, Integer valueCode);
+        public void addCategoryValue(String category, Integer valueCode);
     }
-    
-    public void populateCollector(DocId documentId, FacetsCollector collector) {
-    	DynamicData data = dynamicDataMap.get(documentId);
-    	if (null == data) {
-    		throw new IllegalArgumentException("no data for document " + documentId);
-    	}
-    	Map<String, CategoryInfo> categoryInfos = maskManager.getCategoryInfos();
-    	
-    	for (Entry<String, CategoryInfo> entry : categoryInfos.entrySet()) {
-    		CategoryInfo categoryInfo = entry.getValue();
-    		int valueCode = data.getCategoryValue(categoryInfo.getBitmask());
-    		if (valueCode != 0) {
-    			collector.addCategoryValue(entry.getKey(), valueCode);
-    		}
-    	}
-    	
-    }
-    
-    public CategoryMaskManager getMaskManager() {
-    	return maskManager;
-    }
-    
-    
-	@Override
-	public void setBoosts(String documentId, Integer timestamp, Map<Integer, Float> boosts) {
-		Preconditions.checkNotNull(documentId);
 
-		for (Integer index : boosts.keySet()) {
-			if (index >= numberOfBoosts || index < 0) {
-				throw new IllegalArgumentException("Invalid boost index (" + index + " for a Scorer with a maximum of " + numberOfBoosts + " boosts)");
-			}
-		}
-		DynamicData data = getOrCreateData(documentId);
-		for (Entry<Integer, Float> entry : boosts.entrySet()) {
-			data.setBoost(entry.getKey(), entry.getValue());
-		}
-		if (timestamp != null) {
+    public void populateCollector(DocId documentId, FacetsCollector collector) {
+        DynamicData data = dynamicDataMap.get(documentId);
+        if (null == data) {
+            throw new IllegalArgumentException("no data for document " + documentId);
+        }
+        Map<String, CategoryInfo> categoryInfos = maskManager.getCategoryInfos();
+
+        for (Entry<String, CategoryInfo> entry : categoryInfos.entrySet()) {
+            CategoryInfo categoryInfo = entry.getValue();
+            int valueCode = data.getCategoryValue(categoryInfo.getBitmask());
+            if (valueCode != 0) {
+                collector.addCategoryValue(entry.getKey(), valueCode);
+            }
+        }
+
+    }
+
+    public CategoryMaskManager getMaskManager() {
+        return maskManager;
+    }
+
+
+    @Override
+    public void setBoosts(String documentId, Integer timestamp, Map<Integer, Float> boosts) {
+        Preconditions.checkNotNull(documentId);
+
+        for (Integer index : boosts.keySet()) {
+            if (index >= numberOfBoosts || index < 0) {
+                throw new IllegalArgumentException("Invalid boost index (" + index + " for a Scorer with a maximum of " + numberOfBoosts + " boosts)");
+            }
+        }
+        DynamicData data = getOrCreateData(documentId);
+        for (Entry<Integer, Float> entry : boosts.entrySet()) {
+            data.setBoost(entry.getKey(), entry.getValue());
+        }
+        if (timestamp != null) {
             data.setTimestamp(timestamp);
-		}
-	}
+        }
+    }
 
     private DynamicData getOrCreateData(String docid) {
         DocId key = new DocId(docid);
         DynamicData data = dynamicDataMap.get(key);
-		if (data == null) {
-			data = new DynamicData(numberOfBoosts);
-			
-			DynamicData previousValue = dynamicDataMap.putIfAbsent(key, data);
-			if (previousValue != null) {
-				data = previousValue;
-			}
-		}
+        if (data == null) {
+            data = new DynamicData(numberOfBoosts);
+
+            DynamicData previousValue = dynamicDataMap.putIfAbsent(key, data);
+            if (previousValue != null) {
+                data = previousValue;
+            }
+        }
         return data;
     }
 
     /*
      * Check the synching block 
      */
-    
+
     @Override
     public void dump() throws IOException {
         logger.info("Starting DynamicDataManager's dump.");
@@ -289,25 +288,26 @@ public class DynamicDataManager implements BoostsManager {
     }
 
     private static final int SERIALIZATION_VERSION = 1;
+
     private synchronized void newSyncToDisk() throws IOException {
         File f = new File(backupDir, MAIN_FILE_NAME);
         DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(f)));
         try {
             dos.writeInt(SERIALIZATION_VERSION);
             dos.writeInt(numberOfBoosts);
-            
+
             for (Entry<DocId, DynamicData> entry : dynamicDataMap.entrySet()) {
                 entry.getKey().writeData(dos);
                 entry.getValue().writeData(dos);
             }
             DocId.writeNull(dos);
-            
+
             maskManager.writeData(dos);
         } finally {
             Execute.close(dos);
         }
     }
-    
+
     private synchronized void readFromDisk() {
         File f = new File(backupDir, MAIN_FILE_NAME);
         DataInputStream dis = null;
@@ -317,7 +317,7 @@ public class DynamicDataManager implements BoostsManager {
             if (version > SERIALIZATION_VERSION) {
                 throw new IllegalStateException(String.format("File version is newer than known by this class: %d > %d", version, SERIALIZATION_VERSION));
             }
-            
+
             int fileBoosts = dis.readInt();
             if (numberOfBoosts != fileBoosts) {
                 throw new IllegalStateException(String.format("Incorrect number of boosts in file. Actual: %d, Expected: %d", fileBoosts, numberOfBoosts));
@@ -331,7 +331,7 @@ public class DynamicDataManager implements BoostsManager {
                 DynamicData data = DynamicData.readData(numberOfBoosts, dis);
                 dynamicDataMap.put(docid, data);
             }
-            
+
             maskManager.readData(dis);
         } catch (IOException e) {
             logger.fatal("Error while loading dynamic data", e);
@@ -339,9 +339,9 @@ public class DynamicDataManager implements BoostsManager {
         } finally {
             Execute.close(dis);
         }
-        
+
     }
-    
+
     //----------------------------------------------------------------------------------------
     //STATIC METHODS
     private static void checkDirArgument(File backupDir) {
@@ -363,7 +363,7 @@ public class DynamicDataManager implements BoostsManager {
 
     static class DynamicData implements Serializable, Boosts {
         private static final long serialVersionUID = 1L;
-        
+
         private int[] data; // timestamp = data[0], variables = data[1-n], categories = data[n+1, m]
         private int dataBoundary;
 
@@ -379,39 +379,39 @@ public class DynamicDataManager implements BoostsManager {
                 data[1 + i] = Float.floatToRawIntBits(oldBoosts.boosts[i]);
             }
         }
-    	
+
         public DynamicData(int numberOfBoosts, int[] data) {
             this.data = data;
             this.dataBoundary = numberOfBoosts + 1;
         }
 
         public int[] getData() {
-        	return data;
+            return data;
         }
 
         public Map<Integer, Double> getVariablesAsMap(int numberOfVariables) {
             HashMap<Integer, Double> map = new HashMap<Integer, Double>(numberOfVariables);
-            for(int id = 0; id < numberOfVariables; id++) {
+            for (int id = 0; id < numberOfVariables; id++) {
                 map.put(id, Double.valueOf(getBoost(id)));
             }
             return map;
         }
-        
+
         @Override
-		public float getBoost(int boostIndex) {
-			return Float.intBitsToFloat(data[1 + boostIndex]);
-		}
+        public float getBoost(int boostIndex) {
+            return Float.intBitsToFloat(data[1 + boostIndex]);
+        }
 
         public void setBoost(int boostIndex, float boostValue) {
             data[1 + boostIndex] = Float.floatToRawIntBits(boostValue);
         }
 
         public void setCategoryValue(int[] bitmask, int value) {
-        	if (data.length - dataBoundary < bitmask.length) {
-        		int[] newData = new int[bitmask.length + dataBoundary];
-        		System.arraycopy(data, 0, newData, 0, data.length);
-        		data = newData;
-        	}
+            if (data.length - dataBoundary < bitmask.length) {
+                int[] newData = new int[bitmask.length + dataBoundary];
+                System.arraycopy(data, 0, newData, 0, data.length);
+                data = newData;
+            }
             data = CategoryEncoder.encode(data, dataBoundary, bitmask, value);
         }
 
@@ -420,14 +420,14 @@ public class DynamicDataManager implements BoostsManager {
         }
 
         @Override
-		public int getTimestamp() {
-			return data[0];
-		}
+        public int getTimestamp() {
+            return data[0];
+        }
 
         public void setTimestamp(int timestamp) {
             data[0] = timestamp;
         }
-        
+
         void writeData(DataOutputStream dos) throws IOException {
             int len = data.length;
             dos.writeInt(len);
@@ -444,14 +444,15 @@ public class DynamicDataManager implements BoostsManager {
             }
             return new DynamicData(numberOfBoosts, data);
         }
-        
-        
+
+
     }
-    
+
     private class SyncerThread extends Thread {
         public SyncerThread() {
             setName("DynamicDataManager's syncer thread");
         }
+
         @Override
         public void run() {
             try {
@@ -461,12 +462,12 @@ public class DynamicDataManager implements BoostsManager {
             }
         }
     }
-    
+
     public static void main(String[] args) {
         int boosts = Integer.parseInt(args[0]);
         DynamicDataManager ddm = new DynamicDataManager(boosts, new File(args[1]));
         System.out.println("Count: " + ddm.getDocumentCount());
-        
+
         Scanner in = new Scanner(System.in);
 
         while (in.hasNextLine()) {
@@ -475,7 +476,7 @@ public class DynamicDataManager implements BoostsManager {
             DynamicData data = ddm.getDynamicData(docId);
             System.out.println("timestamp: " + data.getTimestamp());
             for (int i = 0; i < boosts; i++) {
-                System.out.println("var["+i+"]: " + data.getBoost(i));
+                System.out.println("var[" + i + "]: " + data.getBoost(i));
             }
             System.out.println(ddm.getCategoryValues(docId));
         }

@@ -23,10 +23,10 @@ import com.flaptor.indextank.util.SkippableIterable;
 import com.flaptor.indextank.util.SkippableIterator;
 
 final class AndMerger2 extends AbstractSkippableIterable<RawMatch> {
-	
-	AndMerger2(SkippableIterable<RawMatch> l, SkippableIterable<RawMatch> r, double boost) {
-	    this.left = l;
-	    this.right = r;
+
+    AndMerger2(SkippableIterable<RawMatch> l, SkippableIterable<RawMatch> r, double boost) {
+        this.left = l;
+        this.right = r;
         this.boost = boost;
     }
 
@@ -39,17 +39,17 @@ final class AndMerger2 extends AbstractSkippableIterable<RawMatch> {
         return new AbstractSkippableIterator<RawMatch>() {
             private PeekingSkippableIterator<RawMatch> it1 = new PeekingSkippableIterator<RawMatch>(left.iterator());
             private PeekingSkippableIterator<RawMatch> it2 = new PeekingSkippableIterator<RawMatch>(right.iterator());
-            
+
             @Override
             protected RawMatch computeNext() {
                 while (true) {
                     if (!it1.hasNext()) return endOfData();
                     if (!it2.hasNext()) return endOfData();
-                    
+
                     RawMatch t1 = it1.peek();
                     RawMatch t2 = it2.peek();
                     int c = t1.compareTo(t2);
-                    
+
                     if (c == 0) {
                         it1.next();
                         it2.next();
@@ -66,7 +66,7 @@ final class AndMerger2 extends AbstractSkippableIterable<RawMatch> {
                     }
                 }
             }
-            
+
             @Override
             public void skipTo(int i) {
                 it1.skipTo(i);

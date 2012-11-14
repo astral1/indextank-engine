@@ -23,11 +23,11 @@ package org.cojen.classfile;
  */
 public class FixedLocation implements Location {
     private int mLocation;
-    
+
     public FixedLocation(int location) {
         mLocation = location;
     }
-    
+
     public int getLocation() {
         return mLocation;
     }
@@ -36,10 +36,10 @@ public class FixedLocation implements Location {
         if (this == other) {
             return 0;
         }
-        
+
         int loca = getLocation();
         int locb = other.getLocation();
-        
+
         if (loca < locb) {
             return -1;
         } else if (loca > locb) {

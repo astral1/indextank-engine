@@ -21,6 +21,6 @@ import com.flaptor.indextank.index.term.query.RawMatch;
 
 public interface RawMatchesDecoder {
 
-	public abstract Iterable<ScoredMatch> decode(Iterable<RawMatch> rawMatches, double norm);
+    public abstract Iterable<ScoredMatch> decode(Iterable<RawMatch> rawMatches, double norm);
 
 }

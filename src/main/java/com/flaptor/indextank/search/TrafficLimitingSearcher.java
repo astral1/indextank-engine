@@ -16,14 +16,13 @@
 
 package com.flaptor.indextank.search;
 
-import java.util.Map;
-import java.util.concurrent.Semaphore;
-
-import org.apache.log4j.Logger;
-
 import com.flaptor.indextank.query.Query;
 import com.flaptor.util.Execute;
 import com.google.common.base.Preconditions;
+import org.apache.log4j.Logger;
+
+import java.util.Map;
+import java.util.concurrent.Semaphore;
 
 
 public class TrafficLimitingSearcher extends AbstractDocumentSearcher {
@@ -39,11 +38,11 @@ public class TrafficLimitingSearcher extends AbstractDocumentSearcher {
     }
 
     /**
-     * @param searcher the delegate DocumentSearcher
+     * @param searcher             the delegate DocumentSearcher
      * @param maxSearchQueueLength max allowed search queue length, or 0 for no waiters allowed
      */
     public TrafficLimitingSearcher(DocumentSearcher searcher, int maxSearchQueueLength) {
-		Preconditions.checkNotNull(searcher);
+        Preconditions.checkNotNull(searcher);
         Preconditions.checkArgument(maxSearchQueueLength >= 0);
         this.delegate = searcher;
         this.maxSearchQueueLength = maxSearchQueueLength;

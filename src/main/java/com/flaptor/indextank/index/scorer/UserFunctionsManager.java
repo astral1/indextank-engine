@@ -16,19 +16,18 @@
 
 package com.flaptor.indextank.index.scorer;
 
-import java.util.Collections;
-import java.util.Map;
-
-import org.apache.log4j.Logger;
-
 import com.flaptor.indextank.index.scorer.parser.ParserException;
 import com.flaptor.indextank.index.scorer.parser.ScoreFormulaParser;
 import com.flaptor.indextank.rpc.IndextankException;
 import com.flaptor.util.Execute;
 import com.google.common.collect.Maps;
+import org.apache.log4j.Logger;
+
+import java.util.Collections;
+import java.util.Map;
 
 public class UserFunctionsManager {
- 	private static final Logger logger = Logger.getLogger(Execute.whoAmI());
+    private static final Logger logger = Logger.getLogger(Execute.whoAmI());
     private Scorer scorer = null;
     private Map<Integer, String> definitions = null;
 
@@ -38,11 +37,11 @@ public class UserFunctionsManager {
     }
 
     /**
-	 * Add a scoring function definition for the given index.
-	 *
-	 * @param functionIndex scoring function index
-	 * @param definition scoring function definition
-	 */
+     * Add a scoring function definition for the given index.
+     *
+     * @param functionIndex scoring function index
+     * @param definition    scoring function definition
+     */
     public void addFunction(Integer functionIndex, String definition) throws Exception {
         try {
             ScoreFunction function = ScoreFormulaParser.parseFormula(functionIndex, definition);
@@ -58,7 +57,7 @@ public class UserFunctionsManager {
         definitions.remove(functionIndex);
     }
 
-    public Map<Integer,String> listFunctions() {
+    public Map<Integer, String> listFunctions() {
         return Collections.unmodifiableMap(definitions);
     }
 

@@ -16,22 +16,23 @@
 
 package org.cojen.classfile.constant;
 
-import java.io.DataOutput;
-import java.io.IOException;
 import org.cojen.classfile.ConstantInfo;
 import org.cojen.classfile.ConstantPool;
 import org.cojen.classfile.TypeDesc;
 
+import java.io.DataOutput;
+import java.io.IOException;
+
 /**
  * This class corresponds to the CONSTANT_Class_info structure as defined in
  * section 4.4.1 of <i>The Java Virtual Machine Specification</i>.
- * 
+ *
  * @author Brian S O'Neill
  */
 public class ConstantClassInfo extends ConstantInfo {
     private final TypeDesc mType;
     private final ConstantUTFInfo mNameConstant;
-    
+
     public ConstantClassInfo(ConstantUTFInfo nameConstant) {
         super(TAG_CLASS);
         String name = nameConstant.getValue();
@@ -49,7 +50,7 @@ public class ConstantClassInfo extends ConstantInfo {
         mType = TypeDesc.forClass(className);
         mNameConstant = cp.addConstantUTF(desc);
     }
-    
+
     /**
      * Used to describe an array class.
      */
@@ -68,7 +69,7 @@ public class ConstantClassInfo extends ConstantInfo {
         mType = type;
         mNameConstant = cp.addConstantUTF(desc);
     }
-    
+
     public ConstantClassInfo(ConstantPool cp, TypeDesc type) {
         super(TAG_CLASS);
         String desc;
@@ -88,18 +89,18 @@ public class ConstantClassInfo extends ConstantInfo {
     public int hashCode() {
         return mType.hashCode();
     }
-    
+
     public boolean equals(Object obj) {
         if (this == obj) {
             return true;
         }
         if (obj instanceof ConstantClassInfo) {
-            ConstantClassInfo other = (ConstantClassInfo)obj;
+            ConstantClassInfo other = (ConstantClassInfo) obj;
             return mType.equals(other.mType);
         }
         return false;
     }
-    
+
     public void writeTo(DataOutput dout) throws IOException {
         super.writeTo(dout);
         dout.writeShort(mNameConstant.getIndex());

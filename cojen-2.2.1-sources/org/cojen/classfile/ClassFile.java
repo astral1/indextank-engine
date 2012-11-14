@@ -16,21 +16,6 @@
 
 package org.cojen.classfile;
 
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.Set;
-import java.util.HashSet;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.HashMap;
-import java.io.DataInput;
-import java.io.DataInputStream;
-import java.io.DataOutput;
-import java.io.DataOutputStream;
-import java.io.InputStream;
-import java.io.IOException;
-import java.io.OutputStream;
 import org.cojen.classfile.attribute.Annotation;
 import org.cojen.classfile.attribute.AnnotationsAttr;
 import org.cojen.classfile.attribute.DeprecatedAttr;
@@ -42,14 +27,30 @@ import org.cojen.classfile.attribute.SourceFileAttr;
 import org.cojen.classfile.attribute.SyntheticAttr;
 import org.cojen.classfile.constant.ConstantClassInfo;
 
+import java.io.DataInput;
+import java.io.DataInputStream;
+import java.io.DataOutput;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 /**
  * A class used to create Java class files. Call the writeTo method
  * to produce a class file.
- *
+ * <p/>
  * <p>See <i>The Java Virtual Machine Specification</i> (ISBN 0-201-63452-X)
  * for information on how class files are structured. Section 4.1 describes
  * the ClassFile structure.
- * 
+ *
  * @author Brian S O'Neill
  */
 public class ClassFile {
@@ -60,11 +61,11 @@ public class ClassFile {
      * classes cannot be loaded, and custom attributes cannot be defined.
      *
      * @param in source of class file data
-     * @throws IOException for I/O error or if classfile is invalid.
+     * @throws IOException                    for I/O error or if classfile is invalid.
      * @throws ArrayIndexOutOfBoundsException if a constant pool index is out
-     * of range.
-     * @throws ClassCastException if a constant pool index references the
-     * wrong type.
+     *                                        of range.
+     * @throws ClassCastException             if a constant pool index references the
+     *                                        wrong type.
      */
     public static ClassFile readFrom(InputStream in) throws IOException {
         return readFrom(in, null, null);
@@ -75,11 +76,11 @@ public class ClassFile {
      * classes cannot be loaded, and custom attributes cannot be defined.
      *
      * @param din source of class file data
-     * @throws IOException for I/O error or if classfile is invalid.
+     * @throws IOException                    for I/O error or if classfile is invalid.
      * @throws ArrayIndexOutOfBoundsException if a constant pool index is out
-     * of range.
-     * @throws ClassCastException if a constant pool index references the
-     * wrong type.
+     *                                        of range.
+     * @throws ClassCastException             if a constant pool index references the
+     *                                        wrong type.
      */
     public static ClassFile readFrom(DataInput din) throws IOException {
         return readFrom(din, null, null);
@@ -92,24 +93,23 @@ public class ClassFile {
      * provided, which allows non-standard attributes to be read. All
      * remaining unknown attribute types are captured, but are not decoded.
      *
-     * @param in source of class file data
-     * @param loader optional loader for reading inner class definitions
+     * @param in          source of class file data
+     * @param loader      optional loader for reading inner class definitions
      * @param attrFactory optional factory for reading custom attributes
-     * @throws IOException for I/O error or if classfile is invalid.
+     * @throws IOException                    for I/O error or if classfile is invalid.
      * @throws ArrayIndexOutOfBoundsException if a constant pool index is out
-     * of range.
-     * @throws ClassCastException if a constant pool index references the
-     * wrong type.
+     *                                        of range.
+     * @throws ClassCastException             if a constant pool index references the
+     *                                        wrong type.
      */
     public static ClassFile readFrom(InputStream in,
                                      ClassFileDataLoader loader,
                                      AttributeFactory attrFactory)
-        throws IOException
-    {
+            throws IOException {
         if (!(in instanceof DataInput)) {
             in = new DataInputStream(in);
         }
-        return readFrom((DataInput)in, loader, attrFactory);
+        return readFrom((DataInput) in, loader, attrFactory);
     }
 
     /**
@@ -119,38 +119,36 @@ public class ClassFile {
      * provided, which allows non-standard attributes to be read. All
      * remaining unknown attribute types are captured, but are not decoded.
      *
-     * @param din source of class file data
-     * @param loader optional loader for reading inner class definitions
+     * @param din         source of class file data
+     * @param loader      optional loader for reading inner class definitions
      * @param attrFactory optional factory for reading custom attributes
-     * @throws IOException for I/O error or if classfile is invalid.
+     * @throws IOException                    for I/O error or if classfile is invalid.
      * @throws ArrayIndexOutOfBoundsException if a constant pool index is out
-     * of range.
-     * @throws ClassCastException if a constant pool index references the
-     * wrong type.
+     *                                        of range.
+     * @throws ClassCastException             if a constant pool index references the
+     *                                        wrong type.
      */
     public static ClassFile readFrom(DataInput din,
                                      ClassFileDataLoader loader,
                                      AttributeFactory attrFactory)
-        throws IOException
-    {
+            throws IOException {
         return readFrom(din, loader, attrFactory, new HashMap<String, ClassFile>(11), null);
     }
 
     /**
      * @param loadedClassFiles Maps name to ClassFiles for classes already
-     * loaded. This prevents infinite loop: inner loads outer loads inner...
+     *                         loaded. This prevents infinite loop: inner loads outer loads inner...
      */
     private static ClassFile readFrom(DataInput din,
                                       ClassFileDataLoader loader,
                                       AttributeFactory attrFactory,
                                       Map<String, ClassFile> loadedClassFiles,
                                       ClassFile outerClass)
-        throws IOException
-    {
+            throws IOException {
         int magic = din.readInt();
         if (magic != MAGIC) {
-            throw new IOException("Incorrect magic number: 0x" + 
-                                  Integer.toHexString(magic));
+            throw new IOException("Incorrect magic number: 0x" +
+                    Integer.toHexString(magic));
         }
 
         short minor = din.readShort();
@@ -158,15 +156,15 @@ public class ClassFile {
 
         ConstantPool cp = ConstantPool.readFrom(din);
         Modifiers modifiers = Modifiers.getInstance(din.readUnsignedShort())
-            .toSynchronized(false);
+                .toSynchronized(false);
 
         int index = din.readUnsignedShort();
-        ConstantClassInfo thisClass = (ConstantClassInfo)cp.getConstant(index);
+        ConstantClassInfo thisClass = (ConstantClassInfo) cp.getConstant(index);
 
         index = din.readUnsignedShort();
         ConstantClassInfo superClass = null;
         if (index > 0) {
-            superClass = (ConstantClassInfo)cp.getConstant(index);
+            superClass = (ConstantClassInfo) cp.getConstant(index);
         }
 
         ClassFile cf = new ClassFile(cp, modifiers, thisClass, superClass, outerClass);
@@ -175,38 +173,38 @@ public class ClassFile {
 
         // Read interfaces.
         int size = din.readUnsignedShort();
-        for (int i=0; i<size; i++) {
+        for (int i = 0; i < size; i++) {
             index = din.readUnsignedShort();
-            ConstantClassInfo info = (ConstantClassInfo)cp.getConstant(index);
+            ConstantClassInfo info = (ConstantClassInfo) cp.getConstant(index);
             cf.addInterface(info.getType().getRootName());
         }
-        
+
         // Read fields.
         size = din.readUnsignedShort();
-        for (int i=0; i<size; i++) {
+        for (int i = 0; i < size; i++) {
             cf.mFields.add(FieldInfo.readFrom(cf, din, attrFactory));
         }
-        
+
         // Read methods.
         size = din.readUnsignedShort();
-        for (int i=0; i<size; i++) {
+        for (int i = 0; i < size; i++) {
             cf.mMethods.add(MethodInfo.readFrom(cf, din, attrFactory));
         }
 
         // Read attributes.
         size = din.readUnsignedShort();
-        for (int i=0; i<size; i++) {
+        for (int i = 0; i < size; i++) {
             Attribute attr = Attribute.readFrom(cp, din, attrFactory);
             cf.addAttribute(attr);
             if (attr instanceof InnerClassesAttr) {
-                cf.mInnerClassesAttr = (InnerClassesAttr)attr;
+                cf.mInnerClassesAttr = (InnerClassesAttr) attr;
             }
         }
 
         // Load inner and outer classes.
         if (cf.mInnerClassesAttr != null && loader != null) {
             InnerClassesAttr.Info[] infos = cf.mInnerClassesAttr.getInnerClassesInfo();
-            for (int i=0; i<infos.length; i++) {
+            for (int i = 0; i < infos.length; i++) {
                 InnerClassesAttr.Info info = infos[i];
 
                 if (thisClass.equals(info.getInnerClass())) {
@@ -217,23 +215,23 @@ public class ClassFile {
                     ConstantClassInfo outer = info.getOuterClass();
                     if (cf.mOuterClass == null && outer != null) {
                         cf.mOuterClass = readOuterClass
-                            (outer, loader, attrFactory, loadedClassFiles);
+                                (outer, loader, attrFactory, loadedClassFiles);
                     }
                     Modifiers innerFlags = info.getModifiers();
                     cf.mModifiers = cf.mModifiers
-                        .toStatic(innerFlags.isStatic())
-                        .toPrivate(innerFlags.isPrivate())
-                        .toProtected(innerFlags.isProtected())
-                        .toPublic(innerFlags.isPublic());
+                            .toStatic(innerFlags.isStatic())
+                            .toPrivate(innerFlags.isPrivate())
+                            .toProtected(innerFlags.isProtected())
+                            .toPublic(innerFlags.isPublic());
                 } else if (info.getOuterClass() == null ||
-                           thisClass.equals(info.getOuterClass())) {
+                        thisClass.equals(info.getOuterClass())) {
 
                     // This class is an outer class.
                     ConstantClassInfo inner = info.getInnerClass();
                     if (inner != null) {
                         ClassFile innerClass = readInnerClass
-                            (inner, loader, attrFactory, loadedClassFiles, cf);
-                        
+                                (inner, loader, attrFactory, loadedClassFiles, cf);
+
                         if (innerClass != null) {
                             if (innerClass.getInnerClassName() != null) {
                                 innerClass.mInnerClassName = info.getInnerClassName().getValue();
@@ -255,8 +253,7 @@ public class ClassFile {
                                             ClassFileDataLoader loader,
                                             AttributeFactory attrFactory,
                                             Map<String, ClassFile> loadedClassFiles)
-        throws IOException
-    {
+            throws IOException {
         String name = outer.getType().getRootName();
 
         ClassFile outerClass = loadedClassFiles.get(name);
@@ -273,7 +270,7 @@ public class ClassFile {
             in = new DataInputStream(in);
         }
 
-        return readFrom((DataInput)in, loader, attrFactory, loadedClassFiles, null);
+        return readFrom((DataInput) in, loader, attrFactory, loadedClassFiles, null);
     }
 
     private static ClassFile readInnerClass(ConstantClassInfo inner,
@@ -281,8 +278,7 @@ public class ClassFile {
                                             AttributeFactory attrFactory,
                                             Map<String, ClassFile> loadedClassFiles,
                                             ClassFile outerClass)
-        throws IOException
-    {
+            throws IOException {
         String name = inner.getType().getRootName();
 
         // Prevent cycles in inner class structure.
@@ -308,11 +304,12 @@ public class ClassFile {
             in = new DataInputStream(in);
         }
 
-        return readFrom((DataInput)in, loader, attrFactory, loadedClassFiles, outerClass);
+        return readFrom((DataInput) in, loader, attrFactory, loadedClassFiles, outerClass);
     }
 
     private int mVersion;
     private String mTarget;
+
     {
         setTarget(null);
     }
@@ -323,19 +320,19 @@ public class ClassFile {
     private TypeDesc mType;
 
     private ConstantPool mCp;
-    
+
     private Modifiers mModifiers;
 
     private ConstantClassInfo mThisClass;
     private ConstantClassInfo mSuperClass;
-    
+
     private List<ConstantClassInfo> mInterfaces = new ArrayList<ConstantClassInfo>(2);
     private Set<String> mInterfaceSet = new HashSet<String>(7);
-    
+
     private List<FieldInfo> mFields = new ArrayList<FieldInfo>();
     private List<MethodInfo> mMethods = new ArrayList<MethodInfo>();
     private List<Attribute> mAttributes = new ArrayList<Attribute>();
-    
+
     private SourceFileAttr mSource;
 
     private List<ClassFile> mInnerClasses;
@@ -345,27 +342,27 @@ public class ClassFile {
     // Is non-null for inner classes.
     private ClassFile mOuterClass;
 
-    /** 
+    /**
      * By default, the ClassFile defines public, non-final, concrete classes.
      * This constructor creates a ClassFile for a class that extends
      * java.lang.Object.
-     * <p>
+     * <p/>
      * Use the {@link #setModifiers} method to change the access modifiers of
      * this class or to turn it into an interface.
      *
      * @param className Full class name of the form ex: "java.lang.String".
      */
     public ClassFile(String className) {
-        this(className, (String)null);
+        this(className, (String) null);
     }
-    
-    /** 
+
+    /**
      * By default, the ClassFile defines public, non-final, concrete classes.
-     * <p>
+     * <p/>
      * Use the {@link #setModifiers} method to change the access modifiers of
      * this class or to turn it into an interface.
      *
-     * @param className Full class name of the form ex: "java.lang.String".
+     * @param className  Full class name of the form ex: "java.lang.String".
      * @param superClass Super class or interface.
      */
     public ClassFile(String className, Class superClass) {
@@ -375,13 +372,13 @@ public class ClassFile {
         }
     }
 
-    /** 
+    /**
      * By default, the ClassFile defines public, non-final, concrete classes.
-     * <p>
+     * <p/>
      * Use the {@link #setModifiers} method to change the access modifiers of
      * this class or to turn it into an interface.
      *
-     * @param className Full class name of the form ex: "java.lang.String".
+     * @param className      Full class name of the form ex: "java.lang.String".
      * @param superClassName Full super class name.
      */
     public ClassFile(String className, String superClassName) {
@@ -457,7 +454,7 @@ public class ClassFile {
         int size = mInterfaces.size();
         String[] names = new String[size];
 
-        for (int i=0; i<size; i++) {
+        for (int i = 0; i < size; i++) {
             names[i] = mInterfaces.get(i).getType().getRootName();
         }
 
@@ -479,7 +476,7 @@ public class ClassFile {
         int size = mMethods.size();
         List<MethodInfo> methodsOnly = new ArrayList<MethodInfo>(size);
 
-        for (int i=0; i<size; i++) {
+        for (int i = 0; i < size; i++) {
             MethodInfo method = mMethods.get(i);
             String name = method.getName();
             if (!"<init>".equals(name) && !"<clinit>".equals(name)) {
@@ -497,7 +494,7 @@ public class ClassFile {
         int size = mMethods.size();
         List<MethodInfo> ctorsOnly = new ArrayList<MethodInfo>(size);
 
-        for (int i=0; i<size; i++) {
+        for (int i = 0; i < size; i++) {
             MethodInfo method = mMethods.get(i);
             if ("<init>".equals(method.getName())) {
                 ctorsOnly.add(method);
@@ -514,7 +511,7 @@ public class ClassFile {
     public MethodInfo getInitializer() {
         int size = mMethods.size();
 
-        for (int i=0; i<size; i++) {
+        for (int i = 0; i < size; i++) {
             MethodInfo method = mMethods.get(i);
             if ("<clinit>".equals(method.getName())) {
                 return method;
@@ -717,14 +714,14 @@ public class ClassFile {
             mInterfaceSet.add(interfaceName);
         }
     }
-    
+
     /**
      * Add an interface that this class implements.
      */
     public void addInterface(Class i) {
         addInterface(i.getName());
     }
-    
+
     /**
      * Add a field to this class.
      */
@@ -735,11 +732,11 @@ public class ClassFile {
         mFields.add(fi);
         return fi;
     }
-    
+
     /**
      * Add a method to this class.
      *
-     * @param ret Is null if method returns void.
+     * @param ret    Is null if method returns void.
      * @param params May be null if method accepts no parameters.
      */
     public MethodInfo addMethod(Modifiers modifiers,
@@ -768,10 +765,10 @@ public class ClassFile {
     public MethodInfo addMethod(Method method) {
         Modifiers modifiers = Modifiers.getInstance(method.getModifiers()).toAbstract(false);
         MethodInfo mi = addMethod(modifiers, method.getName(), MethodDesc.forMethod(method));
-        
+
         // exception stuff...
         Class[] exceptions = method.getExceptionTypes();
-        for (int i=0; i<exceptions.length; i++) {
+        for (int i = 0; i < exceptions.length; i++) {
             mi.addException(TypeDesc.forClass(exceptions[i]));
         }
 
@@ -787,7 +784,7 @@ public class ClassFile {
     public MethodInfo addMethod(String declaration) {
         MethodDeclarationParser p = new MethodDeclarationParser(declaration);
         return addMethod(p.getModifiers(), p.getMethodName(),
-                         p.getReturnType(), p.getParameters());
+                p.getReturnType(), p.getParameters());
     }
 
     /**
@@ -831,10 +828,10 @@ public class ClassFile {
      * static.
      *
      * @param fullInnerClassName Optional full inner class name.
-     * @param innerClassName Optional short inner class name.
+     * @param innerClassName     Optional short inner class name.
      */
     public ClassFile addInnerClass(String fullInnerClassName, String innerClassName) {
-        return addInnerClass(fullInnerClassName, innerClassName, (String)null);
+        return addInnerClass(fullInnerClassName, innerClassName, (String) null);
     }
 
     /**
@@ -842,8 +839,8 @@ public class ClassFile {
      * static.
      *
      * @param fullInnerClassName Optional full inner class name.
-     * @param innerClassName Optional short inner class name.
-     * @param superClass Super class.
+     * @param innerClassName     Optional short inner class name.
+     * @param superClass         Super class.
      */
     public ClassFile addInnerClass(String fullInnerClassName, String innerClassName,
                                    Class superClass) {
@@ -855,10 +852,10 @@ public class ClassFile {
      * static.
      *
      * @param fullInnerClassName Optional full inner class name.
-     * @param innerClassName Optional short inner class name.
-     * @param superClassName Full super class name.
+     * @param innerClassName     Optional short inner class name.
+     * @param superClassName     Full super class name.
      */
-    public ClassFile addInnerClass(String fullInnerClassName, String innerClassName, 
+    public ClassFile addInnerClass(String fullInnerClassName, String innerClassName,
                                    String superClassName) {
         if (fullInnerClassName == null) {
             if (innerClassName == null) {
@@ -879,7 +876,7 @@ public class ClassFile {
         }
 
         mInnerClasses.add(inner);
-        
+
         // Record the inner class in this, the outer class.
         if (mInnerClassesAttr == null) {
             addAttribute(new InnerClassesAttr(mCp));
@@ -888,13 +885,13 @@ public class ClassFile {
         // TODO: Anonymous inner classes and method scoped classes do not have
         // an outer class listed.
 
-        mInnerClassesAttr.addInnerClass(fullInnerClassName, mClassName, 
-                                        innerClassName, modifiers);
+        mInnerClassesAttr.addInnerClass(fullInnerClassName, mClassName,
+                innerClassName, modifiers);
 
         // Record the inner class in itself.
         inner.addAttribute(new InnerClassesAttr(inner.getConstantPool()));
         inner.mInnerClassesAttr.addInnerClass(fullInnerClassName, mClassName,
-                                              innerClassName, modifiers);
+                innerClassName, modifiers);
 
         return inner;
     }
@@ -930,12 +927,12 @@ public class ClassFile {
             if (mSource != null) {
                 mAttributes.remove(mSource);
             }
-            mSource = (SourceFileAttr)attr;
+            mSource = (SourceFileAttr) attr;
         } else if (attr instanceof InnerClassesAttr) {
             if (mInnerClassesAttr != null) {
                 mAttributes.remove(mInnerClassesAttr);
             }
-            mInnerClassesAttr = (InnerClassesAttr)attr;
+            mInnerClassesAttr = (InnerClassesAttr) attr;
         }
 
         mAttributes.add(attr);
@@ -957,27 +954,34 @@ public class ClassFile {
         int major, minor;
 
         if (target == null || "1.0".equals(target) || "1.1".equals(target)) {
-            major = 45; minor = 3;
+            major = 45;
+            minor = 3;
             if (target == null) {
                 target = "1.0";
             }
         } else if ("1.2".equals(target)) {
-            major = 46; minor = 0;
+            major = 46;
+            minor = 0;
         } else if ("1.3".equals(target)) {
-            major = 47; minor = 0;
+            major = 47;
+            minor = 0;
         } else if ("1.4".equals(target)) {
-            major = 48; minor = 0;
+            major = 48;
+            minor = 0;
         } else if ("1.5".equals(target)) {
-            major = 49; minor = 0;
+            major = 49;
+            minor = 0;
         } else if ("1.6".equals(target)) {
-            major = 50; minor = 0;
+            major = 50;
+            minor = 0;
         } else if ("1.7".equals(target)) {
-            major = 51; minor = 0;
+            major = 51;
+            minor = 0;
         } else {
             throw new IllegalArgumentException
-                ("Unsupported target version: " + target);
+                    ("Unsupported target version: " + target);
         }
-        
+
         mVersion = (minor << 16) | (major & 0xffff);
         mTarget = target.intern();
     }
@@ -1002,30 +1006,30 @@ public class ClassFile {
 
         String target;
         switch (major) {
-        default:
-            target = null;
-            break;
-        case 45:
-            target = minor == 3 ? "1.0" : null;
-            break;
-        case 46:
-            target = minor == 0 ? "1.2" : null;
-            break;
-        case 47:
-            target = minor == 0 ? "1.3" : null;
-            break;
-        case 48:
-            target = minor == 0 ? "1.4" : null;
-            break;
-        case 49:
-            target = minor == 0 ? "1.5" : null;
-            break;
-        case 50:
-            target = minor == 0 ? "1.6" : null;
-            break;
-        case 51:
-            target = minor == 0 ? "1.7" : null;
-            break;
+            default:
+                target = null;
+                break;
+            case 45:
+                target = minor == 3 ? "1.0" : null;
+                break;
+            case 46:
+                target = minor == 0 ? "1.2" : null;
+                break;
+            case 47:
+                target = minor == 0 ? "1.3" : null;
+                break;
+            case 48:
+                target = minor == 0 ? "1.4" : null;
+                break;
+            case 49:
+                target = minor == 0 ? "1.5" : null;
+                break;
+            case 50:
+                target = minor == 0 ? "1.6" : null;
+                break;
+            case 51:
+                target = minor == 0 ? "1.7" : null;
+                break;
         }
 
         mTarget = target;
@@ -1052,7 +1056,7 @@ public class ClassFile {
         if (!(out instanceof DataOutput)) {
             out = new DataOutputStream(out);
         }
-        writeTo((DataOutput)out);
+        writeTo((DataOutput) out);
     }
 
     /**
@@ -1079,43 +1083,43 @@ public class ClassFile {
         } else {
             dout.writeShort(0);
         }
-        
+
         int size = mInterfaces.size();
         if (size > 65535) {
             throw new IllegalStateException("Interfaces count cannot exceed 65535: " + size);
         }
         dout.writeShort(size);
-        for (int i=0; i<size; i++) {
+        for (int i = 0; i < size; i++) {
             int index = mInterfaces.get(i).getIndex();
             dout.writeShort(index);
         }
-        
+
         size = mFields.size();
         if (size > 65535) {
             throw new IllegalStateException("Field count cannot exceed 65535: " + size);
         }
         dout.writeShort(size);
-        for (int i=0; i<size; i++) {
+        for (int i = 0; i < size; i++) {
             FieldInfo field = mFields.get(i);
             field.writeTo(dout);
         }
-        
+
         size = mMethods.size();
         if (size > 65535) {
             throw new IllegalStateException("Method count cannot exceed 65535: " + size);
         }
         dout.writeShort(size);
-        for (int i=0; i<size; i++) {
+        for (int i = 0; i < size; i++) {
             MethodInfo method = mMethods.get(i);
             method.writeTo(dout);
         }
-        
+
         size = mAttributes.size();
         if (size > 65535) {
             throw new IllegalStateException("Attribute count cannot exceed 65535: " + size);
         }
         dout.writeShort(size);
-        for (int i=0; i<size; i++) {
+        for (int i = 0; i < size; i++) {
             Attribute attr = mAttributes.get(i);
             attr.writeTo(dout);
         }

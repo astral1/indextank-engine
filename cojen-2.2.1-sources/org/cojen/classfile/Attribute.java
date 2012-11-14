@@ -16,9 +16,6 @@
 
 package org.cojen.classfile;
 
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.IOException;
 import org.cojen.classfile.attribute.CodeAttr;
 import org.cojen.classfile.attribute.ConstantValueAttr;
 import org.cojen.classfile.attribute.DeprecatedAttr;
@@ -37,6 +34,10 @@ import org.cojen.classfile.attribute.StackMapTableAttr;
 import org.cojen.classfile.attribute.SyntheticAttr;
 import org.cojen.classfile.attribute.UnknownAttr;
 import org.cojen.classfile.constant.ConstantUTFInfo;
+
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
 
 /**
  * This class corresponds to the attribute_info structure defined in section
@@ -62,17 +63,19 @@ public abstract class Attribute {
     public static final String RUNTIME_VISIBLE_ANNOTATIONS = "RuntimeVisibleAnnotations";
     public static final String RUNTIME_INVISIBLE_ANNOTATIONS = "RuntimeInvisibleAnnotations";
     public static final String RUNTIME_VISIBLE_PARAMETER_ANNOTATIONS =
-        "RuntimeVisibleParamaterAnnotations";
+            "RuntimeVisibleParamaterAnnotations";
     public static final String RUNTIME_INVISIBLE_PARAMETER_ANNOTATIONS =
-        "RuntimeInvisibleParamaterAnnotations";
+            "RuntimeInvisibleParamaterAnnotations";
     public static final String STACK_MAP_TABLE = "StackMapTable";
 
-    /** The ConstantPool that this attribute is defined against. */
+    /**
+     * The ConstantPool that this attribute is defined against.
+     */
     private final ConstantPool mCp;
 
     private String mName;
     private ConstantUTFInfo mNameConstant;
-    
+
     protected Attribute(ConstantPool cp, String name) {
         mCp = cp;
         mName = name;
@@ -85,18 +88,18 @@ public abstract class Attribute {
     public ConstantPool getConstantPool() {
         return mCp;
     }
- 
+
     /**
      * Returns the name of this attribute.
      */
     public String getName() {
         return mName;
     }
-    
+
     public ConstantUTFInfo getNameConstant() {
         return mNameConstant;
     }
-    
+
     /**
      * Some attributes have sub-attributes. Default implementation returns an
      * empty array.
@@ -109,7 +112,7 @@ public abstract class Attribute {
      * Returns the length (in bytes) of this attribute in the class file.
      */
     public abstract int getLength();
-    
+
     /**
      * This method writes the 16 bit name constant index followed by the
      * 32 bit attribute length, followed by the attribute specific data.
@@ -133,10 +136,9 @@ public abstract class Attribute {
     public static Attribute readFrom(ConstantPool cp,
                                      DataInput din,
                                      AttributeFactory attrFactory)
-        throws IOException
-    {
+            throws IOException {
         int index = din.readUnsignedShort();
-        String name = ((ConstantUTFInfo)cp.getConstant(index)).getValue();
+        String name = ((ConstantUTFInfo) cp.getConstant(index)).getValue();
         int length = din.readInt();
 
         attrFactory = new Factory(attrFactory);
@@ -150,65 +152,65 @@ public abstract class Attribute {
             mAttrFactory = attrFactory;
         }
 
-        public Attribute createAttribute(ConstantPool cp, 
+        public Attribute createAttribute(ConstantPool cp,
                                          String name,
                                          int length,
                                          DataInput din) throws IOException {
             if (name.length() > 0) {
                 switch (name.charAt(0)) {
-                case 'C':
-                    if (name.equals(CODE)) {
-                        return new CodeAttr(cp, name, length, din, mAttrFactory);
-                    } else if (name.equals(CONSTANT_VALUE)) {
-                        return new ConstantValueAttr(cp, name, length, din);
-                    }
-                    break;
-                case 'D':
-                    if (name.equals(DEPRECATED)) {
-                        return new DeprecatedAttr(cp, name, length, din);
-                    }
-                    break;
-                case 'E':
-                    if (name.equals(EXCEPTIONS)) {
-                        return new ExceptionsAttr(cp, name, length, din);
-                    } else if (name.equals(ENCLOSING_METHOD)) {
-                        return new EnclosingMethodAttr(cp, name, length, din);
-                    }
-                    break;
-                case 'I':
-                    if (name.equals(INNER_CLASSES)) {
-                        return new InnerClassesAttr(cp, name, length, din);
-                    }
-                    break;
-                case 'L':
-                    if (name.equals(LINE_NUMBER_TABLE)) {
-                        return new LineNumberTableAttr(cp, name, length, din);
-                    } else if (name.equals(LOCAL_VARIABLE_TABLE)) {
-                        return new LocalVariableTableAttr(cp, name, length, din);
-                    }
-                    break;
-                case 'R':
-                    if (name.equals(RUNTIME_VISIBLE_ANNOTATIONS)) {
-                        return new RuntimeVisibleAnnotationsAttr(cp, name, length, din);
-                    } else if (name.equals(RUNTIME_INVISIBLE_ANNOTATIONS)) {
-                        return new RuntimeInvisibleAnnotationsAttr(cp, name, length, din);
-                    } else if (name.equals(RUNTIME_VISIBLE_PARAMETER_ANNOTATIONS)) {
-                        return new RuntimeVisibleParameterAnnotationsAttr(cp, name, length, din);
-                    } else if (name.equals(RUNTIME_INVISIBLE_PARAMETER_ANNOTATIONS)) {
-                        return new RuntimeInvisibleParameterAnnotationsAttr(cp, name, length, din);
-                    }
-                    break;
-                case 'S':
-                    if (name.equals(SOURCE_FILE)) {
-                        return new SourceFileAttr(cp, name, length, din);
-                    } else if (name.equals(SYNTHETIC)) {
-                        return new SyntheticAttr(cp, name, length, din);
-                    } else if (name.equals(SIGNATURE)) {
-                        return new SignatureAttr(cp, name, length, din);
-                    } else if (name.equals(STACK_MAP_TABLE)) {
-                        return new StackMapTableAttr(cp, name, length, din);
-                    }
-                    break;
+                    case 'C':
+                        if (name.equals(CODE)) {
+                            return new CodeAttr(cp, name, length, din, mAttrFactory);
+                        } else if (name.equals(CONSTANT_VALUE)) {
+                            return new ConstantValueAttr(cp, name, length, din);
+                        }
+                        break;
+                    case 'D':
+                        if (name.equals(DEPRECATED)) {
+                            return new DeprecatedAttr(cp, name, length, din);
+                        }
+                        break;
+                    case 'E':
+                        if (name.equals(EXCEPTIONS)) {
+                            return new ExceptionsAttr(cp, name, length, din);
+                        } else if (name.equals(ENCLOSING_METHOD)) {
+                            return new EnclosingMethodAttr(cp, name, length, din);
+                        }
+                        break;
+                    case 'I':
+                        if (name.equals(INNER_CLASSES)) {
+                            return new InnerClassesAttr(cp, name, length, din);
+                        }
+                        break;
+                    case 'L':
+                        if (name.equals(LINE_NUMBER_TABLE)) {
+                            return new LineNumberTableAttr(cp, name, length, din);
+                        } else if (name.equals(LOCAL_VARIABLE_TABLE)) {
+                            return new LocalVariableTableAttr(cp, name, length, din);
+                        }
+                        break;
+                    case 'R':
+                        if (name.equals(RUNTIME_VISIBLE_ANNOTATIONS)) {
+                            return new RuntimeVisibleAnnotationsAttr(cp, name, length, din);
+                        } else if (name.equals(RUNTIME_INVISIBLE_ANNOTATIONS)) {
+                            return new RuntimeInvisibleAnnotationsAttr(cp, name, length, din);
+                        } else if (name.equals(RUNTIME_VISIBLE_PARAMETER_ANNOTATIONS)) {
+                            return new RuntimeVisibleParameterAnnotationsAttr(cp, name, length, din);
+                        } else if (name.equals(RUNTIME_INVISIBLE_PARAMETER_ANNOTATIONS)) {
+                            return new RuntimeInvisibleParameterAnnotationsAttr(cp, name, length, din);
+                        }
+                        break;
+                    case 'S':
+                        if (name.equals(SOURCE_FILE)) {
+                            return new SourceFileAttr(cp, name, length, din);
+                        } else if (name.equals(SYNTHETIC)) {
+                            return new SyntheticAttr(cp, name, length, din);
+                        } else if (name.equals(SIGNATURE)) {
+                            return new SignatureAttr(cp, name, length, din);
+                        } else if (name.equals(STACK_MAP_TABLE)) {
+                            return new StackMapTableAttr(cp, name, length, din);
+                        }
+                        break;
                 }
             }
 

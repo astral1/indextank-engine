@@ -31,14 +31,15 @@ limitations under the License.
 */
 package com.flaptor.indextank.query;
 
-import java.io.Serializable;
-import java.util.Set;
-
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
 
+import java.io.Serializable;
+import java.util.Set;
+
 /**
  * Represents de mathematical difference (lt - rt).
+ *
  * @author Flaptor Development Team
  */
 public final class DifferenceQuery extends BinaryQuery implements Serializable {
@@ -56,7 +57,7 @@ public final class DifferenceQuery extends BinaryQuery implements Serializable {
         bq.add(rightQuery.getLuceneQuery(), BooleanClause.Occur.MUST_NOT);
         return bq;
     }
-    
+
     @Override
     public Set<TermQuery> getPositiveTerms() {
         return leftQuery.getPositiveTerms();
@@ -82,7 +83,7 @@ public final class DifferenceQuery extends BinaryQuery implements Serializable {
             return false;
         }
     }
-    
+
     @Override
     public int hashCode() {
         int hash = 17;
@@ -91,7 +92,7 @@ public final class DifferenceQuery extends BinaryQuery implements Serializable {
         hash = hash ^ super.hashCode();
         return hash;
     }
-    
+
     public QueryNode duplicate() {
         QueryNode qn = new DifferenceQuery(this.leftQuery.duplicate(), this.rightQuery.duplicate());
         qn.setBoost(this.getBoost());

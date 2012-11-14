@@ -55,9 +55,9 @@ public class DelegatedCodeAssembler implements CodeAssembler {
                                  Location endLocation,
                                  String catchClassName) {
         mAssembler.exceptionHandler
-            (startLocation, endLocation, catchClassName);
+                (startLocation, endLocation, catchClassName);
     }
-    
+
     public void mapLineNumber(int lineNumber) {
         mAssembler.mapLineNumber(lineNumber);
     }
@@ -364,22 +364,22 @@ public class DelegatedCodeAssembler implements CodeAssembler {
         mAssembler.ifEqualBranch(location, choice);
     }
 
-    public void ifZeroComparisonBranch(Location location, String choice) 
-        throws IllegalArgumentException {
+    public void ifZeroComparisonBranch(Location location, String choice)
+            throws IllegalArgumentException {
         mAssembler.ifZeroComparisonBranch(location, choice);
     }
 
     public void ifComparisonBranch(Location location, String choice)
-        throws IllegalArgumentException {
+            throws IllegalArgumentException {
         mAssembler.ifComparisonBranch(location, choice);
     }
 
     public void ifComparisonBranch(Location location, String choice, TypeDesc type)
-        throws IllegalArgumentException {
+            throws IllegalArgumentException {
         mAssembler.ifComparisonBranch(location, choice, type);
     }
 
-    public void switchBranch(int[] cases, 
+    public void switchBranch(int[] cases,
                              Location[] locations, Location defaultLocation) {
         mAssembler.switchBranch(cases, locations, defaultLocation);
     }

@@ -16,11 +16,6 @@
 
 package com.flaptor.indextank.suggest;
 
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-
 import com.flaptor.indextank.query.IndexEngineParser;
 import com.flaptor.indextank.query.Query;
 import com.flaptor.indextank.query.QueryNode;
@@ -30,6 +25,10 @@ import com.flaptor.org.apache.lucene.util.automaton.LevenshteinAutomata;
 import com.flaptor.util.Pair;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * A suggestor that uses the corpus (index) and a VP-tree to suggest queries
@@ -49,9 +48,9 @@ public class DidYouMeanSuggestor {
 
     public List<Pair<Query, String>> suggest(Query query) {
         Query newQuery = query.duplicate();
-        
+
         String newOriginal = traverseNode(newQuery.getRoot(), newQuery.getOriginalStr());
-        
+
         if (newQuery.equals(query)) {
             return Lists.newArrayList();
         }
@@ -61,9 +60,9 @@ public class DidYouMeanSuggestor {
 
     private String traverseNode(QueryNode node, String queryString) {
         if (node instanceof TermQuery) {
-            TermQuery termQuery = (TermQuery)node;
+            TermQuery termQuery = (TermQuery) node;
             String term = termQuery.getTerm();
-            
+
             String suggestedTerm = suggestWord(term);
             if (suggestedTerm != null) {
                 queryString = replaceSuggestion(queryString, term, suggestedTerm);
@@ -72,12 +71,12 @@ public class DidYouMeanSuggestor {
                 }
                 termQuery.setTerm(suggestedTerm);
             }
-            
+
         } else if (node instanceof SimplePhraseQuery) {
             SimplePhraseQuery phraseQuery = (SimplePhraseQuery) node;
-            
+
             String[] termsArray = phraseQuery.getTermsArray();
-            
+
             for (int i = 0; i < termsArray.length; i++) {
                 String term = termsArray[i];
                 String suggestedTerm = suggestWord(term);
@@ -92,7 +91,7 @@ public class DidYouMeanSuggestor {
 
             }
         }
-        
+
         Iterable<QueryNode> children = node.getChildren();
         for (QueryNode queryNode : children) {
             queryString = traverseNode(queryNode, queryString);
@@ -100,14 +99,14 @@ public class DidYouMeanSuggestor {
                 return null;
             }
         }
-        
+
         return queryString;
     }
 
     private String replaceSuggestion(String queryString, String term, String suggestedTerm) {
         Pattern pattern = Pattern.compile("\\b(" + term + ")\\b(?!\\:)", Pattern.CASE_INSENSITIVE);
         Matcher matcher = pattern.matcher(queryString);
-        
+
         StringBuffer sb = new StringBuffer();
         if (matcher.find()) {
             matcher.appendReplacement(sb, suggestedTerm);
@@ -120,16 +119,16 @@ public class DidYouMeanSuggestor {
         }
         return sb.toString();
     }
-    
+
     private String suggestWord(String term) {
         String bestSuggestion = null;
-        if (term.length() > 3) { 
+        if (term.length() > 3) {
             com.flaptor.org.apache.lucene.util.automaton.Automaton lev = new LevenshteinAutomata(term).toAutomaton(1);
             LuceneAutomaton levAutomaton = LuceneAutomaton.adapt(lev);
-        
+
             int max = 0;
-            for (String suggestion: com.flaptor.indextank.suggest.Automaton.intersectPaths(dictAutomaton, levAutomaton)){
-                if (term.equals(suggestion)){
+            for (String suggestion : com.flaptor.indextank.suggest.Automaton.intersectPaths(dictAutomaton, levAutomaton)) {
+                if (term.equals(suggestion)) {
                     // don't suggest anything for words seen on the corpus
                     bestSuggestion = null;
                     break;
@@ -137,8 +136,8 @@ public class DidYouMeanSuggestor {
 
                 int count = this.npi.getCount("text:" + suggestion);
                 if (count > max) {
-                   bestSuggestion = suggestion;
-                   max = count;
+                    bestSuggestion = suggestion;
+                    max = count;
                 }
             }
         }

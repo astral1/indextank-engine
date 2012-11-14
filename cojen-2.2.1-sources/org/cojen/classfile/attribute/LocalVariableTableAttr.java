@@ -16,15 +16,6 @@
 
 package org.cojen.classfile.attribute;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.IOException;
 import org.cojen.classfile.Attribute;
 import org.cojen.classfile.ConstantPool;
 import org.cojen.classfile.FixedLocation;
@@ -35,10 +26,18 @@ import org.cojen.classfile.LocationRangeImpl;
 import org.cojen.classfile.TypeDesc;
 import org.cojen.classfile.constant.ConstantUTFInfo;
 
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+
 /**
- * This class corresponds to the LocalVariableTable_attribute structure as 
+ * This class corresponds to the LocalVariableTable_attribute structure as
  * defined in section 4.7.7 of <i>The Java Virtual Machine Specification</i>.
- * 
+ *
  * @author Brian S O'Neill
  */
 public class LocalVariableTableAttr extends Attribute {
@@ -46,30 +45,29 @@ public class LocalVariableTableAttr extends Attribute {
     private List<Entry> mEntries = new ArrayList<Entry>(10);
     private List<Entry> mCleanEntries;
     private int mRangeCount;
-    
+
     public LocalVariableTableAttr(ConstantPool cp) {
         super(cp, LOCAL_VARIABLE_TABLE);
     }
-    
+
     public LocalVariableTableAttr(ConstantPool cp, String name) {
         super(cp, name);
     }
 
     public LocalVariableTableAttr(ConstantPool cp, String name, int length, DataInput din)
-        throws IOException
-    {
+            throws IOException {
         super(cp, name);
 
         int size = din.readUnsignedShort();
-        for (int i=0; i<size; i++) {
+        for (int i = 0; i < size; i++) {
             int start_pc = din.readUnsignedShort();
             int end_pc = start_pc + din.readUnsignedShort() + 1;
             int name_index = din.readUnsignedShort();
             int descriptor_index = din.readUnsignedShort();
             final int index = din.readUnsignedShort();
 
-            final ConstantUTFInfo varName = (ConstantUTFInfo)cp.getConstant(name_index);
-            final ConstantUTFInfo varDesc = (ConstantUTFInfo)cp.getConstant(descriptor_index);
+            final ConstantUTFInfo varName = (ConstantUTFInfo) cp.getConstant(name_index);
+            final ConstantUTFInfo varDesc = (ConstantUTFInfo) cp.getConstant(descriptor_index);
 
             if (varDesc == null) {
                 continue;
@@ -79,7 +77,7 @@ public class LocalVariableTableAttr extends Attribute {
             final Location endLocation = new FixedLocation(end_pc);
 
             final Set<LocationRange> ranges = Collections
-                .singleton((LocationRange) new LocationRangeImpl(startLocation, endLocation));
+                    .singleton((LocationRange) new LocationRangeImpl(startLocation, endLocation));
 
             LocalVariable localVar = new LocalVariable() {
                 private String mName;
@@ -101,11 +99,11 @@ public class LocalVariableTableAttr extends Attribute {
                 public TypeDesc getType() {
                     return mType;
                 }
-                
+
                 public boolean isDoubleWord() {
                     return mType.isDoubleWord();
                 }
-                
+
                 public int getNumber() {
                     return index;
                 }
@@ -154,23 +152,23 @@ public class LocalVariableTableAttr extends Attribute {
         }
 
         ConstantUTFInfo name = getConstantPool().addConstantUTF(varName);
-        ConstantUTFInfo descriptor = 
-            getConstantPool().addConstantUTF(localVar.getType().getDescriptor());
+        ConstantUTFInfo descriptor =
+                getConstantPool().addConstantUTF(localVar.getType().getDescriptor());
         mEntries.add(new Entry(localVar, name, descriptor));
 
         mCleanEntries = null;
     }
-    
+
     public int getLength() {
         clean();
         return 2 + 10 * mRangeCount;
     }
-    
+
     public void writeDataTo(DataOutput dout) throws IOException {
         dout.writeShort(mRangeCount);
 
         int size = mCleanEntries.size();
-        for (int i=0; i<size; i++) {
+        for (int i = 0; i < size; i++) {
             Entry entry = mCleanEntries.get(i);
             LocalVariable localVar = entry.mLocalVar;
 
@@ -208,7 +206,7 @@ public class LocalVariableTableAttr extends Attribute {
     private void check(String type, int addr) throws IllegalStateException {
         if (addr < 0 || addr > 65535) {
             throw new IllegalStateException("Value for " + type + " out of " +
-                                            "valid range: " + addr);
+                    "valid range: " + addr);
         }
     }
 
@@ -223,7 +221,8 @@ public class LocalVariableTableAttr extends Attribute {
         mCleanEntries = new ArrayList<Entry>(size);
         mRangeCount = 0;
 
-        outer: for (int i=0; i<size; i++) {
+        outer:
+        for (int i = 0; i < size; i++) {
             Entry entry = mEntries.get(i);
             LocalVariable localVar = entry.mLocalVar;
 
@@ -247,7 +246,7 @@ public class LocalVariableTableAttr extends Attribute {
                     continue outer;
                 }
             }
-            
+
             mCleanEntries.add(entry);
             mRangeCount += entry.getRangeCount();
         }

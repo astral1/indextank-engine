@@ -17,9 +17,6 @@
 package org.cojen.util;
 
 import java.lang.ref.SoftReference;
-
-import java.lang.reflect.Method;
-
 import java.util.AbstractCollection;
 import java.util.AbstractMap;
 import java.util.AbstractSet;
@@ -46,7 +43,7 @@ import java.util.TreeSet;
  */
 public abstract class BeanPropertyMapFactory<B> {
     private static final Map<Class, SoftReference<BeanPropertyMapFactory>> cFactories =
-        new WeakIdentityMap<Class, SoftReference<BeanPropertyMapFactory>>();
+            new WeakIdentityMap<Class, SoftReference<BeanPropertyMapFactory>>();
 
     /**
      * Returns a new or cached BeanPropertyMapFactory for the given class.
@@ -69,10 +66,9 @@ public abstract class BeanPropertyMapFactory<B> {
             for (Map.Entry<String, BeanProperty> entry : properties.entrySet()) {
                 BeanProperty property = entry.getValue();
                 if (property.getReadMethod() == null ||
-                    property.getWriteMethod() == null ||
-                    BeanPropertyAccessor.throwsCheckedException(property.getReadMethod()) ||
-                    BeanPropertyAccessor.throwsCheckedException(property.getWriteMethod()))
-                {
+                        property.getWriteMethod() == null ||
+                        BeanPropertyAccessor.throwsCheckedException(property.getReadMethod()) ||
+                        BeanPropertyAccessor.throwsCheckedException(property.getWriteMethod())) {
                     // Exclude property.
                     if (supportedProperties == properties) {
                         supportedProperties = new HashMap<String, BeanProperty>(properties);
@@ -85,9 +81,9 @@ public abstract class BeanPropertyMapFactory<B> {
                 factory = Empty.INSTANCE;
             } else {
                 factory = new Standard<B>
-                    (BeanPropertyAccessor.forClass
-                     (clazz, BeanPropertyAccessor.PropertySet.READ_WRITE_UNCHECKED_EXCEPTIONS),
-                     supportedProperties);
+                        (BeanPropertyAccessor.forClass
+                                (clazz, BeanPropertyAccessor.PropertySet.READ_WRITE_UNCHECKED_EXCEPTIONS),
+                                supportedProperties);
             }
 
             cFactories.put(clazz, new SoftReference<BeanPropertyMapFactory>(factory));
@@ -120,7 +116,7 @@ public abstract class BeanPropertyMapFactory<B> {
     private static class Empty extends BeanPropertyMapFactory {
         static final Empty INSTANCE = new Empty();
         static final SortedMap<String, Object> EMPTY_MAP =
-            Collections.unmodifiableSortedMap(new TreeMap<String, Object>());
+                Collections.unmodifiableSortedMap(new TreeMap<String, Object>());
 
         private Empty() {
         }
@@ -160,8 +156,7 @@ public abstract class BeanPropertyMapFactory<B> {
     }
 
     private static class BeanMap<B> extends AbstractMap<String, Object>
-        implements SortedMap<String, Object>
-    {
+            implements SortedMap<String, Object> {
         final B mBean;
         final BeanPropertyAccessor mAccessor;
         final SortedSet<String> mPropertyNames;
@@ -178,17 +173,17 @@ public abstract class BeanPropertyMapFactory<B> {
 
         public SortedMap<String, Object> subMap(String fromKey, String toKey) {
             return new SubMap<B>(mBean, mAccessor, mPropertyNames.subSet(fromKey, toKey),
-                                 fromKey, toKey);
+                    fromKey, toKey);
         }
 
         public SortedMap<String, Object> headMap(String toKey) {
             return new SubMap<B>(mBean, mAccessor, mPropertyNames.headSet(toKey),
-                                 null, toKey);
+                    null, toKey);
         }
 
         public SortedMap<String, Object> tailMap(String fromKey) {
             return new SubMap<B>(mBean, mAccessor, mPropertyNames.tailSet(fromKey),
-                                 fromKey, null);
+                    fromKey, null);
         }
 
         public String firstKey() {
@@ -267,7 +262,7 @@ public abstract class BeanPropertyMapFactory<B> {
                         }
                     };
                 }
-                
+
                 @Override
                 public int size() {
                     return BeanMap.this.size();
@@ -338,13 +333,13 @@ public abstract class BeanPropertyMapFactory<B> {
                                         Map.Entry other = (Map.Entry) obj;
 
                                         return
-                                            (this.getKey() == null ?
-                                             other.getKey() == null
-                                             : this.getKey().equals(other.getKey()))
-                                            &&
-                                            (this.getValue() == null ?
-                                             other.getValue() == null
-                                             : this.getValue().equals(other.getValue()));
+                                                (this.getKey() == null ?
+                                                        other.getKey() == null
+                                                        : this.getKey().equals(other.getKey()))
+                                                        &&
+                                                        (this.getValue() == null ?
+                                                                other.getValue() == null
+                                                                : this.getValue().equals(other.getValue()));
                                     }
 
                                     return false;
@@ -353,7 +348,7 @@ public abstract class BeanPropertyMapFactory<B> {
                                 @Override
                                 public int hashCode() {
                                     return (getKey() == null ? 0 : getKey().hashCode()) ^
-                                        (getValue() == null ? 0 : getValue().hashCode());
+                                            (getValue() == null ? 0 : getValue().hashCode());
                                 }
 
                                 @Override
@@ -386,7 +381,7 @@ public abstract class BeanPropertyMapFactory<B> {
                     if (BeanMap.this.containsKey(key)) {
                         Object value = BeanMap.this.get(key);
                         return value == null ? entry.getValue() == null
-                            : value.equals(entry.getValue());
+                                : value.equals(entry.getValue());
                     }
                     return false;
                 }
@@ -415,8 +410,7 @@ public abstract class BeanPropertyMapFactory<B> {
         final String mToKey;
 
         SubMap(B bean, BeanPropertyAccessor<B> accessor, SortedSet<String> propertyNames,
-               String fromKey, String toKey)
-        {
+               String fromKey, String toKey) {
             super(bean, accessor, propertyNames);
             mFromKey = fromKey;
             mToKey = toKey;
@@ -431,7 +425,7 @@ public abstract class BeanPropertyMapFactory<B> {
                 toKey = mToKey;
             }
             return new SubMap<B>(mBean, mAccessor, mPropertyNames.subSet(fromKey, toKey),
-                                 fromKey, toKey);
+                    fromKey, toKey);
         }
 
         @Override
@@ -440,7 +434,7 @@ public abstract class BeanPropertyMapFactory<B> {
                 toKey = mToKey;
             }
             return new SubMap<B>(mBean, mAccessor, mPropertyNames.headSet(toKey),
-                                 mFromKey, toKey);
+                    mFromKey, toKey);
         }
 
         @Override
@@ -449,7 +443,7 @@ public abstract class BeanPropertyMapFactory<B> {
                 fromKey = mFromKey;
             }
             return new SubMap<B>(mBean, mAccessor, mPropertyNames.tailSet(fromKey),
-                                 fromKey, mToKey);
+                    fromKey, mToKey);
         }
 
         @Override
@@ -523,7 +517,7 @@ public abstract class BeanPropertyMapFactory<B> {
             }
 
             return new IllegalArgumentException
-                ("Key out of range: key=" + key + ", range=[" + range + ')');
+                    ("Key out of range: key=" + key + ", range=[" + range + ')');
         }
     }
 }

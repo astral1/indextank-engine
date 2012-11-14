@@ -16,13 +16,14 @@
 
 package org.cojen.classfile.attribute;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.cojen.classfile.Attribute;
+import org.cojen.classfile.ConstantPool;
+
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-import org.cojen.classfile.Attribute;
-import org.cojen.classfile.ConstantPool;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Base class for annotations attributes defined for Java 5.
@@ -33,21 +34,20 @@ import org.cojen.classfile.ConstantPool;
 public abstract class AnnotationsAttr extends Attribute {
 
     private List<Annotation> mAnnotations;
-    
+
     public AnnotationsAttr(ConstantPool cp, String name) {
         super(cp, name);
         mAnnotations = new ArrayList<Annotation>(2);
     }
-    
+
     public AnnotationsAttr(ConstantPool cp, String name, int length, DataInput din)
-        throws IOException
-    {
+            throws IOException {
         super(cp, name);
-        
+
         int size = din.readUnsignedShort();
         mAnnotations = new ArrayList<Annotation>(size);
-        
-        for (int i=0; i<size; i++) {
+
+        for (int i = 0; i < size; i++) {
             addAnnotation(new Annotation(cp, din));
         }
     }
@@ -59,19 +59,19 @@ public abstract class AnnotationsAttr extends Attribute {
     public void addAnnotation(Annotation annotation) {
         mAnnotations.add(annotation);
     }
-    
+
     public int getLength() {
         int length = 2;
-        for (int i=mAnnotations.size(); --i>=0; ) {
+        for (int i = mAnnotations.size(); --i >= 0; ) {
             length += mAnnotations.get(i).getLength();
         }
         return length;
     }
-    
+
     public void writeDataTo(DataOutput dout) throws IOException {
         int size = mAnnotations.size();
         dout.writeShort(size);
-        for (int i=0; i<size; i++) {
+        for (int i = 0; i < size; i++) {
             mAnnotations.get(i).writeTo(dout);
         }
     }

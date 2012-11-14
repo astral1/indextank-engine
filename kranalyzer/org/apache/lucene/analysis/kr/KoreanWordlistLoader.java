@@ -4,8 +4,11 @@ import org.apache.lucene.analysis.CharArraySet;
 import org.apache.lucene.analysis.WordlistLoader;
 import org.apache.lucene.util.Version;
 
-import java.io.*;
-import java.util.HashSet;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
 public final class KoreanWordlistLoader extends WordlistLoader {
 

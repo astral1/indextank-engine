@@ -20,9 +20,9 @@ public class QueryHelper {
 
     public static int parseIntParam(String param, int defaultValue) {
         try {
-            if(param != null && !param.isEmpty())
+            if (param != null && !param.isEmpty())
                 return Integer.parseInt(param);
-        } catch(Exception e) {
+        } catch (Exception e) {
         }
         return defaultValue;
     }

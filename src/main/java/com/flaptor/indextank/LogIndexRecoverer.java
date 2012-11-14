@@ -16,23 +16,22 @@
 
 package com.flaptor.indextank;
 
-import org.apache.log4j.Logger;
-
 import com.flaptor.indextank.index.Document;
 import com.flaptor.indextank.index.IndexEngine;
 import com.flaptor.indextank.rpc.LogRecord;
 import com.flaptor.indextank.storage.LogStorageIndexReader;
 import com.flaptor.util.Execute;
+import org.apache.log4j.Logger;
 
 public class LogIndexRecoverer implements Runnable {
     private static final Logger logger = Logger.getLogger(Execute.whoAmI());
-    
+
     private IndexEngine index;
 
     private final String indexCode;
     private final String logServerHost;
     private final int logServerPort;
-    
+
     public LogIndexRecoverer(IndexEngine index, String indexCode, String logServerHost, int logServerPort) {
         this.index = index;
         this.indexCode = indexCode;
@@ -43,15 +42,15 @@ public class LogIndexRecoverer implements Runnable {
     @Override
     public void run() {
         BoostingIndexer indexer = index.getIndexer();
-        
+
         logger.info("Recovering index from log based storage.");
-        
+
         int count = 0;
         LogStorageIndexReader reader = new LogStorageIndexReader(logServerHost, logServerPort, 5, indexCode);
-        
+
         try {
             logger.info("Starting recovery from Log Based Storage");
-            
+
             for (LogRecord record : reader) {
                 if (record.is_deleted()) {
                     indexer.del(record.get_docid());
@@ -74,20 +73,20 @@ public class LogIndexRecoverer implements Runnable {
                 } else {
                     indexer.updateBoosts(record.get_docid(), record.get_variables());
                 }
-                
+
                 if (record.is_set_categories()) {
                     indexer.updateCategories(record.get_docid(), record.get_categories());
                 }
-                
+
                 count++;
-                
+
                 if (count % 1000 == 0) {
                     logger.info("Already recovered " + count + " documents");
                 }
             }
-            
+
         } catch (Exception ex) {
-            throw new RuntimeException("Something BAD happened: ",ex);
+            throw new RuntimeException("Something BAD happened: ", ex);
         }
     }
 }

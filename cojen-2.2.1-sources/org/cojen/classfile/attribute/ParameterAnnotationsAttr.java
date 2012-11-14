@@ -16,12 +16,13 @@
 
 package org.cojen.classfile.attribute;
 
-import java.util.Vector;
+import org.cojen.classfile.Attribute;
+import org.cojen.classfile.ConstantPool;
+
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-import org.cojen.classfile.Attribute;
-import org.cojen.classfile.ConstantPool;
+import java.util.Vector;
 
 /**
  * Base class for parameter annotations attributes defined for Java 5.
@@ -31,27 +32,28 @@ import org.cojen.classfile.ConstantPool;
  */
 public abstract class ParameterAnnotationsAttr extends Attribute {
 
-    /** Contains Vectors of annotations */
+    /**
+     * Contains Vectors of annotations
+     */
     private Vector<Vector<Annotation>> mParameterAnnotations;
-    
+
     public ParameterAnnotationsAttr(ConstantPool cp, String name) {
         super(cp, name);
         mParameterAnnotations = new Vector<Vector<Annotation>>(2);
     }
-    
+
     public ParameterAnnotationsAttr(ConstantPool cp, String name, int length, DataInput din)
-        throws IOException
-    {
+            throws IOException {
         super(cp, name);
 
         int size = din.readUnsignedByte();
         mParameterAnnotations = new Vector<Vector<Annotation>>(size);
 
-        for (int i=0; i<size; i++) {
+        for (int i = 0; i < size; i++) {
             int subSize = din.readUnsignedShort();
             Vector<Annotation> annotations = new Vector<Annotation>(subSize);
 
-            for (int j=0; j<subSize; j++) {
+            for (int j = 0; j < subSize; j++) {
                 annotations.add(new Annotation(cp, din));
             }
 
@@ -64,7 +66,7 @@ public abstract class ParameterAnnotationsAttr extends Attribute {
      */
     public Annotation[][] getAnnotations() {
         Annotation[][] copy = new Annotation[mParameterAnnotations.size()][];
-        for (int i=copy.length; --i>=0; ) {
+        for (int i = copy.length; --i >= 0; ) {
             Vector<Annotation> annotations = mParameterAnnotations.get(i);
             if (annotations == null) {
                 copy[i] = new Annotation[0];
@@ -105,26 +107,26 @@ public abstract class ParameterAnnotationsAttr extends Attribute {
         }
         annotations.add(annotation);
     }
-    
+
     public int getLength() {
         int length = 1;
-        for (int i=mParameterAnnotations.size(); --i>=0; ) {
+        for (int i = mParameterAnnotations.size(); --i >= 0; ) {
             Vector<Annotation> annotations = mParameterAnnotations.get(i);
-            for (int j=annotations.size(); --j>=0; ) {
+            for (int j = annotations.size(); --j >= 0; ) {
                 length += 2 + annotations.get(j).getLength();
             }
         }
         return length;
     }
-    
+
     public void writeDataTo(DataOutput dout) throws IOException {
         int size = mParameterAnnotations.size();
         dout.writeByte(size);
-        for (int i=0; i<size; i++) {
+        for (int i = 0; i < size; i++) {
             Vector<Annotation> annotations = mParameterAnnotations.get(i);
             int subSize = annotations.size();
             dout.writeShort(subSize);
-            for (int j=0; j<subSize; j++) {
+            for (int j = 0; j < subSize; j++) {
                 annotations.get(j).writeTo(dout);
             }
         }

@@ -27,19 +27,19 @@ import org.apache.thrift.transport.TTransportException;
 public class ThriftServerThread {
 
     public static Thread forProcessor(final TProcessor processor, final String name, final int port) {
-        return new Thread() { 
-            public void run() { 
+        return new Thread() {
+            public void run() {
                 try {
                     TServerSocket serverTransport = new TServerSocket(port);
                     Factory protFactory = new TBinaryProtocol.Factory(true, true);
                     TServer server = new TThreadPoolServer(processor, serverTransport, protFactory);
                     System.out.println("Starting " + name + " server on port " + port + " ...");
                     server.serve();
-                } catch( TTransportException tte ){
+                } catch (TTransportException tte) {
                     tte.printStackTrace();
                 }
-            } 
+            }
         };
     }
-    
+
 }

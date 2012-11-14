@@ -16,11 +16,7 @@
 
 package com.flaptor.indextank.query;
 
-import java.io.Reader;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Set;
-
+import com.google.common.collect.Maps;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.CharArraySet;
 import org.apache.lucene.analysis.LowerCaseFilter;
@@ -34,7 +30,10 @@ import org.apache.lucene.analysis.cjk.CJKWidthFilter;
 import org.apache.lucene.analysis.standard.StandardTokenizer;
 import org.apache.lucene.util.Version;
 
-import com.google.common.collect.Maps;
+import java.io.Reader;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.Set;
 
 public class IndexEngineCJKAnalyzer extends StopwordAnalyzerBase {
     //~ Static fields/initializers ---------------------------------------------
@@ -42,6 +41,7 @@ public class IndexEngineCJKAnalyzer extends StopwordAnalyzerBase {
     /**
      * An array containing some common English words that are not usually
      * useful for searching and some double-byte interpunctions.
+     *
      * @deprecated use {@link #getDefaultStopSet()} instead
      */
     @Deprecated
@@ -60,9 +60,10 @@ public class IndexEngineCJKAnalyzer extends StopwordAnalyzerBase {
 
     /**
      * Returns an unmodifiable instance of the default stop-words set.
+     *
      * @return an unmodifiable instance of the default stop-words set.
      */
-    public static Set<?> getDefaultStopSet(){
+    public static Set<?> getDefaultStopSet() {
         return DefaultSetHolder.DEFAULT_STOP_SET;
     }
 
@@ -84,12 +85,10 @@ public class IndexEngineCJKAnalyzer extends StopwordAnalyzerBase {
     /**
      * Builds an analyzer with the given stop words
      *
-     * @param matchVersion
-     *          lucene compatibility version
-     * @param stopwords
-     *          a stopword set
+     * @param matchVersion lucene compatibility version
+     * @param stopwords    a stopword set
      */
-    public IndexEngineCJKAnalyzer(Version matchVersion, Set<?> stopwords){
+    public IndexEngineCJKAnalyzer(Version matchVersion, Set<?> stopwords) {
         super(matchVersion, stopwords);
     }
 
@@ -124,7 +123,7 @@ public class IndexEngineCJKAnalyzer extends StopwordAnalyzerBase {
 
     public IndexEngineCJKAnalyzer(Map<Object, Object> configuration) {
         // Matching version requested for first testing user
-        super(Version.valueOf((String)configuration.get("match_version")));
+        super(Version.valueOf((String) configuration.get("match_version")));
     }
 
     public IndexEngineCJKAnalyzer() {
@@ -134,5 +133,5 @@ public class IndexEngineCJKAnalyzer extends StopwordAnalyzerBase {
     public static Analyzer buildAnalyzer(Map<Object, Object> configuration) {
         return new IndexEngineCJKAnalyzer(configuration);
     }
-    
+
 }

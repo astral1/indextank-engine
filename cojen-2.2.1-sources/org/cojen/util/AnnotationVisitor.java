@@ -54,7 +54,7 @@ public class AnnotationVisitor<R, P> {
     public AnnotationVisitor(boolean sort) {
         if (sort) {
             mMethodComparator = BeanComparator
-                .forClass(Method.class).orderBy("name").caseSensitive();
+                    .forClass(Method.class).orderBy("name").caseSensitive();
         } else {
             mMethodComparator = null;
         }
@@ -76,8 +76,8 @@ public class AnnotationVisitor<R, P> {
      * Visits an annotation by breaking it down into its components and calling
      * various other visit methods.
      *
-     * @param name member name, or null if array member or not part of an annotation
-     * @param pos position of member in list or array
+     * @param name  member name, or null if array member or not part of an annotation
+     * @param pos   position of member in list or array
      * @param value Annotation visited
      * @param param custom parameter
      * @return custom result, null by default
@@ -177,8 +177,8 @@ public class AnnotationVisitor<R, P> {
     /**
      * Override to visit ints.
      *
-     * @param name member name, or null if array member
-     * @param pos position of member in list or array
+     * @param name  member name, or null if array member
+     * @param pos   position of member in list or array
      * @param value int visited
      * @param param custom parameter
      * @return custom result, null by default
@@ -190,8 +190,8 @@ public class AnnotationVisitor<R, P> {
     /**
      * Override to visit longs.
      *
-     * @param name member name, or null if array member
-     * @param pos position of member in list or array
+     * @param name  member name, or null if array member
+     * @param pos   position of member in list or array
      * @param value long visited
      * @param param custom parameter
      * @return custom result, null by default
@@ -203,8 +203,8 @@ public class AnnotationVisitor<R, P> {
     /**
      * Override to visit floats.
      *
-     * @param name member name, or null if array member
-     * @param pos position of member in list or array
+     * @param name  member name, or null if array member
+     * @param pos   position of member in list or array
      * @param value float visited
      * @param param custom parameter
      * @return custom result, null by default
@@ -216,8 +216,8 @@ public class AnnotationVisitor<R, P> {
     /**
      * Override to visit doubles.
      *
-     * @param name member name, or null if array member
-     * @param pos position of member in list or array
+     * @param name  member name, or null if array member
+     * @param pos   position of member in list or array
      * @param value double visited
      * @param param custom parameter
      * @return custom result, null by default
@@ -229,8 +229,8 @@ public class AnnotationVisitor<R, P> {
     /**
      * Override to visit booleans.
      *
-     * @param name member name, or null if array member
-     * @param pos position of member in list or array
+     * @param name  member name, or null if array member
+     * @param pos   position of member in list or array
      * @param value boolean visited
      * @param param custom parameter
      * @return custom result, null by default
@@ -242,8 +242,8 @@ public class AnnotationVisitor<R, P> {
     /**
      * Override to visit bytes.
      *
-     * @param name member name, or null if array member
-     * @param pos position of member in list or array
+     * @param name  member name, or null if array member
+     * @param pos   position of member in list or array
      * @param value byte visited
      * @param param custom parameter
      * @return custom result, null by default
@@ -255,8 +255,8 @@ public class AnnotationVisitor<R, P> {
     /**
      * Override to visit shorts.
      *
-     * @param name member name, or null if array member
-     * @param pos position of member in list or array
+     * @param name  member name, or null if array member
+     * @param pos   position of member in list or array
      * @param value short visited
      * @param param custom parameter
      * @return custom result, null by default
@@ -268,8 +268,8 @@ public class AnnotationVisitor<R, P> {
     /**
      * Override to visit chars.
      *
-     * @param name member name, or null if array member
-     * @param pos position of member in list or array
+     * @param name  member name, or null if array member
+     * @param pos   position of member in list or array
      * @param value char visited
      * @param param custom parameter
      * @return custom result, null by default
@@ -281,8 +281,8 @@ public class AnnotationVisitor<R, P> {
     /**
      * Override to visit Strings.
      *
-     * @param name member name, or null if array member
-     * @param pos position of member in list or array
+     * @param name  member name, or null if array member
+     * @param pos   position of member in list or array
      * @param value String visited
      * @param param custom parameter
      * @return custom result, null by default
@@ -294,8 +294,8 @@ public class AnnotationVisitor<R, P> {
     /**
      * Override to visit Classes.
      *
-     * @param name member name, or null if array member
-     * @param pos position of member in list or array
+     * @param name  member name, or null if array member
+     * @param pos   position of member in list or array
      * @param value Class visited
      * @param param custom parameter
      * @return custom result, null by default
@@ -307,8 +307,8 @@ public class AnnotationVisitor<R, P> {
     /**
      * Override to visit Enums.
      *
-     * @param name member name, or null if array member
-     * @param pos position of member in list or array
+     * @param name  member name, or null if array member
+     * @param pos   position of member in list or array
      * @param value Enum visited
      * @param param custom parameter
      * @return custom result, null by default
@@ -320,14 +320,14 @@ public class AnnotationVisitor<R, P> {
     /**
      * Visits each array element.
      *
-     * @param name member name, or null if array member
-     * @param pos position of member in list or array
+     * @param name  member name, or null if array member
+     * @param pos   position of member in list or array
      * @param value Annotation array visited
      * @param param custom parameter
      * @return custom result, null by default
      */
     public R visit(String name, int pos, Annotation[] value, P param) {
-        for (int i=0; i<value.length; i++) {
+        for (int i = 0; i < value.length; i++) {
             visit(null, i, value[i], param);
         }
         return null;
@@ -336,14 +336,14 @@ public class AnnotationVisitor<R, P> {
     /**
      * Visits each array element.
      *
-     * @param name member name, or null if array member
-     * @param pos position of member in list or array
+     * @param name  member name, or null if array member
+     * @param pos   position of member in list or array
      * @param value int array visited
      * @param param custom parameter
      * @return custom result, null by default
      */
     public R visit(String name, int pos, int[] value, P param) {
-        for (int i=0; i<value.length; i++) {
+        for (int i = 0; i < value.length; i++) {
             visit(null, i, value[i], param);
         }
         return null;
@@ -352,14 +352,14 @@ public class AnnotationVisitor<R, P> {
     /**
      * Visits each array element.
      *
-     * @param name member name, or null if array member
-     * @param pos position of member in list or array
+     * @param name  member name, or null if array member
+     * @param pos   position of member in list or array
      * @param value long array visited
      * @param param custom parameter
      * @return custom result, null by default
      */
     public R visit(String name, int pos, long[] value, P param) {
-        for (int i=0; i<value.length; i++) {
+        for (int i = 0; i < value.length; i++) {
             visit(null, i, value[i], param);
         }
         return null;
@@ -368,14 +368,14 @@ public class AnnotationVisitor<R, P> {
     /**
      * Visits each array element.
      *
-     * @param name member name, or null if array member
-     * @param pos position of member in list or array
+     * @param name  member name, or null if array member
+     * @param pos   position of member in list or array
      * @param value float array visited
      * @param param custom parameter
      * @return custom result, null by default
      */
     public R visit(String name, int pos, float[] value, P param) {
-        for (int i=0; i<value.length; i++) {
+        for (int i = 0; i < value.length; i++) {
             visit(null, i, value[i], param);
         }
         return null;
@@ -384,14 +384,14 @@ public class AnnotationVisitor<R, P> {
     /**
      * Visits each array element.
      *
-     * @param name member name, or null if array member
-     * @param pos position of member in list or array
+     * @param name  member name, or null if array member
+     * @param pos   position of member in list or array
      * @param value double array visited
      * @param param custom parameter
      * @return custom result, null by default
      */
     public R visit(String name, int pos, double[] value, P param) {
-        for (int i=0; i<value.length; i++) {
+        for (int i = 0; i < value.length; i++) {
             visit(null, i, value[i], param);
         }
         return null;
@@ -400,14 +400,14 @@ public class AnnotationVisitor<R, P> {
     /**
      * Visits each array element.
      *
-     * @param name member name, or null if array member
-     * @param pos position of member in list or array
+     * @param name  member name, or null if array member
+     * @param pos   position of member in list or array
      * @param value boolean array visited
      * @param param custom parameter
      * @return custom result, null by default
      */
     public R visit(String name, int pos, boolean[] value, P param) {
-        for (int i=0; i<value.length; i++) {
+        for (int i = 0; i < value.length; i++) {
             visit(null, i, value[i], param);
         }
         return null;
@@ -416,14 +416,14 @@ public class AnnotationVisitor<R, P> {
     /**
      * Visits each array element.
      *
-     * @param name member name, or null if array member
-     * @param pos position of member in list or array
+     * @param name  member name, or null if array member
+     * @param pos   position of member in list or array
      * @param value byte array visited
      * @param param custom parameter
      * @return custom result, null by default
      */
     public R visit(String name, int pos, byte[] value, P param) {
-        for (int i=0; i<value.length; i++) {
+        for (int i = 0; i < value.length; i++) {
             visit(null, i, value[i], param);
         }
         return null;
@@ -432,14 +432,14 @@ public class AnnotationVisitor<R, P> {
     /**
      * Visits each array element.
      *
-     * @param name member name, or null if array member
-     * @param pos position of member in list or array
+     * @param name  member name, or null if array member
+     * @param pos   position of member in list or array
      * @param value short array visited
      * @param param custom parameter
      * @return custom result, null by default
      */
     public R visit(String name, int pos, short[] value, P param) {
-        for (int i=0; i<value.length; i++) {
+        for (int i = 0; i < value.length; i++) {
             visit(null, i, value[i], param);
         }
         return null;
@@ -448,14 +448,14 @@ public class AnnotationVisitor<R, P> {
     /**
      * Visits each array element.
      *
-     * @param name member name, or null if array member
-     * @param pos position of member in list or array
+     * @param name  member name, or null if array member
+     * @param pos   position of member in list or array
      * @param value char array visited
      * @param param custom parameter
      * @return custom result, null by default
      */
     public R visit(String name, int pos, char[] value, P param) {
-        for (int i=0; i<value.length; i++) {
+        for (int i = 0; i < value.length; i++) {
             visit(null, i, value[i], param);
         }
         return null;
@@ -464,14 +464,14 @@ public class AnnotationVisitor<R, P> {
     /**
      * Visits each array element.
      *
-     * @param name member name, or null if array member
-     * @param pos position of member in list or array
+     * @param name  member name, or null if array member
+     * @param pos   position of member in list or array
      * @param value String array visited
      * @param param custom parameter
      * @return custom result, null by default
      */
     public R visit(String name, int pos, String[] value, P param) {
-        for (int i=0; i<value.length; i++) {
+        for (int i = 0; i < value.length; i++) {
             visit(null, i, value[i], param);
         }
         return null;
@@ -480,14 +480,14 @@ public class AnnotationVisitor<R, P> {
     /**
      * Visits each array element.
      *
-     * @param name member name, or null if array member
-     * @param pos position of member in list or array
+     * @param name  member name, or null if array member
+     * @param pos   position of member in list or array
      * @param value Class array visited
      * @param param custom parameter
      * @return custom result, null by default
      */
     public R visit(String name, int pos, Class[] value, P param) {
-        for (int i=0; i<value.length; i++) {
+        for (int i = 0; i < value.length; i++) {
             visit(null, i, value[i], param);
         }
         return null;
@@ -496,14 +496,14 @@ public class AnnotationVisitor<R, P> {
     /**
      * Visits each array element.
      *
-     * @param name member name, or null if array member
-     * @param pos position of member in list or array
+     * @param name  member name, or null if array member
+     * @param pos   position of member in list or array
      * @param value Enum array visited
      * @param param custom parameter
      * @return custom result, null by default
      */
     public R visit(String name, int pos, Enum[] value, P param) {
-        for (int i=0; i<value.length; i++) {
+        for (int i = 0; i < value.length; i++) {
             visit(null, i, value[i], param);
         }
         return null;

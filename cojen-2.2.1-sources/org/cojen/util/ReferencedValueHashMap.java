@@ -32,19 +32,18 @@ import java.util.Set;
  * A Map that references its values and can be used as a simple cache.
  * Instances are not thread-safe and must be wrapped with
  * Collections.synchronizedMap to be made thread-safe.
- * <p>
+ * <p/>
  * Note: Referenced entries may be automatically removed during
  * either accessor or mutator operations, possibly causing a concurrent
  * modification to be detected. Therefore, even if multiple threads are only
  * accessing this map, be sure to synchronize this map first. Also, do not
  * rely on the value returned by size() when using an iterator from this map.
  * The iterators may return less entries than the amount reported by size().
- * 
+ *
  * @author Brian S O'Neill
  */
 public abstract class ReferencedValueHashMap<K, V> extends AbstractMap<K, V>
-    implements Map<K, V>, Cloneable
-{
+        implements Map<K, V>, Cloneable {
     private transient Entry<K, V>[] table;
     private transient int count;
     private int threshold;
@@ -58,23 +57,23 @@ public abstract class ReferencedValueHashMap<K, V> extends AbstractMap<K, V>
     private transient Collection<V> values;
 
     /**
-     * Constructs a new, empty map with the specified initial 
-     * capacity and the specified load factor. 
+     * Constructs a new, empty map with the specified initial
+     * capacity and the specified load factor.
      *
-     * @param      initialCapacity   the initial capacity of the HashMap.
-     * @param      loadFactor        the load factor of the HashMap
-     * @throws     IllegalArgumentException  if the initial capacity is less
-     *               than zero, or if the load factor is nonpositive.
+     * @param initialCapacity the initial capacity of the HashMap.
+     * @param loadFactor      the load factor of the HashMap
+     * @throws IllegalArgumentException if the initial capacity is less
+     *                                  than zero, or if the load factor is nonpositive.
      */
     public ReferencedValueHashMap(int initialCapacity, float loadFactor) {
         if (initialCapacity < 0) {
-            throw new IllegalArgumentException("Illegal Initial Capacity: "+
-                                               initialCapacity);
+            throw new IllegalArgumentException("Illegal Initial Capacity: " +
+                    initialCapacity);
         }
 
         if (loadFactor <= 0 || Float.isNaN(loadFactor)) {
-            throw new IllegalArgumentException("Illegal Load factor: "+
-                                               loadFactor);
+            throw new IllegalArgumentException("Illegal Load factor: " +
+                    loadFactor);
         }
 
         if (initialCapacity == 0) {
@@ -83,16 +82,16 @@ public abstract class ReferencedValueHashMap<K, V> extends AbstractMap<K, V>
 
         this.loadFactor = loadFactor;
         this.table = new Entry[initialCapacity];
-        this.threshold = (int)(initialCapacity * loadFactor);
+        this.threshold = (int) (initialCapacity * loadFactor);
     }
 
     /**
      * Constructs a new, empty map with the specified initial capacity
      * and default load factor, which is <tt>0.75</tt>.
      *
-     * @param   initialCapacity   the initial capacity of the HashMap.
-     * @throws    IllegalArgumentException if the initial capacity is less
-     *              than zero.
+     * @param initialCapacity the initial capacity of the HashMap.
+     * @throws IllegalArgumentException if the initial capacity is less
+     *                                  than zero.
      */
     public ReferencedValueHashMap(int initialCapacity) {
         this(initialCapacity, 0.75f);
@@ -132,7 +131,7 @@ public abstract class ReferencedValueHashMap<K, V> extends AbstractMap<K, V>
 
         Entry[] tab = this.table;
 
-        for (int i = tab.length ; i-- > 0 ;) {
+        for (int i = tab.length; i-- > 0; ) {
             for (Entry e = tab[i], prev = null; e != null; e = e.next) {
                 Object entryValue = e.get();
 
@@ -234,8 +233,7 @@ public abstract class ReferencedValueHashMap<K, V> extends AbstractMap<K, V>
                     this.modCount++;
                     if (prev != null) {
                         prev.next = e.next;
-                    }
-                    else {
+                    } else {
                         tab[0] = e.next;
                     }
                     this.count--;
@@ -257,7 +255,7 @@ public abstract class ReferencedValueHashMap<K, V> extends AbstractMap<K, V>
     private void cleanup() {
         Entry<K, V>[] tab = this.table;
 
-        for (int i = tab.length ; i-- > 0 ;) {
+        for (int i = tab.length; i-- > 0; ) {
             for (Entry<K, V> e = tab[i], prev = null; e != null; e = e.next) {
                 if (e.get() == null) {
                     // Clean up after a cleared Reference.
@@ -288,11 +286,11 @@ public abstract class ReferencedValueHashMap<K, V> extends AbstractMap<K, V>
         Entry<K, V>[] newMap = new Entry[newCapacity];
 
         this.modCount++;
-        this.threshold = (int)(newCapacity * this.loadFactor);
+        this.threshold = (int) (newCapacity * this.loadFactor);
         this.table = newMap;
 
-        for (int i = oldCapacity ; i-- > 0 ;) {
-            for (Entry<K, V> old = oldMap[i] ; old != null ; ) {
+        for (int i = oldCapacity; i-- > 0; ) {
+            for (Entry<K, V> old = oldMap[i]; old != null; ) {
                 Entry<K, V> e = old;
                 old = old.next;
 
@@ -379,7 +377,7 @@ public abstract class ReferencedValueHashMap<K, V> extends AbstractMap<K, V>
         }
 
         // Creates the new entry.
-        Entry<K, V> e = newEntry(hash, key, (V)value, tab[index]);
+        Entry<K, V> e = newEntry(hash, key, (V) value, tab[index]);
         tab[index] = e;
         this.count++;
         return null;
@@ -470,19 +468,19 @@ public abstract class ReferencedValueHashMap<K, V> extends AbstractMap<K, V>
     }
 
     public Object clone() {
-        try { 
-            ReferencedValueHashMap t = (ReferencedValueHashMap)super.clone();
+        try {
+            ReferencedValueHashMap t = (ReferencedValueHashMap) super.clone();
             t.table = new Entry[this.table.length];
-            for (int i = this.table.length ; i-- > 0 ; ) {
-                t.table[i] = (this.table[i] != null) 
-                    ? (Entry)this.table[i].clone() : null;
+            for (int i = this.table.length; i-- > 0; ) {
+                t.table[i] = (this.table[i] != null)
+                        ? (Entry) this.table[i].clone() : null;
             }
             t.keySet = null;
             t.entrySet = null;
             t.values = null;
             t.modCount = 0;
             return t;
-        } catch (CloneNotSupportedException e) { 
+        } catch (CloneNotSupportedException e) {
             // this shouldn't happen, since we are Cloneable
             throw new InternalError();
         }
@@ -494,12 +492,15 @@ public abstract class ReferencedValueHashMap<K, V> extends AbstractMap<K, V>
                 public Iterator iterator() {
                     return createHashIterator(WeakIdentityMap.KEYS);
                 }
+
                 public int size() {
                     return ReferencedValueHashMap.this.count;
                 }
+
                 public boolean contains(Object o) {
                     return containsKey(o);
                 }
+
                 public boolean remove(Object o) {
                     if (o == null) {
                         if (ReferencedValueHashMap.this.containsKey(null)) {
@@ -512,9 +513,11 @@ public abstract class ReferencedValueHashMap<K, V> extends AbstractMap<K, V>
                         return ReferencedValueHashMap.this.remove(o) != null;
                     }
                 }
+
                 public void clear() {
                     ReferencedValueHashMap.this.clear();
                 }
+
                 public String toString() {
                     return WeakIdentityMap.toString(this);
                 }
@@ -524,20 +527,24 @@ public abstract class ReferencedValueHashMap<K, V> extends AbstractMap<K, V>
     }
 
     public Collection<V> values() {
-        if (this.values==null) {
+        if (this.values == null) {
             this.values = new AbstractCollection<V>() {
                 public Iterator iterator() {
                     return createHashIterator(WeakIdentityMap.VALUES);
                 }
+
                 public int size() {
                     return ReferencedValueHashMap.this.count;
                 }
+
                 public boolean contains(Object o) {
                     return containsValue(o);
                 }
+
                 public void clear() {
                     ReferencedValueHashMap.this.clear();
                 }
+
                 public String toString() {
                     return WeakIdentityMap.toString(this);
                 }
@@ -547,7 +554,7 @@ public abstract class ReferencedValueHashMap<K, V> extends AbstractMap<K, V>
     }
 
     public Set<Map.Entry<K, V>> entrySet() {
-        if (this.entrySet==null) {
+        if (this.entrySet == null) {
             this.entrySet = new AbstractSet<Map.Entry<K, V>>() {
                 public Iterator iterator() {
                     return createHashIterator(WeakIdentityMap.ENTRIES);
@@ -557,7 +564,7 @@ public abstract class ReferencedValueHashMap<K, V> extends AbstractMap<K, V>
                     if (!(o instanceof Map.Entry)) {
                         return false;
                     }
-                    Map.Entry entry = (Map.Entry)o;
+                    Map.Entry entry = (Map.Entry) o;
                     Object key = entry.getKey();
 
                     Entry[] tab = ReferencedValueHashMap.this.table;
@@ -566,7 +573,7 @@ public abstract class ReferencedValueHashMap<K, V> extends AbstractMap<K, V>
 
                     for (Entry e = tab[index], prev = null; e != null; e = e.next) {
                         Object entryValue = e.get();
-                        
+
                         if (entryValue == null) {
                             // Clean up after a cleared Reference.
                             ReferencedValueHashMap.this.modCount++;
@@ -590,7 +597,7 @@ public abstract class ReferencedValueHashMap<K, V> extends AbstractMap<K, V>
                     if (!(o instanceof Map.Entry)) {
                         return false;
                     }
-                    Map.Entry entry = (Map.Entry)o;
+                    Map.Entry entry = (Map.Entry) o;
                     Object key = entry.getKey();
                     Entry[] tab = ReferencedValueHashMap.this.table;
                     int hash = key == null ? 0 : key.hashCode();
@@ -705,9 +712,9 @@ public abstract class ReferencedValueHashMap<K, V> extends AbstractMap<K, V>
             if (!(obj instanceof Map.Entry)) {
                 return false;
             }
-            return equals((Map.Entry)obj);
+            return equals((Map.Entry) obj);
         }
-        
+
         boolean equals(Map.Entry e) {
             Object thisValue = get();
             if (thisValue == null) {
@@ -716,7 +723,7 @@ public abstract class ReferencedValueHashMap<K, V> extends AbstractMap<K, V>
                 thisValue = null;
             }
             return (this.key == null ? e.getKey() == null : this.key.equals(e.getKey())) &&
-                (thisValue == null ? e.getValue() == null : thisValue.equals(e.getValue()));
+                    (thisValue == null ? e.getValue() == null : thisValue.equals(e.getValue()));
         }
 
         public int hashCode() {
@@ -728,8 +735,8 @@ public abstract class ReferencedValueHashMap<K, V> extends AbstractMap<K, V>
         }
 
         protected Object clone() {
-            return newEntry(this.hash, this.key, (Reference)this.value, 
-                            (this.next == null ? null : (Entry)this.next.clone()));
+            return newEntry(this.hash, this.key, (Reference) this.value,
+                    (this.next == null ? null : (Entry) this.next.clone()));
         }
 
         abstract Entry newEntry(int hash, K key, Reference<V> value, Entry<K, V> next);
@@ -802,7 +809,7 @@ public abstract class ReferencedValueHashMap<K, V> extends AbstractMap<K, V>
             this.entry = this.entry.next;
 
             return this.type == WeakIdentityMap.KEYS ? this.last.getKey() :
-                (this.type == WeakIdentityMap.VALUES ? this.last.getValue() : this.last);
+                    (this.type == WeakIdentityMap.VALUES ? this.last.getValue() : this.last);
         }
 
         public void remove() {

@@ -16,12 +16,13 @@
 
 package org.cojen.classfile.attribute;
 
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.IOException;
 import org.cojen.classfile.Attribute;
 import org.cojen.classfile.ConstantPool;
 import org.cojen.classfile.constant.ConstantUTFInfo;
+
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
 
 /**
  * This class corresponds to the signature attribute structure, which is used
@@ -31,7 +32,7 @@ import org.cojen.classfile.constant.ConstantUTFInfo;
  */
 public class SignatureAttr extends Attribute {
     private final ConstantUTFInfo mSignature;
-    
+
     public SignatureAttr(ConstantPool cp, ConstantUTFInfo signature) {
         this(cp, SIGNATURE, signature);
     }
@@ -40,10 +41,9 @@ public class SignatureAttr extends Attribute {
         super(cp, name);
         mSignature = signature;
     }
-    
+
     public SignatureAttr(ConstantPool cp, String name, int length, DataInput din)
-        throws IOException
-    {
+            throws IOException {
         super(cp, name);
         int index = din.readUnsignedShort();
         if ((length -= 2) > 0) {
@@ -58,14 +58,14 @@ public class SignatureAttr extends Attribute {
     public ConstantUTFInfo getSignature() {
         return mSignature;
     }
-    
+
     /**
      * Returns the length of the signature attribute, which is 2 bytes.
      */
     public int getLength() {
         return 2;
     }
-    
+
     public void writeDataTo(DataOutput dout) throws IOException {
         dout.writeShort(mSignature.getIndex());
     }

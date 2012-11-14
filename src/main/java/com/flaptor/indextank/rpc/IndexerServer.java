@@ -16,9 +16,9 @@
 
 package com.flaptor.indextank.rpc;
 
-import java.io.IOException;
-import java.util.Map;
-
+import com.flaptor.indextank.BoostingIndexer;
+import com.flaptor.indextank.index.IndexEngine;
+import com.flaptor.util.Execute;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TBinaryProtocol;
@@ -28,12 +28,11 @@ import org.apache.thrift.server.TThreadPoolServer;
 import org.apache.thrift.transport.TServerSocket;
 import org.apache.thrift.transport.TTransportException;
 
-import com.flaptor.indextank.BoostingIndexer;
-import com.flaptor.indextank.index.IndexEngine;
-import com.flaptor.util.Execute;
+import java.io.IOException;
+import java.util.Map;
 
-public class IndexerServer { 
-	private static final Logger logger = Logger.getLogger(Execute.whoAmI());
+public class IndexerServer {
+    private static final Logger logger = Logger.getLogger(Execute.whoAmI());
 
     private IndexEngine ie;
     private BoostingIndexer indexer;
@@ -41,32 +40,32 @@ public class IndexerServer {
 
     public IndexerServer(IndexEngine ie, com.flaptor.indextank.BoostingIndexer indexer, int port) {
         this.ie = ie;
-        this.indexer = indexer;  
+        this.indexer = indexer;
         this.port = port;
     }
 
-    public void start(){
-        Thread t = new Thread() { 
-            public void run() { 
+    public void start() {
+        Thread t = new Thread() {
+            public void run() {
                 try {
                     TServerSocket serverTransport = new TServerSocket(IndexerServer.this.port);
                     Indexer.Processor processor = new Indexer.Processor(new IndexerImpl(ie, IndexerServer.this.indexer));
                     Factory protFactory = new TBinaryProtocol.Factory(true, true);
                     TServer server = new TThreadPoolServer(processor, serverTransport, protFactory);
-                    System.out.println("Starting indexer server on port " +  IndexerServer.this.port + " ...");
+                    System.out.println("Starting indexer server on port " + IndexerServer.this.port + " ...");
                     server.serve();
-                } catch( TTransportException tte ){
+                } catch (TTransportException tte) {
                     tte.printStackTrace();
                 }
             }
-        } ;
+        };
 
         t.start();
     }
 
     /**
      * Converts a Thrift Document into a Indextank Document.
-     */ 
+     */
     private static com.flaptor.indextank.index.Document toIndexTankDocument(Document doc) {
         return new com.flaptor.indextank.index.Document(doc.get_fields());
     }
@@ -77,7 +76,7 @@ public class IndexerServer {
         private BoostingIndexer indexer;
 
         // constructor
-        private IndexerImpl(IndexEngine ie, BoostingIndexer indexer){
+        private IndexerImpl(IndexEngine ie, BoostingIndexer indexer) {
             this.ie = ie;
             this.indexer = indexer;
         }
@@ -128,6 +127,7 @@ public class IndexerServer {
                 throw new IndextankException(e.getMessage());
             }
         }
+
         @Override
         public IndexerStats stats() throws IndextankException {
             try {
@@ -156,8 +156,8 @@ public class IndexerServer {
             ie.startFullRecovery();
         }
 
-		@Override
-		public void addDoc(String docId, Document doc, int timestampBoost, Map<Integer, Double> boosts) throws IndextankException, TException {
+        @Override
+        public void addDoc(String docId, Document doc, int timestampBoost, Map<Integer, Double> boosts) throws IndextankException, TException {
             try {
                 logger.info("Adding document " + docId + " for timestamp " + timestampBoost + " with " + doc.get_fields_size() + " fields and " + boosts.size() + " variables.");
                 if (null == docId || docId.isEmpty()) {
@@ -165,16 +165,16 @@ public class IndexerServer {
                     logger.error(msg);
                     throw new IndextankException(msg);
                 }
-            
-                this.indexer.add(docId, IndexerServer.toIndexTankDocument(doc), timestampBoost, boosts);			
+
+                this.indexer.add(docId, IndexerServer.toIndexTankDocument(doc), timestampBoost, boosts);
             } catch (RuntimeException e) {
                 logger.error("RuntimeException while processing addDoc.", e);
                 throw new IndextankException(e.getMessage());
             }
-		}
+        }
 
-		@Override
-		public void updateBoost(String docId, Map<Integer, Double> boosts) throws IndextankException, TException {
+        @Override
+        public void updateBoost(String docId, Map<Integer, Double> boosts) throws IndextankException, TException {
             try {
                 logger.info("Updating " + boosts.size() + " variables for document " + docId);
                 this.indexer.updateBoosts(docId, boosts);
@@ -182,10 +182,10 @@ public class IndexerServer {
                 logger.error("RuntimeException while processing updateBoost.", e);
                 throw new IndextankException(e.getMessage());
             }
-		}
+        }
 
-		@Override
-		public void updateTimestampBoost(String docId, int timestampBoost) throws IndextankException, TException {
+        @Override
+        public void updateTimestampBoost(String docId, int timestampBoost) throws IndextankException, TException {
             try {
                 logger.info("Updating timestamp to " + timestampBoost + " variables for document " + docId);
                 this.indexer.updateTimestamp(docId, timestampBoost);
@@ -193,7 +193,7 @@ public class IndexerServer {
                 logger.error("RuntimeException while processing updateTimestampBoost.", e);
                 throw new IndextankException(e.getMessage());
             }
-		}
+        }
 
         @Override
         public void addScoreFunction(int functionIndex, String definition) throws IndextankException, TException {
@@ -218,7 +218,7 @@ public class IndexerServer {
         }
 
         @Override
-        public Map<Integer,String> listScoreFunctions() throws IndextankException, TException {
+        public Map<Integer, String> listScoreFunctions() throws IndextankException, TException {
             try {
                 Map<Integer, String> functions = this.indexer.listScoreFunctions();
                 logger.info("Listed " + functions.size() + " functions");
@@ -240,7 +240,7 @@ public class IndexerServer {
                 throw new IndextankException();
             }
         }
-        
+
         @Override
         public void force_gc() throws IndextankException, TException {
             try {
@@ -251,6 +251,6 @@ public class IndexerServer {
                 throw new IndextankException();
             }
         }
-        
+
     }
 }

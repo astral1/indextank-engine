@@ -17,7 +17,6 @@
 package org.cojen.classfile;
 
 /**
- * 
  * @author Brian S O'Neill
  */
 public class LocationRangeImpl implements LocationRange {
@@ -36,10 +35,10 @@ public class LocationRangeImpl implements LocationRange {
 
     public LocationRangeImpl(LocationRange a, LocationRange b) {
         mStart = (a.getStartLocation().compareTo(b.getStartLocation()) <= 0) ?
-            a.getStartLocation() : b.getStartLocation();
+                a.getStartLocation() : b.getStartLocation();
 
         mEnd = (b.getEndLocation().compareTo(a.getEndLocation()) >= 0) ?
-            b.getEndLocation() : a.getEndLocation();
+                b.getEndLocation() : a.getEndLocation();
     }
 
     public Location getStartLocation() {
@@ -59,9 +58,9 @@ public class LocationRangeImpl implements LocationRange {
             return true;
         }
         if (obj instanceof LocationRangeImpl) {
-            LocationRangeImpl other = (LocationRangeImpl)obj;
+            LocationRangeImpl other = (LocationRangeImpl) obj;
             return getStartLocation() == other.getStartLocation() &&
-                getEndLocation() == other.getEndLocation();
+                    getEndLocation() == other.getEndLocation();
         }
         return false;
     }

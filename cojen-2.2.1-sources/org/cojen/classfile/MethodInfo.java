@@ -16,12 +16,6 @@
 
 package org.cojen.classfile;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.IOException;
-import java.lang.reflect.Modifier;
 import org.cojen.classfile.attribute.Annotation;
 import org.cojen.classfile.attribute.AnnotationsAttr;
 import org.cojen.classfile.attribute.CodeAttr;
@@ -31,17 +25,22 @@ import org.cojen.classfile.attribute.ExceptionsAttr;
 import org.cojen.classfile.attribute.RuntimeInvisibleAnnotationsAttr;
 import org.cojen.classfile.attribute.RuntimeVisibleAnnotationsAttr;
 import org.cojen.classfile.attribute.SignatureAttr;
-import org.cojen.classfile.attribute.SourceFileAttr;
 import org.cojen.classfile.attribute.SyntheticAttr;
 import org.cojen.classfile.constant.ConstantClassInfo;
 import org.cojen.classfile.constant.ConstantUTFInfo;
 
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * This class corresponds to the method_info data structure as defined in
- * section 4.6 of <i>The Java Virtual Machine Specification</i>. 
- * To make it easier to create bytecode for a method's CodeAttr, the 
+ * section 4.6 of <i>The Java Virtual Machine Specification</i>.
+ * To make it easier to create bytecode for a method's CodeAttr, the
  * CodeBuilder class is provided.
- * 
+ *
  * @author Brian S O'Neill
  * @see ClassFile
  * @see CodeBuilder
@@ -52,12 +51,12 @@ public class MethodInfo {
 
     private String mName;
     private MethodDesc mDesc;
-    
+
     private Modifiers mModifiers;
 
     private ConstantUTFInfo mNameConstant;
     private ConstantUTFInfo mDescriptorConstant;
-    
+
     private List<Attribute> mAttributes = new ArrayList<Attribute>(2);
 
     private CodeAttr mCode;
@@ -74,7 +73,7 @@ public class MethodInfo {
         mCp = parent.getConstantPool();
         mName = name;
         mDesc = desc;
-        
+
         mModifiers = modifiers;
         mNameConstant = mCp.addConstantUTF(name);
         mDescriptorConstant = mCp.addConstantUTF(desc.getDescriptor());
@@ -98,7 +97,7 @@ public class MethodInfo {
         mNameConstant = nameConstant;
         mDescriptorConstant = descConstant;
     }
-    
+
     /**
      * Returns the parent ClassFile for this MethodInfo.
      */
@@ -131,17 +130,18 @@ public class MethodInfo {
     public void setModifiers(Modifiers modifiers) {
         mModifiers = modifiers;
     }
-    
+
     /**
      * Returns a constant from the constant pool with this method's name.
      */
     public ConstantUTFInfo getNameConstant() {
         return mNameConstant;
     }
-    
+
     /**
-     * Returns a constant from the constant pool with this method's type 
+     * Returns a constant from the constant pool with this method's type
      * descriptor string.
+     *
      * @see MethodDesc
      */
     public ConstantUTFInfo getDescriptorConstant() {
@@ -158,7 +158,7 @@ public class MethodInfo {
 
         ConstantClassInfo[] classes = mExceptions.getExceptions();
         TypeDesc[] types = new TypeDesc[classes.length];
-        for (int i=0; i<types.length; i++) {
+        for (int i = 0; i < types.length; i++) {
             types[i] = classes[i].getType();
         }
 
@@ -277,8 +277,8 @@ public class MethodInfo {
         }
         return null;
     }
-    
-    /** 
+
+    /**
      * Add a declared exception that this method may throw.
      */
     public void addException(TypeDesc type) {
@@ -296,14 +296,14 @@ public class MethodInfo {
      * @param innerClassName Optional short inner class name.
      */
     public ClassFile addInnerClass(String innerClassName) {
-        return addInnerClass(innerClassName, (String)null);
+        return addInnerClass(innerClassName, (String) null);
     }
 
     /**
      * Add an inner class to this method.
      *
      * @param innerClassName Optional short inner class name.
-     * @param superClass Super class.
+     * @param superClass     Super class.
      */
     public ClassFile addInnerClass(String innerClassName, Class superClass) {
         return addInnerClass(innerClassName, superClass.getName());
@@ -321,14 +321,14 @@ public class MethodInfo {
             inner = mParent.addInnerClass(null, null, superClassName);
         } else {
             String fullInnerClassName = mParent.getClassName() + '$' +
-                (++mAnonymousInnerClassCount) + innerClassName;
+                    (++mAnonymousInnerClassCount) + innerClassName;
             inner = mParent.addInnerClass(fullInnerClassName, innerClassName, superClassName);
         }
 
         if (mParent.getMajorVersion() >= 49) {
             inner.addAttribute(new EnclosingMethodAttr
-                               (mCp, mCp.addConstantClass(mParent.getClassName()),
-                                mCp.addConstantNameAndType(mNameConstant, mDescriptorConstant)));
+                    (mCp, mCp.addConstantClass(mParent.getClassName()),
+                            mCp.addConstantNameAndType(mNameConstant, mDescriptorConstant)));
         }
 
         return inner;
@@ -353,13 +353,13 @@ public class MethodInfo {
             if (mCode != null) {
                 mAttributes.remove(mCode);
             }
-            mCode = (CodeAttr)attr;
+            mCode = (CodeAttr) attr;
             mCode.initialStackMapFrame(this);
         } else if (attr instanceof ExceptionsAttr) {
             if (mExceptions != null) {
                 mAttributes.remove(mExceptions);
             }
-            mExceptions = (ExceptionsAttr)attr;
+            mExceptions = (ExceptionsAttr) attr;
         }
 
         mAttributes.add(attr);
@@ -374,29 +374,29 @@ public class MethodInfo {
      */
     public int getLength() {
         int length = 8;
-        
+
         int size = mAttributes.size();
-        for (int i=0; i<size; i++) {
+        for (int i = 0; i < size; i++) {
             length += mAttributes.get(i).getLength();
         }
-        
+
         return length;
     }
-    
+
     public void writeTo(DataOutput dout) throws IOException {
         dout.writeShort(mModifiers.getBitmask());
         dout.writeShort(mNameConstant.getIndex());
         dout.writeShort(mDescriptorConstant.getIndex());
-        
+
         int size = mAttributes.size();
         dout.writeShort(size);
-        for (int i=0; i<size; i++) {
+        for (int i = 0; i < size; i++) {
             Attribute attr = mAttributes.get(i);
             try {
                 attr.writeTo(dout);
             } catch (IllegalStateException e) {
-                IllegalStateException e2 = 
-                    new IllegalStateException(e.getMessage() + ": " + toString());
+                IllegalStateException e2 =
+                        new IllegalStateException(e.getMessage() + ": " + toString());
                 try {
                     e2.initCause(e);
                 } catch (NoSuchMethodError e3) {
@@ -415,25 +415,24 @@ public class MethodInfo {
         return str;
     }
 
-    static MethodInfo readFrom(ClassFile parent, 
+    static MethodInfo readFrom(ClassFile parent,
                                DataInput din,
                                AttributeFactory attrFactory)
-        throws IOException
-    {
+            throws IOException {
         ConstantPool cp = parent.getConstantPool();
 
         int modifier = din.readUnsignedShort();
         int index = din.readUnsignedShort();
-        ConstantUTFInfo nameConstant = (ConstantUTFInfo)cp.getConstant(index);
+        ConstantUTFInfo nameConstant = (ConstantUTFInfo) cp.getConstant(index);
         index = din.readUnsignedShort();
-        ConstantUTFInfo descConstant = (ConstantUTFInfo)cp.getConstant(index);
+        ConstantUTFInfo descConstant = (ConstantUTFInfo) cp.getConstant(index);
 
         MethodInfo info = new MethodInfo(parent, modifier,
-                                         nameConstant, descConstant);
+                nameConstant, descConstant);
 
         // Read attributes.
         int size = din.readUnsignedShort();
-        for (int i=0; i<size; i++) {
+        for (int i = 0; i < size; i++) {
             info.addAttribute(Attribute.readFrom(cp, din, attrFactory));
         }
 

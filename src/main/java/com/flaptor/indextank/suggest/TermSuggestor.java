@@ -16,6 +16,12 @@
 
 package com.flaptor.indextank.suggest;
 
+import com.flaptor.indextank.index.Document;
+import com.flaptor.indextank.query.AToken;
+import com.flaptor.indextank.query.IndexEngineParser;
+import com.flaptor.indextank.query.Query;
+import com.google.common.base.Preconditions;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -24,12 +30,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import com.flaptor.indextank.index.Document;
-import com.flaptor.indextank.query.AToken;
-import com.flaptor.indextank.query.IndexEngineParser;
-import com.flaptor.indextank.query.Query;
-import com.google.common.base.Preconditions;
 
 /**
  * A suggestor that uses the indexed terms to autocomplete.
@@ -41,9 +41,9 @@ public class TermSuggestor implements Suggestor {
     private final IndexEngineParser parser;
 
     public TermSuggestor(IndexEngineParser parser, File backupDir) throws IOException {
-		Preconditions.checkNotNull(parser);
+        Preconditions.checkNotNull(parser);
         Preconditions.checkNotNull(backupDir);
-    	this.parser = parser;
+        this.parser = parser;
         this.index = new NewPopularityIndex(backupDir);
     }
 
@@ -56,10 +56,10 @@ public class TermSuggestor implements Suggestor {
 
     @Override
     public void noteAdd(String documentId, Document doc) {
-    	Set<String> fieldNames = doc.getFieldNames();
-    	for (String field : fieldNames) {
-    		addContent(field, doc.getField(field));
-		}
+        Set<String> fieldNames = doc.getFieldNames();
+        for (String field : fieldNames) {
+            addContent(field, doc.getField(field));
+        }
     }
 
     @Override
@@ -73,7 +73,7 @@ public class TermSuggestor implements Suggestor {
         while (it.hasNext()) {
             lastToken = it.next();
         }
-        
+
         if (lastToken == null) {
             return Collections.emptyList();
         } else {
@@ -85,7 +85,7 @@ public class TermSuggestor implements Suggestor {
                 String prefix = partialQuery.substring(0, start);
                 List<String> suggestions = new ArrayList<String>(popularTerms.size());
                 for (String term : popularTerms) {
-                	term = term.substring(field.length() + 1);
+                    term = term.substring(field.length() + 1);
                     suggestions.add(prefix + term);
                 }
                 return suggestions;
@@ -101,10 +101,10 @@ public class TermSuggestor implements Suggestor {
         }
     }
 
-    /*package */ NewPopularityIndex getPopularityIndex(){
+    /*package */ NewPopularityIndex getPopularityIndex() {
         return this.index;
     }
-    
+
     @Override
     public Map<String, String> getStats() {
         return this.index.getStats();

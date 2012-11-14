@@ -16,9 +16,13 @@
 
 package com.flaptor.indextank.storage;
 
-import java.io.File;
-import java.io.IOException;
-
+import com.flaptor.indextank.rpc.LogBatch;
+import com.flaptor.indextank.rpc.LogRecord;
+import com.flaptor.indextank.rpc.LogWriter;
+import com.flaptor.indextank.util.FormatLogger;
+import com.flaptor.indextank.util.ThriftServerThread;
+import com.flaptor.util.Execute;
+import com.google.common.base.Preconditions;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.HelpFormatter;
@@ -31,20 +35,15 @@ import org.apache.thrift.TException;
 import org.apache.thrift.TProcessor;
 import org.apache.thrift.transport.TTransportException;
 
-import com.flaptor.indextank.rpc.LogBatch;
-import com.flaptor.indextank.rpc.LogRecord;
-import com.flaptor.indextank.rpc.LogWriter;
-import com.flaptor.indextank.util.FormatLogger;
-import com.flaptor.indextank.util.ThriftServerThread;
-import com.flaptor.util.Execute;
-import com.google.common.base.Preconditions;
+import java.io.File;
+import java.io.IOException;
 
 public class LogWriterServer implements LogWriter.Iface {
 
     static final FormatLogger logger = new FormatLogger();
     static final FormatLogger alertLogger = FormatLogger.getAlertsLogger();
 
-    protected RawLog liveLog; 
+    protected RawLog liveLog;
     protected final int port;
     protected LogRoot root;
 
@@ -52,7 +51,8 @@ public class LogWriterServer implements LogWriter.Iface {
 
     /**
      * Constructor for tests only. Used to run cycles without actually starting the server.
-     * @throws IOException 
+     *
+     * @throws IOException
      */
     LogWriterServer(LogRoot root, int liveSegmentSize, boolean testMode) throws IOException {
         Preconditions.checkArgument(testMode, "This constructor is only intended for test mode");
@@ -64,7 +64,7 @@ public class LogWriterServer implements LogWriter.Iface {
             throw new RuntimeException("Unable to get lock, there's another server running writing to this log.");
         }
     }
-    
+
     private LogWriterServer(int port) throws IOException {
         this(LogRoot.DEFAULT_PATH, port);
     }
@@ -78,7 +78,7 @@ public class LogWriterServer implements LogWriter.Iface {
             throw new RuntimeException("Unable to get lock, there's another server running writing to this log.");
         }
     }
-    
+
     @Override
     public void send_batch(LogBatch batch) throws TException {
         for (LogRecord record : batch.get_records()) {
@@ -94,7 +94,7 @@ public class LogWriterServer implements LogWriter.Iface {
         }
     }
 
-    public void start(){
+    public void start() {
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
@@ -112,24 +112,24 @@ public class LogWriterServer implements LogWriter.Iface {
     }
 
     @SuppressWarnings("static-access")
-    private static Options getOptions(){
-        Option port = OptionBuilder         .withArgName("port")
-                                            .hasArg()
-                                            .withDescription("Server Port")
-                                            .withLongOpt("port")
-                                            .create("p");
-        
-        Option path = OptionBuilder         .withArgName("path")
-                                            .hasArg()
-                                            .withDescription("Logs Path")
-                                            .withLongOpt("path")
-                                            .isRequired(false)
-                                            .create("f");
-        
-        Option help = OptionBuilder         .withDescription("Displays this help")
-                                            .withLongOpt("help")
-                                            .create("h");
-        
+    private static Options getOptions() {
+        Option port = OptionBuilder.withArgName("port")
+                .hasArg()
+                .withDescription("Server Port")
+                .withLongOpt("port")
+                .create("p");
+
+        Option path = OptionBuilder.withArgName("path")
+                .hasArg()
+                .withDescription("Logs Path")
+                .withLongOpt("path")
+                .isRequired(false)
+                .create("f");
+
+        Option help = OptionBuilder.withDescription("Displays this help")
+                .withLongOpt("help")
+                .create("h");
+
         Options options = new Options();
         options.addOption(port);
         options.addOption(path);
@@ -141,27 +141,27 @@ public class LogWriterServer implements LogWriter.Iface {
     private static void printHelp(Options options, String error) {
         if (null != error) {
             System.out.println("Invalid usage: " + error);
-        } 
+        }
         HelpFormatter formatter = new HelpFormatter();
         formatter.printHelp("LogWriterServer [options]", options);
-    } 
-    
-    public static void main(String[] args) throws IOException, InterruptedException{
+    }
+
+    public static void main(String[] args) throws IOException, InterruptedException {
         // create the parser
         CommandLineParser parser = new PosixParser();
 
         int port;
-        
+
         LogWriterServer server;
         try {
             // parse the command line arguments
-            CommandLine line = parser.parse( getOptions(), args );
-            if (line.hasOption("help")) { 
+            CommandLine line = parser.parse(getOptions(), args);
+            if (line.hasOption("help")) {
                 printHelp(getOptions(), null);
                 System.exit(1);
                 return;
             }
-            
+
             String val = null;
             val = line.getOptionValue("port", null);
             if (null != val) {
@@ -171,7 +171,7 @@ public class LogWriterServer implements LogWriter.Iface {
                 System.exit(1);
                 return;
             }
-            
+
             String path = null;
             path = line.getOptionValue("path", null);
             if (null != path) {
@@ -179,15 +179,15 @@ public class LogWriterServer implements LogWriter.Iface {
             } else {
                 server = new LogWriterServer(port);
             }
-        } catch( ParseException exp ) {
-            printHelp(getOptions(),exp.getMessage());
+        } catch (ParseException exp) {
+            printHelp(getOptions(), exp.getMessage());
             System.exit(1);
             return;
-        } 
-        
+        }
+
         server.start();
     }
-    
+
     private class FlushEverySecond extends Thread {
         @Override
         public void run() {
@@ -202,5 +202,5 @@ public class LogWriterServer implements LogWriter.Iface {
         }
     }
 
-    
+
 }

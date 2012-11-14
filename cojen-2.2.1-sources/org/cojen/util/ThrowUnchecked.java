@@ -34,15 +34,14 @@
 
 package org.cojen.util;
 
-import java.lang.reflect.UndeclaredThrowableException;
-
-import java.security.AccessController;
-import java.security.PrivilegedAction;
-
 import org.cojen.classfile.CodeBuilder;
 import org.cojen.classfile.Modifiers;
 import org.cojen.classfile.RuntimeClassFile;
 import org.cojen.classfile.TypeDesc;
+
+import java.lang.reflect.UndeclaredThrowableException;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 
 /**
  * Allows exceptions to be thrown which aren't declared to be thrown. Use of
@@ -51,9 +50,9 @@ import org.cojen.classfile.TypeDesc;
  * used except under special circumstances such as to work around compiler
  * bugs. An exception can be made, if calling any of the fireDeclared methods
  * and the set of declared types matches what the caller is allowed to throw.
- *
+ * <p/>
  * <p>Example:
- *
+ * <p/>
  * <pre>
  * public &lt;E extends Throwable&gt; void someMethod(E exception) throws E {
  *     ...
@@ -96,11 +95,11 @@ public abstract class ThrowUnchecked {
                     impl = cImpl;
                     if (impl == null) {
                         cImpl = impl =
-                            AccessController.doPrivileged(new PrivilegedAction<ThrowUnchecked>() {
-                                public ThrowUnchecked run() {
-                                    return generateImpl();
-                                }
-                            });
+                                AccessController.doPrivileged(new PrivilegedAction<ThrowUnchecked>() {
+                                    public ThrowUnchecked run() {
+                                        return generateImpl();
+                                    }
+                                });
                     }
                 }
             }
@@ -115,10 +114,10 @@ public abstract class ThrowUnchecked {
      * UndeclaredThrowableException. This method only returns normally if the
      * exception is null.
      *
-     * @param t exception to throw
+     * @param t             exception to throw
      * @param declaredTypes if exception is checked and is not an instance of
-     * any of these types, then it is thrown as an
-     * UndeclaredThrowableException.
+     *                      any of these types, then it is thrown as an
+     *                      UndeclaredThrowableException.
      */
     public static void fireDeclared(Throwable t, Class... declaredTypes) {
         if (t != null) {
@@ -145,10 +144,10 @@ public abstract class ThrowUnchecked {
      * original exception is thrown as an UndeclaredThrowableException. This
      * method only returns normally if the exception is null.
      *
-     * @param t exception whose cause is to be thrown
+     * @param t             exception whose cause is to be thrown
      * @param declaredTypes if exception is checked and is not an instance of
-     * any of these types, then it is thrown as an
-     * UndeclaredThrowableException.
+     *                      any of these types, then it is thrown as an
+     *                      UndeclaredThrowableException.
      */
     public static void fireFirstDeclared(Throwable t, Class... declaredTypes) {
         Throwable cause = t;
@@ -198,10 +197,10 @@ public abstract class ThrowUnchecked {
      * exception is thrown. This method only returns normally if the exception
      * is null.
      *
-     * @param t exception whose cause is to be thrown
+     * @param t             exception whose cause is to be thrown
      * @param declaredTypes if exception is checked and is not an instance of
-     * any of these types, then it is thrown as an
-     * UndeclaredThrowableException.
+     *                      any of these types, then it is thrown as an
+     *                      UndeclaredThrowableException.
      */
     public static void fireDeclaredCause(Throwable t, Class... declaredTypes) {
         if (t != null) {
@@ -220,10 +219,10 @@ public abstract class ThrowUnchecked {
      * original exception is thrown. This method only returns normally if the
      * exception is null.
      *
-     * @param t exception whose cause is to be thrown
+     * @param t             exception whose cause is to be thrown
      * @param declaredTypes if exception is checked and is not an instance of
-     * any of these types, then it is thrown as an
-     * UndeclaredThrowableException.
+     *                      any of these types, then it is thrown as an
+     *                      UndeclaredThrowableException.
      */
     public static void fireFirstDeclaredCause(Throwable t, Class... declaredTypes) {
         Throwable cause = t;
@@ -275,10 +274,10 @@ public abstract class ThrowUnchecked {
      * original exception is thrown. This method only returns normally if the
      * exception is null.
      *
-     * @param t exception whose root cause is to be thrown
+     * @param t             exception whose root cause is to be thrown
      * @param declaredTypes if exception is checked and is not an instance of
-     * any of these types, then it is thrown as an
-     * UndeclaredThrowableException.
+     *                      any of these types, then it is thrown as an
+     *                      UndeclaredThrowableException.
      */
     public static void fireDeclaredRootCause(Throwable t, Class... declaredTypes) {
         Throwable root = t;
@@ -296,8 +295,8 @@ public abstract class ThrowUnchecked {
         RuntimeClassFile cf = new RuntimeClassFile(null, ThrowUnchecked.class.getName());
         cf.addDefaultConstructor();
         CodeBuilder b = new CodeBuilder
-            (cf.addMethod(Modifiers.PROTECTED, "doFire",
-                          null, new TypeDesc[] {TypeDesc.forClass(Throwable.class)}));
+                (cf.addMethod(Modifiers.PROTECTED, "doFire",
+                        null, new TypeDesc[]{TypeDesc.forClass(Throwable.class)}));
         b.loadLocal(b.getParameter(0));
         b.throwObject();
         try {

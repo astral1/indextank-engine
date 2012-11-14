@@ -23,7 +23,7 @@ import java.lang.reflect.Modifier;
  * methods provided to manipulate the bitmask ensure that it is always
  * legal. i.e. setting it public automatically clears it from being private or
  * protected.
- * 
+ *
  * @author Brian S O'Neill
  */
 public class Modifiers {
@@ -48,18 +48,18 @@ public class Modifiers {
      */
     public static Modifiers getInstance(int bitmask) {
         switch (bitmask) {
-        case 0:
-            return NONE;
-        case Modifier.PUBLIC:
-            return PUBLIC;
-        case Modifier.PUBLIC | Modifier.ABSTRACT:
-            return PUBLIC_ABSTRACT;
-        case Modifier.PUBLIC | Modifier.STATIC:
-            return PUBLIC_STATIC;
-        case Modifier.PROTECTED:
-            return PROTECTED;
-        case Modifier.PRIVATE:
-            return PRIVATE;
+            case 0:
+                return NONE;
+            case Modifier.PUBLIC:
+                return PUBLIC;
+            case Modifier.PUBLIC | Modifier.ABSTRACT:
+                return PUBLIC_ABSTRACT;
+            case Modifier.PUBLIC | Modifier.STATIC:
+                return PUBLIC_STATIC;
+            case Modifier.PROTECTED:
+                return PROTECTED;
+            case Modifier.PRIVATE:
+                return PRIVATE;
         }
 
         return new Modifiers(bitmask);
@@ -72,7 +72,7 @@ public class Modifiers {
             return bitmask & ~Modifier.PUBLIC;
         }
     }
-    
+
     private static int toPrivate(int bitmask, boolean b) {
         if (b) {
             return (bitmask | Modifier.PRIVATE) & (~Modifier.PUBLIC & ~Modifier.PROTECTED);
@@ -88,7 +88,7 @@ public class Modifiers {
             return bitmask & ~Modifier.PROTECTED;
         }
     }
-    
+
     private static int toStatic(int bitmask, boolean b) {
         if (b) {
             return bitmask | Modifier.STATIC;
@@ -104,51 +104,51 @@ public class Modifiers {
             return bitmask & ~Modifier.FINAL;
         }
     }
-    
+
     private static int toSynchronized(int bitmask, boolean b) {
         if (b) {
             return (bitmask | Modifier.SYNCHRONIZED) &
-                (~Modifier.VOLATILE & ~Modifier.TRANSIENT & ~Modifier.INTERFACE);
+                    (~Modifier.VOLATILE & ~Modifier.TRANSIENT & ~Modifier.INTERFACE);
         } else {
             return bitmask & ~Modifier.SYNCHRONIZED;
         }
     }
-    
+
     private static int toVolatile(int bitmask, boolean b) {
         if (b) {
             return (bitmask | Modifier.VOLATILE) &
-                (~Modifier.SYNCHRONIZED & ~Modifier.NATIVE & ~Modifier.INTERFACE &
-                 ~Modifier.ABSTRACT & ~Modifier.STRICT);
+                    (~Modifier.SYNCHRONIZED & ~Modifier.NATIVE & ~Modifier.INTERFACE &
+                            ~Modifier.ABSTRACT & ~Modifier.STRICT);
         } else {
             return bitmask & ~Modifier.VOLATILE;
         }
     }
-    
+
     private static int toTransient(int bitmask, boolean b) {
         if (b) {
             return (bitmask | Modifier.TRANSIENT) &
-                (~Modifier.SYNCHRONIZED & ~Modifier.NATIVE &
-                 ~Modifier.INTERFACE & ~Modifier.ABSTRACT & ~Modifier.STRICT);
+                    (~Modifier.SYNCHRONIZED & ~Modifier.NATIVE &
+                            ~Modifier.INTERFACE & ~Modifier.ABSTRACT & ~Modifier.STRICT);
         } else {
             return bitmask & ~Modifier.TRANSIENT;
         }
     }
-    
+
     private static int toNative(int bitmask, boolean b) {
         if (b) {
-            return (bitmask | Modifier.NATIVE) & 
-                (~Modifier.VOLATILE & ~Modifier.TRANSIENT &
-                 ~Modifier.INTERFACE & ~Modifier.ABSTRACT & ~Modifier.STRICT);
+            return (bitmask | Modifier.NATIVE) &
+                    (~Modifier.VOLATILE & ~Modifier.TRANSIENT &
+                            ~Modifier.INTERFACE & ~Modifier.ABSTRACT & ~Modifier.STRICT);
         } else {
             return bitmask & ~Modifier.NATIVE;
         }
     }
-    
+
     private static int toInterface(int bitmask, boolean b) {
         if (b) {
-            return (bitmask | (Modifier.INTERFACE | Modifier.ABSTRACT)) & 
-                (~Modifier.FINAL & ~Modifier.SYNCHRONIZED &
-                 ~Modifier.VOLATILE & ~Modifier.TRANSIENT & ~Modifier.NATIVE);
+            return (bitmask | (Modifier.INTERFACE | Modifier.ABSTRACT)) &
+                    (~Modifier.FINAL & ~Modifier.SYNCHRONIZED &
+                            ~Modifier.VOLATILE & ~Modifier.TRANSIENT & ~Modifier.NATIVE);
         } else {
             return bitmask & ~Modifier.INTERFACE;
         }
@@ -156,9 +156,9 @@ public class Modifiers {
 
     private static int toAbstract(int bitmask, boolean b) {
         if (b) {
-            return (bitmask | Modifier.ABSTRACT) & 
-                (~Modifier.FINAL & ~Modifier.VOLATILE & ~Modifier.TRANSIENT & ~Modifier.NATIVE &
-                 ~Modifier.SYNCHRONIZED & ~Modifier.STRICT);
+            return (bitmask | Modifier.ABSTRACT) &
+                    (~Modifier.FINAL & ~Modifier.VOLATILE & ~Modifier.TRANSIENT & ~Modifier.NATIVE &
+                            ~Modifier.SYNCHRONIZED & ~Modifier.STRICT);
         } else {
             return bitmask & ~Modifier.ABSTRACT & ~Modifier.INTERFACE;
         }
@@ -177,7 +177,7 @@ public class Modifiers {
         // apply to fields.
         if (b) {
             return (bitmask | Modifier.VOLATILE) &
-                (~Modifier.NATIVE & ~Modifier.INTERFACE & ~Modifier.ABSTRACT);
+                    (~Modifier.NATIVE & ~Modifier.INTERFACE & ~Modifier.ABSTRACT);
         } else {
             return bitmask & ~Modifier.VOLATILE;
         }
@@ -188,8 +188,8 @@ public class Modifiers {
         // to methods.
         if (b) {
             return (bitmask | Modifier.NATIVE) &
-                (~Modifier.ABSTRACT & ~Modifier.INTERFACE &
-                 ~Modifier.STRICT & ~Modifier.SYNCHRONIZED);
+                    (~Modifier.ABSTRACT & ~Modifier.INTERFACE &
+                            ~Modifier.STRICT & ~Modifier.SYNCHRONIZED);
         } else {
             return bitmask & ~Modifier.NATIVE;
         }
@@ -200,14 +200,14 @@ public class Modifiers {
         // apply to fields.
         if (b) {
             return (bitmask | Modifier.TRANSIENT) &
-                (~Modifier.INTERFACE & ~Modifier.VOLATILE);
+                    (~Modifier.INTERFACE & ~Modifier.VOLATILE);
         } else {
             return bitmask & ~Modifier.TRANSIENT;
         }
     }
 
     private final int mBitmask;
-    
+
     private Modifiers(int bitmask) {
         mBitmask = bitmask;
     }
@@ -218,7 +218,7 @@ public class Modifiers {
     public final int getBitmask() {
         return mBitmask;
     }
-    
+
     public boolean isPublic() {
         return Modifier.isPublic(mBitmask);
     }
@@ -230,7 +230,7 @@ public class Modifiers {
     public boolean isProtected() {
         return Modifier.isProtected(mBitmask);
     }
-    
+
     public boolean isStatic() {
         return Modifier.isStatic(mBitmask);
     }
@@ -250,15 +250,15 @@ public class Modifiers {
     public boolean isTransient() {
         return Modifier.isTransient(mBitmask);
     }
-    
+
     public boolean isNative() {
         return Modifier.isNative(mBitmask);
     }
-    
+
     public boolean isInterface() {
         return Modifier.isInterface(mBitmask);
     }
-    
+
     public boolean isAbstract() {
         return Modifier.isAbstract(mBitmask);
     }
@@ -287,7 +287,7 @@ public class Modifiers {
     public Modifiers toPublic(boolean b) {
         return convert(toPublic(mBitmask, b));
     }
-    
+
     /**
      * When set private, the bitmask is cleared from being public or protected.
      *
@@ -424,7 +424,7 @@ public class Modifiers {
             return true;
         }
         if (obj instanceof Modifiers) {
-            Modifiers other = (Modifiers)obj;
+            Modifiers other = (Modifiers) obj;
             return mBitmask == other.mBitmask;
         }
         return false;

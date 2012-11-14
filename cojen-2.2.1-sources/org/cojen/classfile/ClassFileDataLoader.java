@@ -16,8 +16,8 @@
 
 package org.cojen.classfile;
 
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * Loads data for class files from qualified class names.

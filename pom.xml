@@ -35,7 +35,8 @@
                         <configuration>
                             <outputDirectory>kranalyzer</outputDirectory>
                             <lexDefinitions>
-                                <lexDefintion>kranalyzer/org/apache/lucene/analysis/kr/KoreanTokenizerImpl.jflex</lexDefintion>
+                                <lexDefintion>kranalyzer/org/apache/lucene/analysis/kr/KoreanTokenizerImpl.jflex
+                                </lexDefintion>
                             </lexDefinitions>
                         </configuration>
                     </execution>

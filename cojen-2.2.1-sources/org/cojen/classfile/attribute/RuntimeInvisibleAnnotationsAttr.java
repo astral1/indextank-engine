@@ -16,9 +16,10 @@
 
 package org.cojen.classfile.attribute;
 
+import org.cojen.classfile.ConstantPool;
+
 import java.io.DataInput;
 import java.io.IOException;
-import org.cojen.classfile.ConstantPool;
 
 /**
  * The class corresponds to the RuntimeInvisibleAnnotations_attribute structure
@@ -35,10 +36,9 @@ public class RuntimeInvisibleAnnotationsAttr extends AnnotationsAttr {
     public RuntimeInvisibleAnnotationsAttr(ConstantPool cp, String name) {
         super(cp, name);
     }
-    
+
     public RuntimeInvisibleAnnotationsAttr(ConstantPool cp, String name, int length, DataInput din)
-        throws IOException
-    {
+            throws IOException {
         super(cp, name, length, din);
     }
 }

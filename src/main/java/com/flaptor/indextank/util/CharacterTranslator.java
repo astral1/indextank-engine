@@ -16,9 +16,9 @@
 
 package com.flaptor.indextank.util;
 
-import java.util.HashMap;
-
 import org.apache.commons.lang3.text.translate.EntityArrays;
+
+import java.util.HashMap;
 
 public class CharacterTranslator {
 
@@ -31,14 +31,15 @@ public class CharacterTranslator {
     private HashMap<Character, CharSequence> lookupMap;
 
     /**
-     * Merges parameter arrays into a map. 
+     * Merges parameter arrays into a map.
      * Assumes that parameter arrays have a 1-char key.
+     *
      * @param lookup
      */
-    public CharacterTranslator(CharSequence[][] ... lookup) {
+    public CharacterTranslator(CharSequence[][]... lookup) {
         lookupMap = new HashMap<Character, CharSequence>();
-        for(CharSequence[][] l: lookup) {
-            for(CharSequence[] seq: l) {
+        for (CharSequence[][] l : lookup) {
+            for (CharSequence[] seq : l) {
                 lookupMap.put(seq[0].charAt(0), seq[1]);
             }
         }

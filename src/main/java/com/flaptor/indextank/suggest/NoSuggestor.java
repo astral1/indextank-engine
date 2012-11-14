@@ -16,13 +16,13 @@
 
 package com.flaptor.indextank.suggest;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
 import com.flaptor.indextank.index.Document;
 import com.flaptor.indextank.query.Query;
 import com.google.common.collect.Lists;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 /**
  * A dummy suggestor implementation that does not suggest anything.
@@ -47,7 +47,7 @@ public class NoSuggestor implements Suggestor {
     @Override
     public void dump() {
     }
-    
+
     @Override
     public Map<String, String> getStats() {
         return Collections.emptyMap();

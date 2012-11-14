@@ -17,8 +17,6 @@
 
 package com.flaptor.indextank;
 
-import java.util.List;
-
 import com.flaptor.indextank.index.Document;
 import com.flaptor.indextank.index.ScoredMatch;
 import com.flaptor.indextank.index.TopMatches;
@@ -32,49 +30,52 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 
+import java.util.List;
+
 public abstract class IndexTankTestCase extends TestCase {
 
-	private IndexEngineParser parser;
+    private IndexEngineParser parser;
 
-	@Override
-	protected void setUp() throws Exception {
-		parser = new IndexEngineParser("text");
-	}
-	
-	public Query query(String queryStr) throws ParseException {
-		return new Query(parser.parseQuery(queryStr),queryStr,null);
-	}
-	
-	private static final Function<ScoredMatch, String> GET_ID_FUNCTION = new Function<ScoredMatch, String>() {
-		@Override
-		public String apply(ScoredMatch r) {
-			return r.getDocId().toString();
-		}
-	};
-	
-	public static void assertSameSets(Iterable<?> a, Iterable<?> b) {
-		assertTrue(Sets.newHashSet(a).equals(Sets.newHashSet(b)));
-	}
-	public static void assertSameSets(String message, Iterable<?> expected, Iterable<?> actaul) {
-		assertEquals(message, Sets.newHashSet(expected),  Sets.newHashSet(actaul));
-	}
-	
-	public static Iterable<String> toDocIds(TopMatches result) {
-		return Iterables.transform(result, GET_ID_FUNCTION);
-	}
+    @Override
+    protected void setUp() throws Exception {
+        parser = new IndexEngineParser("text");
+    }
 
-	public static Document createDocument(String text) {
-		return new Document(ImmutableMap.of("text", text));
-	}
+    public Query query(String queryStr) throws ParseException {
+        return new Query(parser.parseQuery(queryStr), queryStr, null);
+    }
 
-	public static void assertResultIds(String message, TopMatches results, String... ids) {
-		List<String> expected = list(ids);
-		Iterable<String> actual = toDocIds(results);
-		assertSameSets(message, expected, actual);
-	}
+    private static final Function<ScoredMatch, String> GET_ID_FUNCTION = new Function<ScoredMatch, String>() {
+        @Override
+        public String apply(ScoredMatch r) {
+            return r.getDocId().toString();
+        }
+    };
 
-	public static <T> List<T> list(T... ts) {
+    public static void assertSameSets(Iterable<?> a, Iterable<?> b) {
+        assertTrue(Sets.newHashSet(a).equals(Sets.newHashSet(b)));
+    }
+
+    public static void assertSameSets(String message, Iterable<?> expected, Iterable<?> actaul) {
+        assertEquals(message, Sets.newHashSet(expected), Sets.newHashSet(actaul));
+    }
+
+    public static Iterable<String> toDocIds(TopMatches result) {
+        return Iterables.transform(result, GET_ID_FUNCTION);
+    }
+
+    public static Document createDocument(String text) {
+        return new Document(ImmutableMap.of("text", text));
+    }
+
+    public static void assertResultIds(String message, TopMatches results, String... ids) {
+        List<String> expected = list(ids);
+        Iterable<String> actual = toDocIds(results);
+        assertSameSets(message, expected, actual);
+    }
+
+    public static <T> List<T> list(T... ts) {
         return ImmutableList.copyOf(ts);
-	}
+    }
 
 }

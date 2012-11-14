@@ -16,16 +16,16 @@
 
 package com.flaptor.indextank.storage;
 
+import com.flaptor.indextank.util.FormatLogger;
+import com.flaptor.indextank.util.IndexTankUtil;
+import com.flaptor.util.Execute;
+import com.google.common.io.Files;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-
-import com.flaptor.indextank.util.FormatLogger;
-import com.flaptor.indextank.util.IndexTankUtil;
-import com.flaptor.util.Execute;
-import com.google.common.io.Files;
 
 public class LogCleaner implements Runnable {
 
@@ -43,7 +43,7 @@ public class LogCleaner implements Runnable {
     public void deleteIndex(String code) {
         deletedIndexes.offer(code);
     }
-    
+
     @Override
     public void run() {
         while (true) {
@@ -66,7 +66,7 @@ public class LogCleaner implements Runnable {
                             indexesLock.writeLock().unlock();
                         }
                     }
-                    
+
                     try {
                         for (File file : path.listFiles()) {
                             if (!IndexLog.isLog(file)) continue;
@@ -75,7 +75,7 @@ public class LogCleaner implements Runnable {
                             if (log.getLastRead() < System.currentTimeMillis() - SAFE_PERIOD_AFTER_READ) {
                                 List<Segment> segments = log.getOptimizedSegments();
                                 if (segments.size() > 1) {
-                                    for (Segment s : segments.subList(0, segments.size()-1)) {
+                                    for (Segment s : segments.subList(0, segments.size() - 1)) {
                                         logger.info("Purging %s", s);
                                         s.delete();
                                     }
@@ -99,16 +99,17 @@ public class LogCleaner implements Runnable {
             }
         }
     }
-    
+
     public void start() {
         new Thread(this).start();
     }
-    
+
     public void lockIndexesForRead() {
         indexesLock.readLock().lock();
     }
+
     public void unlockIndexesForRead() {
         indexesLock.readLock().unlock();
     }
-    
+
 }

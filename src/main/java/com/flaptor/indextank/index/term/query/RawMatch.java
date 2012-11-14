@@ -15,45 +15,45 @@
  */
 
 /**
- * 
+ *
  */
 package com.flaptor.indextank.index.term.query;
 
 public final class RawMatch implements Comparable<RawMatch> {
-	private int rawId;
-	private double score;
+    private int rawId;
+    private double score;
     private double boost;
-	
-	public RawMatch(int rawId, double score, double boost) {
-		this.rawId = rawId;
-		this.score = score;
-        this.boost = boost;
-	}
 
-	@Override
-	public int compareTo(RawMatch o) {
-		return rawId - o.rawId;
-	}
-	
-	public int getRawId() {
-		return rawId;
-	}
-    
-	public double getScore() {
-		return score;
-	}
+    public RawMatch(int rawId, double score, double boost) {
+        this.rawId = rawId;
+        this.score = score;
+        this.boost = boost;
+    }
+
+    @Override
+    public int compareTo(RawMatch o) {
+        return rawId - o.rawId;
+    }
+
+    public int getRawId() {
+        return rawId;
+    }
+
+    public double getScore() {
+        return score;
+    }
 
     public double getBoost() {
         return boost;
     }
 
-	public void setRawId(int rawId) {
+    public void setRawId(int rawId) {
         this.rawId = rawId;
     }
-	
-	public void setScore(double score) {
-		this.score = score;
-	}
+
+    public void setScore(double score) {
+        this.score = score;
+    }
 
     public void setBoost(double boost) {
         this.boost = boost;
@@ -63,31 +63,31 @@ public final class RawMatch implements Comparable<RawMatch> {
         return score * boost;
     }
 
-	@Override
-	public String toString() {
-		return String.valueOf(rawId) + " score:"+score + " boost:"+boost;
-	}
+    @Override
+    public String toString() {
+        return String.valueOf(rawId) + " score:" + score + " boost:" + boost;
+    }
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + rawId;
-		return result;
-	}
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + rawId;
+        return result;
+    }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		RawMatch other = (RawMatch) obj;
-		if (rawId != other.rawId)
-			return false;
-		return true;
-	}
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        RawMatch other = (RawMatch) obj;
+        if (rawId != other.rawId)
+            return false;
+        return true;
+    }
 
 }

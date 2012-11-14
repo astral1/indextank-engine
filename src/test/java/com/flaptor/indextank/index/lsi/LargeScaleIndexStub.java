@@ -35,10 +35,10 @@ public class LargeScaleIndexStub extends LargeScaleIndex {
     public TopMatches findMatches(Query query, int limit, int scoringFunctionIndex) {
         return res;
     }
-    
+
     @Override
     public TopMatches findMatches(Query query, Predicate<DocId> docFilter, int limit, int scoringFunctionIndex) {
-    	return res;
+        return res;
     }
 
 }

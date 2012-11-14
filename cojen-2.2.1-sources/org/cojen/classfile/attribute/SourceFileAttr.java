@@ -16,24 +16,25 @@
 
 package org.cojen.classfile.attribute;
 
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.IOException;
 import org.cojen.classfile.Attribute;
 import org.cojen.classfile.ConstantPool;
 import org.cojen.classfile.constant.ConstantUTFInfo;
 
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
+
 /**
- * This class corresponds to the SourceFile_attribute structure as defined 
+ * This class corresponds to the SourceFile_attribute structure as defined
  * in section 4.7.2 of <i>The Java Virtual Machine Specification</i>.
- * 
+ *
  * @author Brian S O'Neill
  * @see org.cojen.classfile.ClassFile
  */
 public class SourceFileAttr extends Attribute {
 
     private final ConstantUTFInfo mSourcefile;
-    
+
     public SourceFileAttr(ConstantPool cp, String fileName) {
         this(cp, SOURCE_FILE, fileName);
     }
@@ -42,16 +43,15 @@ public class SourceFileAttr extends Attribute {
         super(cp, name);
         mSourcefile = cp.addConstantUTF(fileName);
     }
-    
+
     public SourceFileAttr(ConstantPool cp, String name, int length, DataInput din)
-        throws IOException
-    {
+            throws IOException {
         super(cp, name);
         int index = din.readUnsignedShort();
         if ((length -= 2) > 0) {
             din.skipBytes(length);
         }
-        mSourcefile = (ConstantUTFInfo)cp.getConstant(index);
+        mSourcefile = (ConstantUTFInfo) cp.getConstant(index);
     }
 
     /**
@@ -60,14 +60,14 @@ public class SourceFileAttr extends Attribute {
     public ConstantUTFInfo getFileName() {
         return mSourcefile;
     }
-    
+
     /**
      * Returns the length of the source file attribute, which is 2 bytes.
      */
     public int getLength() {
         return 2;
     }
-    
+
     public void writeDataTo(DataOutput dout) throws IOException {
         dout.writeShort(mSourcefile.getIndex());
     }

@@ -16,25 +16,6 @@
 
 package com.flaptor.indextank.index;
 
-import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.OptionBuilder;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
-import org.apache.commons.cli.PosixParser;
-import org.apache.log4j.Logger;
-import org.apache.lucene.analysis.Analyzer;
-import org.json.simple.JSONValue;
-
 import com.flaptor.indextank.BoostingIndexer;
 import com.flaptor.indextank.DocumentStoringIndexer;
 import com.flaptor.indextank.IndexRecoverer;
@@ -72,14 +53,31 @@ import com.flaptor.util.Execute;
 import com.flaptor.util.FileUtil;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
+import org.apache.commons.cli.PosixParser;
+import org.apache.log4j.Logger;
+import org.apache.lucene.analysis.Analyzer;
+import org.json.simple.JSONValue;
+
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Map;
+import java.util.Map.Entry;
 
 /**
- *
  * @author Flaptor Team
  */
 public class IndexEngine {
     private static final Logger logger = Logger.getLogger(Execute.whoAmI());
-	
+
     private BoostingIndexer indexer;
     private DocumentSearcher searcher;
     private BoostsScorer scorer;
@@ -88,7 +86,7 @@ public class IndexEngine {
     private RealTimeIndex rti;
     private Suggestor suggestor;
     private DocumentStorage storage = null;
-	private IndexEngineParser parser;
+    private IndexEngineParser parser;
     private UserFunctionsManager functionsManager = null;
     private final BasicPromoter promoter;
     private IndexerStatus status;
@@ -96,7 +94,7 @@ public class IndexEngine {
     private final String environment;
     private final int basePort;
     private final File baseDir;
-    
+
     private IndexRecoverer.IndexStorageValue recoveryStorage;
     private String cassandraClusterHosts;
 
@@ -115,52 +113,57 @@ public class IndexEngine {
     private static final int DEFAULT_BDB_CACHE = 100;
     private static final int DEFAULT_MAX_SEARCH_QUEUE_LENGTH = 100;
 
-    public static enum SuggestValues { NO, QUERIES, DOCUMENTS};
-    public static enum StorageValues { NO, BDB, RAM, CASSANDRA };
-    
-    public IndexEngine( File baseDir, 
-                        int basePort, 
-                        int rtiSize, 
-                        boolean load, 
-                        int boostsSize, 
-                        SuggestValues suggest, 
-                        StorageValues storageValue,
-                        int bdbCache, 
-                        String functions, 
-                        boolean facets, 
-                        String indexCode, 
-                        String environment ) throws IOException {
-        
-    	this(   baseDir, 
-    	        basePort, 
-    	        rtiSize, 
-    	        load, 
-    	        boostsSize, 
-    	        suggest, 
-    	        storageValue, 
-    	        bdbCache, 
-    	        functions, 
-    	        facets, 
-    	        indexCode, 
-    	        environment, 
-    	        Maps.newHashMap()
-    	     );
+    public static enum SuggestValues {NO, QUERIES, DOCUMENTS}
+
+    ;
+
+    public static enum StorageValues {NO, BDB, RAM, CASSANDRA}
+
+    ;
+
+    public IndexEngine(File baseDir,
+                       int basePort,
+                       int rtiSize,
+                       boolean load,
+                       int boostsSize,
+                       SuggestValues suggest,
+                       StorageValues storageValue,
+                       int bdbCache,
+                       String functions,
+                       boolean facets,
+                       String indexCode,
+                       String environment) throws IOException {
+
+        this(baseDir,
+                basePort,
+                rtiSize,
+                load,
+                boostsSize,
+                suggest,
+                storageValue,
+                bdbCache,
+                functions,
+                facets,
+                indexCode,
+                environment,
+                Maps.newHashMap()
+        );
     }
-    
-    public IndexEngine( File baseDir, 
-                        int basePort, 
-                        int rtiSize, 
-                        boolean load, 
-                        int boostsSize, 
-                        SuggestValues suggest, 
-                        StorageValues storageValue, 
-                        int bdbCache, 
-                        String functions, 
-                        boolean facets, 
-                        String indexCode, 
-                        String environment, 
-                        Map<Object, Object> configuration) throws IOException {
-        
+
+    public IndexEngine(File baseDir,
+                       int basePort,
+                       int rtiSize,
+                       boolean load,
+                       int boostsSize,
+                       SuggestValues suggest,
+                       StorageValues storageValue,
+                       int bdbCache,
+                       String functions,
+                       boolean facets,
+                       String indexCode,
+                       String environment,
+                       Map<Object, Object> configuration) throws IOException {
+
         Preconditions.checkNotNull(indexCode);
         Preconditions.checkNotNull(environment);
         Preconditions.checkArgument(basePort > 0);
@@ -170,87 +173,87 @@ public class IndexEngine {
         this.environment = environment;
         this.basePort = basePort;
         this.baseDir = baseDir;
-        
-        
-    	String defaultField = "text";
-    	
-    	
-    	if (configuration.containsKey("log_based_storage")) {
-    	    logBasedStorage = (Boolean)configuration.get("log_based_storage");
-    	    if (logBasedStorage) {
-    	        logServerHost = (String) configuration.get("log_server_host");
-    	        
-    	        logServerPort = ((Long) configuration.get("log_server_port")).intValue();
-    	    }
-    	}
-    	
-    	Map<Object, Object> analyzerConfiguration = (Map<Object, Object>) configuration.get("analyzer_config");
 
-    	if (analyzerConfiguration != null) {
-			Analyzer analyzer;
-			
-			if (analyzerConfiguration.containsKey("perField")) {
-				Map<Object, Object> perfieldConfiguration = (Map<Object, Object>) analyzerConfiguration.get("perField");
-				Map<String, Analyzer> perfieldAnalyzers = Maps.newHashMap();
-				for (Entry<Object, Object> entry : perfieldConfiguration.entrySet()) {
-					String field = (String) entry.getKey();
-					Map<Object, Object> config = (Map<Object, Object>) entry.getValue();
-					
-					perfieldAnalyzers.put(field, buildAnalyzer(config));
-				}
-				
-				analyzer = new CompositeAnalyzer(buildAnalyzer((Map<Object, Object>) analyzerConfiguration.get("default")), perfieldAnalyzers);
-				
-			} else {
-				analyzer = buildAnalyzer(analyzerConfiguration);
-			}
-			
-			parser = new IndexEngineParser(defaultField, analyzer);
-		} else {
-			parser = new IndexEngineParser(defaultField);
-		}
-    	
-    	boostsManager = new DynamicDataManager(boostsSize, baseDir);
-        
-    	scorer = new BoostsScorer(boostsManager, Maps.<Integer, ScoreFunction>newHashMap());
-        
+
+        String defaultField = "text";
+
+
+        if (configuration.containsKey("log_based_storage")) {
+            logBasedStorage = (Boolean) configuration.get("log_based_storage");
+            if (logBasedStorage) {
+                logServerHost = (String) configuration.get("log_server_host");
+
+                logServerPort = ((Long) configuration.get("log_server_port")).intValue();
+            }
+        }
+
+        Map<Object, Object> analyzerConfiguration = (Map<Object, Object>) configuration.get("analyzer_config");
+
+        if (analyzerConfiguration != null) {
+            Analyzer analyzer;
+
+            if (analyzerConfiguration.containsKey("perField")) {
+                Map<Object, Object> perfieldConfiguration = (Map<Object, Object>) analyzerConfiguration.get("perField");
+                Map<String, Analyzer> perfieldAnalyzers = Maps.newHashMap();
+                for (Entry<Object, Object> entry : perfieldConfiguration.entrySet()) {
+                    String field = (String) entry.getKey();
+                    Map<Object, Object> config = (Map<Object, Object>) entry.getValue();
+
+                    perfieldAnalyzers.put(field, buildAnalyzer(config));
+                }
+
+                analyzer = new CompositeAnalyzer(buildAnalyzer((Map<Object, Object>) analyzerConfiguration.get("default")), perfieldAnalyzers);
+
+            } else {
+                analyzer = buildAnalyzer(analyzerConfiguration);
+            }
+
+            parser = new IndexEngineParser(defaultField, analyzer);
+        } else {
+            parser = new IndexEngineParser(defaultField);
+        }
+
+        boostsManager = new DynamicDataManager(boostsSize, baseDir);
+
+        scorer = new BoostsScorer(boostsManager, Maps.<Integer, ScoreFunction>newHashMap());
+
         functionsManager = new UserFunctionsManager(scorer);
         boolean someFunctionDefined = false;
         String def0 = "0-A";
         try {
             functionsManager.addFunction(0, def0); // Default timestamp function
         } catch (Exception ex) {
-            logger.error("Defining scoring function (spec '"+def0+"')", ex);
+            logger.error("Defining scoring function (spec '" + def0 + "')", ex);
         }
         if (null != functions && !"".equals(functions)) {
             String[] specs = functions.split("\\|");
             for (String spec : specs) {
                 try {
-                    String[] parts = spec.split(":",2);
+                    String[] parts = spec.split(":", 2);
                     if (parts.length == 2) {
                         int id = Integer.parseInt(parts[0].trim());
                         String def = parts[1].trim();
                         functionsManager.addFunction(id, def);
                         someFunctionDefined = true;
                     } else {
-                        logger.error("Function should be defined as <id>:<definition> (found '"+spec+"').");
+                        logger.error("Function should be defined as <id>:<definition> (found '" + spec + "').");
                     }
                 } catch (Exception ex) {
-                    logger.error("Defining scoring function (spec '"+spec+"')", ex);
+                    logger.error("Defining scoring function (spec '" + spec + "')", ex);
                 }
             }
         }
 
         FacetingManager facetingManager;
-        
+
         if (facets) {
-        	facetingManager = new DynamicDataFacetingManager(boostsManager);
+            facetingManager = new DynamicDataFacetingManager(boostsManager);
         } else {
-        	facetingManager = new NoFacetingManager();
+            facetingManager = new NoFacetingManager();
         }
-        
+
         lsi = new LargeScaleIndex(scorer, parser, baseDir, facetingManager);
-		rti = new RealTimeIndex(scorer, parser, rtiSize, facetingManager);
+        rti = new RealTimeIndex(scorer, parser, rtiSize, facetingManager);
         switch (suggest) {
             case NO:
                 suggestor = new NoSuggestor();
@@ -263,7 +266,7 @@ public class IndexEngine {
                 suggestor = new QuerySuggestor(parser, baseDir);
                 break;
         }
-        
+
         this.cassandraClusterHosts = (String) configuration.get("cassandra_cluster_hosts");
         // index recovery configuration
         String recoveryConf = (String) configuration.get("index_recovery");
@@ -277,7 +280,7 @@ public class IndexEngine {
             logger.info("Index recovery configuration set to recover index from simpleDB");
             this.recoveryStorage = IndexRecoverer.IndexStorageValue.SIMPLEDB;
         }
-        
+
         switch (storageValue) {
             case RAM:
                 storage = new InMemoryStorage(baseDir, load);
@@ -296,57 +299,59 @@ public class IndexEngine {
 
     }
 
-	private Analyzer buildAnalyzer(Map<Object, Object> configuration) {
-		Analyzer analyzer;
-		String factoryClassString = (String) configuration.get("factory");
-		Map<Object, Object> factoryConfig = (Map<Object, Object>) configuration.get("configuration");
-		
-		try {
-			Class<?> factoryClass = Class.forName(factoryClassString);
-			Method method = factoryClass.getMethod("buildAnalyzer", new Class[] {Map.class});
-			
-			analyzer = (Analyzer) method.invoke(null, factoryConfig);
-			
-			if (factoryConfig.containsKey("filters")) {
-				analyzer = new FilteringAnalyzer(analyzer, factoryConfig);
-			}
-			
-		} catch (ClassNotFoundException e) {
-			throw new RuntimeException("Analyzer factory class not found", e);
-		} catch (SecurityException e) {
-			throw new RuntimeException("Analyzer factory class not instantiable", e);
-		} catch (NoSuchMethodException e) {
-			throw new RuntimeException("Analyzer factory class does not have the required static method buildAnalyzer", e);
-		} catch (IllegalArgumentException e) {
-			throw new RuntimeException("Analyzer factory class does not have the required static method buildAnalyzer", e);
-		} catch (IllegalAccessException e) {
-			throw new RuntimeException("Analyzer factory class does not have the required static method buildAnalyzer or it is not accessible", e);
-		} catch (InvocationTargetException e) {
-			throw new RuntimeException("Analyzer factory class threw an exception for the give configuration", e);
-		}
-		return analyzer;
-	};
+    private Analyzer buildAnalyzer(Map<Object, Object> configuration) {
+        Analyzer analyzer;
+        String factoryClassString = (String) configuration.get("factory");
+        Map<Object, Object> factoryConfig = (Map<Object, Object>) configuration.get("configuration");
+
+        try {
+            Class<?> factoryClass = Class.forName(factoryClassString);
+            Method method = factoryClass.getMethod("buildAnalyzer", new Class[]{Map.class});
+
+            analyzer = (Analyzer) method.invoke(null, factoryConfig);
+
+            if (factoryConfig.containsKey("filters")) {
+                analyzer = new FilteringAnalyzer(analyzer, factoryConfig);
+            }
+
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException("Analyzer factory class not found", e);
+        } catch (SecurityException e) {
+            throw new RuntimeException("Analyzer factory class not instantiable", e);
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException("Analyzer factory class does not have the required static method buildAnalyzer", e);
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException("Analyzer factory class does not have the required static method buildAnalyzer", e);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException("Analyzer factory class does not have the required static method buildAnalyzer or it is not accessible", e);
+        } catch (InvocationTargetException e) {
+            throw new RuntimeException("Analyzer factory class threw an exception for the give configuration", e);
+        }
+        return analyzer;
+    }
+
+    ;
 
 
-    public BoostingIndexer getIndexer(){
+    public BoostingIndexer getIndexer() {
         return this.indexer;
     }
 
-    public DocumentSearcher getSearcher(){
+    public DocumentSearcher getSearcher() {
         return this.searcher;
     }
 
     public Suggestor getSuggestor() {
         return this.suggestor;
     }
-   
+
     public DocumentStorage getStorage() {
-		return storage;
-	}
+        return storage;
+    }
 
     public IndexEngineParser getParser() {
-		return parser;
-	}
+        return parser;
+    }
 
     public void setStatus(IndexerStatus status) {
         this.status = status;
@@ -355,7 +360,7 @@ public class IndexEngine {
     public IndexerStatus getStatus() {
         return status;
     }
-    
+
     public void setIndexer(BoostingIndexer indexer) {
         this.indexer = indexer;
     }
@@ -366,134 +371,134 @@ public class IndexEngine {
         } else {
             setStatus(IndexerStatus.recovering);
             logger.info("startFullRecovery requested. Creating and starting a recovery thread.");
-            
+
             Runnable recoverer;
             if (logBasedStorage) {
                 recoverer = new LogIndexRecoverer(this, indexCode, logServerHost, logServerPort);
             } else {
                 recoverer = new IndexRecoverer(this, "127.0.0.1", basePort, baseDir, indexCode, environment, recoveryStorage, cassandraClusterHosts);
-                ((IndexRecoverer)recoverer).resetTimestamp();
+                ((IndexRecoverer) recoverer).resetTimestamp();
             }
-            
+
             Thread recovererThread = new Thread(recoverer) {
-                                            public void run() {
-                                                try {
-                                                    super.run();
-                                                    setStatus(IndexerStatus.ready);
-                                                } catch (Exception e) {
-                                                    logger.error("Exception while recovering.", e);
-                                                    setStatus(IndexerStatus.error);
-                                                }
-                                            }
-                                        };
+                public void run() {
+                    try {
+                        super.run();
+                        setStatus(IndexerStatus.ready);
+                    } catch (Exception e) {
+                        logger.error("Exception while recovering.", e);
+                        setStatus(IndexerStatus.error);
+                    }
+                }
+            };
             recovererThread.start();
-                
+
         }
     }
 
     @SuppressWarnings("static-access")
-    private static Options getOptions(){
-        Option baseDir = OptionBuilder  .withArgName("base-dir")
-                                        .hasArg()
-                                        .isRequired()
-                                        .withDescription("The basint e dir")
-                                        .withLongOpt("dir")
-                                        .create("d");
+    private static Options getOptions() {
+        Option baseDir = OptionBuilder.withArgName("base-dir")
+                .hasArg()
+                .isRequired()
+                .withDescription("The basint e dir")
+                .withLongOpt("dir")
+                .create("d");
 
-        Option basePort = OptionBuilder .withArgName("base-port")
-                                        .hasArg()
-                                        .withDescription("The base port")
-                                        .withLongOpt("port")
-                                        .create("p");
+        Option basePort = OptionBuilder.withArgName("base-port")
+                .hasArg()
+                .withDescription("The base port")
+                .withLongOpt("port")
+                .create("p");
 
-        Option boostSize = OptionBuilder .withArgName("boosts-size")
-        								.hasArg()
-        								.withDescription("Number of available boosts")
-        								.withLongOpt("boosts")
-        								.create("b");
+        Option boostSize = OptionBuilder.withArgName("boosts-size")
+                .hasArg()
+                .withDescription("Number of available boosts")
+                .withLongOpt("boosts")
+                .create("b");
 
-        Option rtiSize = OptionBuilder .withArgName("rti-size")
-                                        .hasArg()
-                                        .withDescription("The size limit for the RTI")
-                                        .withLongOpt("rti-size")
-                                        .create("rs");
+        Option rtiSize = OptionBuilder.withArgName("rti-size")
+                .hasArg()
+                .withDescription("The size limit for the RTI")
+                .withLongOpt("rti-size")
+                .create("rs");
 
-        Option help     = OptionBuilder .withDescription("displays this help")
-                                        .withLongOpt("help")
-                                        .create("h");
+        Option help = OptionBuilder.withDescription("displays this help")
+                .withLongOpt("help")
+                .create("h");
 
-        Option snippets = OptionBuilder .withDescription("Allow snippet generation and field fetching.")
-                                        .withLongOpt("snippets")
-                                        .create("sn");
-        
-        Option recover = OptionBuilder  .withDescription("Recover documents from the storage.")
-                                        .withLongOpt("recover")
-                                        .create("r");
+        Option snippets = OptionBuilder.withDescription("Allow snippet generation and field fetching.")
+                .withLongOpt("snippets")
+                .create("sn");
+
+        Option recover = OptionBuilder.withDescription("Recover documents from the storage.")
+                .withLongOpt("recover")
+                .create("r");
 
         Option indexCode = OptionBuilder.withArgName("code")
-                                        .hasArg()
-                                        .isRequired()
-                                        .withDescription("the index code this indexengine has")
-                                        .withLongOpt("index-code")
-                                        .create("ic");
+                .hasArg()
+                .isRequired()
+                .withDescription("the index code this indexengine has")
+                .withLongOpt("index-code")
+                .create("ic");
 
         Option environment = OptionBuilder.withArgName("environment")
-								        .hasArg()
-								        .isRequired()
-								        .withDescription("environment prefix")
-								        .withLongOpt("environment-prefix")
-								        .create("env");
+                .hasArg()
+                .isRequired()
+                .withDescription("environment prefix")
+                .withLongOpt("environment-prefix")
+                .create("env");
         /*
          * Analyzer argument should receive a JSON string with the following root structure:
          *    - factory: a java type that implements the following static method: org.apache.lucene.analysis.Analyzer buildAnalyzer(Map).
          *    - configuration: a JSON object to be passed to the buildAnalyzer method. 
          */
         Option analyzer = OptionBuilder.withArgName("analyzer")
-								        .hasArg()
-								        .withDescription("specific analyzer")
-								        .withLongOpt("analyzer")
-								        .create("an");
+                .hasArg()
+                .withDescription("specific analyzer")
+                .withLongOpt("analyzer")
+                .create("an");
 
         Option configFile = OptionBuilder.withArgName("conf-file")
-								        .hasArg()
-								        .withDescription("configuration file")
-								        .withLongOpt("conf-file")
-								        .create("cf");
+                .hasArg()
+                .withDescription("configuration file")
+                .withLongOpt("conf-file")
+                .create("cf");
 
         Option loadState = OptionBuilder.withArgName("load")
-                                        .withDescription("if present, the index engine will try to restore its state"
-                                                + "from the serialized form.")
-                                        .withLongOpt("load-state")
-                                        .create("l");
+                .withDescription("if present, the index engine will try to restore its state"
+                        + "from the serialized form.")
+                .withLongOpt("load-state")
+                .create("l");
 
         Option suggest = OptionBuilder.withArgName("suggest")
-                                        .hasArg()
-                                        .withDescription("if present, loads the suggest/autocomplete system.")
-                                        .withLongOpt("suggest")
-                                        .create("su");
+                .hasArg()
+                .withDescription("if present, loads the suggest/autocomplete system.")
+                .withLongOpt("suggest")
+                .create("su");
         Option facets = OptionBuilder.withArgName("facets")
-								        .withDescription("if present, performs facetings queries.")
-								        .withLongOpt("facets")
-								        .create("fa");
+                .withDescription("if present, performs facetings queries.")
+                .withLongOpt("facets")
+                .create("fa");
 
         Option functions = OptionBuilder.withArgName("functions")
-                                        .hasArg()
-                                        .withDescription("list of '|' separated scoring functions, each of which has the form <id>:<definition>.")
-                                        .withLongOpt("functions")
-                                        .create("fn");
+                .hasArg()
+                .withDescription("list of '|' separated scoring functions, each of which has the form <id>:<definition>.")
+                .withLongOpt("functions")
+                .create("fn");
         Option didyoumean = OptionBuilder.withLongOpt("didyoumean")
-                                        .withDescription("if present, performs 'did you mean?' suggestions on queries. Requires --suggest documents.")
-                                        .create("dym");
-        
-        Option storage  = OptionBuilder.withLongOpt("storage")
-                                        .hasArg()
-                                        .withDescription("if present, specifies a storage backend. Options are 'bdb' and 'ram'. Defaults to 'ram'.")
-                                        .create("st");
+                .withDescription("if present, performs 'did you mean?' suggestions on queries. Requires --suggest documents.")
+                .create("dym");
 
-        Option bdbCache  = OptionBuilder.withLongOpt("bdb-cache")
-                                        .hasArg()
-                                        .withDescription("if present, specifies the size of the berkeleyDb cache per thread, in megabytes. Defaults to 100MB.")
-                                        .create("bc");
+        Option storage = OptionBuilder.withLongOpt("storage")
+                .hasArg()
+                .withDescription("if present, specifies a storage backend. Options are 'bdb' and 'ram'. Defaults to 'ram'.")
+                .create("st");
+
+        Option bdbCache = OptionBuilder.withLongOpt("bdb-cache")
+                .hasArg()
+                .withDescription("if present, specifies the size of the berkeleyDb cache per thread, in megabytes. Defaults to 100MB.")
+                .create("bc");
 
         Options options = new Options();
         options.addOption(baseDir);
@@ -521,19 +526,21 @@ public class IndexEngine {
     private static void printHelp(Options options, String error) {
         if (null != error) {
             System.out.println("Parsing failed.  Reason: " + error);
-        } 
+        }
         HelpFormatter formatter = new HelpFormatter();
-        formatter.printHelp("IndexEngine",options);
-    } 
+        formatter.printHelp("IndexEngine", options);
+    }
 
     //--------------------------------------------------------------------------------
     //PRIVATE CLASSES
     private static class ShutdownThread extends Thread {
         private final BoostingIndexer server;
+
         public ShutdownThread(BoostingIndexer server) {
             this.server = server;
             setName("IndexEngine's ShutdownThread");
         }
+
         @Override
         public void run() {
             try {
@@ -548,7 +555,7 @@ public class IndexEngine {
 
     //--------------------------------------------------------------------------------
     //STATIC METHODS
-    public static void main(String[] args) throws IOException{
+    public static void main(String[] args) throws IOException {
         String log4jConfigPath = com.flaptor.util.FileUtil.getFilePathFromClasspath("log4j.properties");
         if (null != log4jConfigPath) {
             org.apache.log4j.PropertyConfigurator.configureAndWatch(log4jConfigPath);
@@ -559,9 +566,9 @@ public class IndexEngine {
         CommandLineParser parser = new PosixParser();
         try {
             // parse the command line arguments
-            CommandLine line = parser.parse( getOptions(), args );
-            if (line.hasOption("help")) { 
-                printHelp(getOptions(),null);
+            CommandLine line = parser.parse(getOptions(), args);
+            if (line.hasOption("help")) {
+                printHelp(getOptions(), null);
                 System.exit(1);
             }
 
@@ -574,9 +581,9 @@ public class IndexEngine {
             SuggestValues suggest;
             if (line.hasOption("suggest")) {
                 String value = line.getOptionValue("suggest");
-                if ( value.equalsIgnoreCase("queries")) {
+                if (value.equalsIgnoreCase("queries")) {
                     suggest = SuggestValues.QUERIES;
-                } else if ( value.equalsIgnoreCase("documents")) {
+                } else if (value.equalsIgnoreCase("documents")) {
                     suggest = SuggestValues.DOCUMENTS;
                 } else {
                     throw new IllegalArgumentException("Invalid value for suggest: can only be \"queries\" or \"documents\".");
@@ -584,10 +591,10 @@ public class IndexEngine {
             } else {
                 suggest = SuggestValues.NO;
             }
-            
+
             StorageValues storageValue = StorageValues.RAM;
             int bdbCache = 0;
-            if (line.hasOption("storage")){
+            if (line.hasOption("storage")) {
                 String storageType = line.getOptionValue("storage");
                 if ("bdb".equals(storageType)) {
                     storageValue = StorageValues.BDB;
@@ -605,45 +612,45 @@ public class IndexEngine {
             if (line.hasOption("functions")) {
                 functions = line.getOptionValue("functions");
             }
-            
+
             String environment;
             String val = line.getOptionValue("environment-prefix", null);
             if (null != val) {
-            	environment = val;
+                environment = val;
             } else {
-            	environment = "";
+                environment = "";
             }
             logger.info("Command line option 'environment-prefix' set to " + environment);
-			
+
             boolean facets = line.hasOption("facets");
             logger.info("Command line option 'facets' set to " + facets);
             String indexCode = line.getOptionValue("index-code");
             logger.info("Command line option 'index-code' set to " + indexCode);
 
             Map<Object, Object> configuration = Maps.newHashMap();
-        	
-            String configFile = line.getOptionValue("conf-file", null); 
-        	logger.info("Command line option 'conf-file' set to " + configFile);
-            
-        	if (configFile != null) {
-        		configuration = (Map<Object, Object>) JSONValue.parse(FileUtil.readFile(new File(configFile)));
-        	}
-            IndexEngine ie = new IndexEngine(
-                                               baseDir, 
-                                               basePort, 
-                                               rtiSize, 
-                                               loadState, 
-                                               boostsSize, 
-                                               suggest, 
-                                               storageValue, 
-                                               bdbCache, 
-                                               functions, 
-                                               facets, 
-                                               indexCode, 
-                                               environment, 
-                                               configuration);
 
-            BoostingIndexer indexer = ie.getIndexer(); 
+            String configFile = line.getOptionValue("conf-file", null);
+            logger.info("Command line option 'conf-file' set to " + configFile);
+
+            if (configFile != null) {
+                configuration = (Map<Object, Object>) JSONValue.parse(FileUtil.readFile(new File(configFile)));
+            }
+            IndexEngine ie = new IndexEngine(
+                    baseDir,
+                    basePort,
+                    rtiSize,
+                    loadState,
+                    boostsSize,
+                    suggest,
+                    storageValue,
+                    bdbCache,
+                    functions,
+                    facets,
+                    indexCode,
+                    environment,
+                    configuration);
+
+            BoostingIndexer indexer = ie.getIndexer();
             DocumentSearcher searcher = ie.getSearcher();
             Suggestor suggestor = ie.getSuggestor();
             DocumentStorage storage = ie.getStorage();
@@ -651,8 +658,8 @@ public class IndexEngine {
 
             if (line.hasOption("snippets")) {
                 // shouldn't this be set based on storageValue? 
-            	indexer = new DocumentStoringIndexer(indexer, storage);
-            	ie.setIndexer(indexer);
+                indexer = new DocumentStoringIndexer(indexer, storage);
+                ie.setIndexer(indexer);
                 searcher = new SnippetSearcher(searcher, storage, ie.getParser());
             }
 
@@ -660,7 +667,7 @@ public class IndexEngine {
                 if (suggest != SuggestValues.DOCUMENTS) {
                     throw new IllegalArgumentException("didyoumean requires --suggest documents");
                 }
-                DidYouMeanSuggestor dym = new DidYouMeanSuggestor((TermSuggestor)ie.getSuggestor());
+                DidYouMeanSuggestor dym = new DidYouMeanSuggestor((TermSuggestor) ie.getSuggestor());
                 searcher = new DidYouMeanSearcher(searcher, dym);
             }
 
@@ -668,19 +675,19 @@ public class IndexEngine {
             if (configuration.containsKey("max_search_queue")) {
                 maxSearchQueueLength = ((Long) configuration.get("max_search_queue")).intValue();
                 logger.info("Using max_search_queue length: " + maxSearchQueueLength);
-            } 
+            }
 
             searcher = new TrafficLimitingSearcher(searcher, maxSearchQueueLength);
             Runtime.getRuntime().addShutdownHook(new ShutdownThread(indexer));
 
             new SearcherServer(searcher, ie.getParser(), ie.boostsManager, ie.scorer, basePort + 2).start();
-			new SuggestorServer(suggestor, basePort + 3).start();
+            new SuggestorServer(suggestor, basePort + 3).start();
             IndexerServer indexerServer = new IndexerServer(ie, indexer, basePort + 1);
             indexerServer.start();
 
-        } catch( ParseException exp ) {
-            printHelp(getOptions(),exp.getMessage());
-        } 
+        } catch (ParseException exp) {
+            printHelp(getOptions(), exp.getMessage());
+        }
 
     }
 

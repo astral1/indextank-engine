@@ -16,6 +16,15 @@
 
 package com.flaptor.indextank.suggest;
 
+import com.flaptor.util.Execute;
+import com.google.common.base.Functions;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.AbstractIterator;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Ordering;
+import org.apache.log4j.Logger;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.DataOutputStream;
@@ -30,16 +39,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import org.apache.log4j.Logger;
-
-import com.flaptor.util.Execute;
-import com.google.common.base.Functions;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.AbstractIterator;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Ordering;
 
 
 @Deprecated
@@ -150,9 +149,9 @@ class PopularityIndex {
         try {
             add(0, root, str);
         } catch (UnsupportedCharacterException e) {
-        	if (logger.isDebugEnabled()) {
-        		logger.debug("Trying to store string with unsupported character, skipping it. String is \"" + str + "\", character is \"" + e.getCharacter() + "\"");
-        	}
+            if (logger.isDebugEnabled()) {
+                logger.debug("Trying to store string with unsupported character, skipping it. String is \"" + str + "\", character is \"" + e.getCharacter() + "\"");
+            }
         }
     }
 
@@ -196,7 +195,7 @@ class PopularityIndex {
         // increase the prefix counter
         //leaf.prefixCounter.incrementAndGet();
 
-        Leaf s = add(position+1, leaf.map[point], originalStr);
+        Leaf s = add(position + 1, leaf.map[point], originalStr);
 
         if (s != null) {
             if (!leaf.offerSuggestion(s)) {
@@ -209,42 +208,45 @@ class PopularityIndex {
 
 
     private static class SuggestionEntry implements Iterable<Leaf>, Serializable {
-		private static final long serialVersionUID = 1L;
+        private static final long serialVersionUID = 1L;
 
-		SuggestionEntry(Leaf suggestion) {
+        SuggestionEntry(Leaf suggestion) {
             this.suggestion = suggestion;
         }
+
         SuggestionEntry next = null;
         SuggestionEntry prev = null;
         Leaf suggestion;
 
         @Override
-            public Iterator<Leaf> iterator() {
-                return new AbstractIterator<Leaf>() {
-                    SuggestionEntry current = SuggestionEntry.this;
-                    @Override
-                        protected Leaf computeNext() {
-                            if (current == null) {
-                                return endOfData();
-                            }
-                            try {
-                                return current.suggestion;
-                            } finally {
-                                current = current.next;
-                            }
-                        }
-                };
-            }
+        public Iterator<Leaf> iterator() {
+            return new AbstractIterator<Leaf>() {
+                SuggestionEntry current = SuggestionEntry.this;
+
+                @Override
+                protected Leaf computeNext() {
+                    if (current == null) {
+                        return endOfData();
+                    }
+                    try {
+                        return current.suggestion;
+                    } finally {
+                        current = current.next;
+                    }
+                }
+            };
+        }
 
     }
 
     private static class Leaf implements Comparable<Leaf>, Serializable {
-		private static final long serialVersionUID = 1L;
-		
-		AtomicInteger counter = new AtomicInteger(0);
+        private static final long serialVersionUID = 1L;
+
+        AtomicInteger counter = new AtomicInteger(0);
         Leaf[] map = new Leaf[TREE_SIZE];
         SuggestionEntry suggestions = null;
         String str;
+
         public boolean offerSuggestion(Leaf s) {
             SuggestionEntry ss = suggestions;
             int countSuggestions = 0;
@@ -291,14 +293,14 @@ class PopularityIndex {
         }
 
         @Override
-            public int compareTo(Leaf o) {
-                return o.counter.get() - counter.get();
-            }
+        public int compareTo(Leaf o) {
+            return o.counter.get() - counter.get();
+        }
 
         @Override
-            public String toString() {
-                return str;
-            }
+        public String toString() {
+            return str;
+        }
     }
 
     /**
@@ -324,7 +326,7 @@ class PopularityIndex {
             this.character = character;
         }
 
-		public char getCharacter() {
+        public char getCharacter() {
             return character;
         }
     }

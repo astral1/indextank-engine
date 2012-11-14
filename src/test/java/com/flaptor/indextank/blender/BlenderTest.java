@@ -17,11 +17,6 @@
 
 package com.flaptor.indextank.blender;
 
-import static com.flaptor.util.TestInfo.TestType.UNIT;
-
-import java.util.List;
-import java.util.Set;
-
 import com.flaptor.indextank.IndexTankTestCase;
 import com.flaptor.indextank.index.DummyPromoter;
 import com.flaptor.indextank.index.ScoredMatch;
@@ -44,30 +39,35 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
+import java.util.List;
+import java.util.Set;
+
+import static com.flaptor.util.TestInfo.TestType.UNIT;
+
 public class BlenderTest extends IndexTankTestCase {
 
-    private MockSearchResults res1,res2;
+    private MockSearchResults res1, res2;
     private Blender blender;
     private Query dummyQuery;
 
     @Override
-	protected void setUp() throws Exception {
+    protected void setUp() throws Exception {
         super.setUp();
-        dummyQuery = new Query(new TermQuery("foo", "bar"),null,null);
+        dummyQuery = new Query(new TermQuery("foo", "bar"), null, null);
         res1 = new MockSearchResults();
         res2 = new MockSearchResults();
         LargeScaleIndex lsi = new LargeScaleIndexStub(res1);
         RealTimeIndex rti = new RealTimeIndexStub(res2, 100);
-        blender = new Blender(lsi,rti, new NoSuggestor(), new DummyPromoter(), new DummyBoostsManager());
-	}
-	
+        blender = new Blender(lsi, rti, new NoSuggestor(), new DummyPromoter(), new DummyBoostsManager());
+    }
+
     @Override
-	protected void tearDown() throws Exception {
+    protected void tearDown() throws Exception {
         super.tearDown();
-	}
-	
-	@TestInfo(testType=UNIT)
-	public void testSomething() throws ParseException, InterruptedException {
+    }
+
+    @TestInfo(testType = UNIT)
+    public void testSomething() throws ParseException, InterruptedException {
         res1.addResult(1.0f, "1");
         res2.addResult(0.9f, "2");
         res1.addResult(0.8f, "3");
@@ -75,59 +75,59 @@ public class BlenderTest extends IndexTankTestCase {
         res2.addResult(0.6f, "5");
         res1.addResult(0.5f, "6");
         TopMatches res = blender.findMatches(dummyQuery, 10, 0);
-		assertEquals("Number of results doesn't match", res.getTotalMatches(), res1.getTotalMatches()+res2.getTotalMatches());
+        assertEquals("Number of results doesn't match", res.getTotalMatches(), res1.getTotalMatches() + res2.getTotalMatches());
         int i = 0;
         for (ScoredMatch r : res) {
             assertEquals("blend out of order", r.getDocId().toString(), String.valueOf(++i));
         }
-	}
-	
-    @TestInfo(testType=UNIT)
-	public void testDedupIgnoresOldVersionEvenIfItHasHigherScore() throws ParseException, InterruptedException {
-        res1.addResult(1.0,"1");
-        res2.addResult(0.7,"1");
+    }
+
+    @TestInfo(testType = UNIT)
+    public void testDedupIgnoresOldVersionEvenIfItHasHigherScore() throws ParseException, InterruptedException {
+        res1.addResult(1.0, "1");
+        res2.addResult(0.7, "1");
 
         TopMatches res = blender.findMatches(dummyQuery, 10, 0);
-		assertEquals("Number of results doesn't match", res.getTotalMatches(), 1);
+        assertEquals("Number of results doesn't match", res.getTotalMatches(), 1);
 
-        assertEquals("Did not choose the freshest document",0.7, Lists.newArrayList(res).get(0).getScore());
+        assertEquals("Did not choose the freshest document", 0.7, Lists.newArrayList(res).get(0).getScore());
 
-    } 
-    
-    @TestInfo(testType=UNIT)
-	public void testPaging() throws ParseException, InterruptedException {
-        res1.addResult(1.0f,"1");
-        res1.addResult(1.0f,"2");
-        res1.addResult(1.0f,"3");
-        res1.addResult(1.0f,"4");
-        res1.addResult(1.0f,"5");
-        res2.addResult(0.7f,"11");
-        res2.addResult(0.7f,"12");
-        res2.addResult(0.7f,"13");
-        res2.addResult(0.7f,"14");
-        res2.addResult(0.7f,"15");
+    }
+
+    @TestInfo(testType = UNIT)
+    public void testPaging() throws ParseException, InterruptedException {
+        res1.addResult(1.0f, "1");
+        res1.addResult(1.0f, "2");
+        res1.addResult(1.0f, "3");
+        res1.addResult(1.0f, "4");
+        res1.addResult(1.0f, "5");
+        res2.addResult(0.7f, "11");
+        res2.addResult(0.7f, "12");
+        res2.addResult(0.7f, "13");
+        res2.addResult(0.7f, "14");
+        res2.addResult(0.7f, "15");
 
         SearchResults res = blender.search(dummyQuery, 0, 5, 0);
-		assertEquals("Number of total results doesn't match", res.getMatches(), 10);
+        assertEquals("Number of total results doesn't match", res.getMatches(), 10);
 
         List<SearchResult> lsr1 = Lists.newArrayList(res.getResults());
-        assertEquals("Number of results doesn't match",lsr1.size(),5);
+        assertEquals("Number of results doesn't match", lsr1.size(), 5);
 
-        res = blender.search(dummyQuery,5,10, 0);
-		assertEquals("Number of total results doesn't match", res.getMatches(), 10);
-        
+        res = blender.search(dummyQuery, 5, 10, 0);
+        assertEquals("Number of total results doesn't match", res.getMatches(), 10);
+
         List<SearchResult> lsr2 = Lists.newArrayList(res.getResults());
-        assertEquals("Number of results doesn't match",lsr1.size(),5);
+        assertEquals("Number of results doesn't match", lsr1.size(), 5);
 
         Set<String> docids = Sets.newHashSet();
         // concatenate all the doc ids, and put them on a set
-        docids.addAll(Lists.newArrayList(Iterables.transform(Iterables.concat(lsr1,lsr2),new Function<SearchResult,String>(){
-            public String apply(SearchResult sr){
+        docids.addAll(Lists.newArrayList(Iterables.transform(Iterables.concat(lsr1, lsr2), new Function<SearchResult, String>() {
+            public String apply(SearchResult sr) {
                 return sr.getDocId();
             }
         })));
-        assertEquals("Number of results doesn't match",docids.size(),10);
-        
-    } 
-    
+        assertEquals("Number of results doesn't match", docids.size(), 10);
+
+    }
+
 }

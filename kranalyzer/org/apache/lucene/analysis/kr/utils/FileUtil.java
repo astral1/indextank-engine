@@ -19,7 +19,15 @@ package org.apache.lucene.analysis.kr.utils;
 
 import org.apache.lucene.analysis.kr.morph.MorphException;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -89,7 +97,7 @@ public class FileUtil {
      * Reads the contents of a file line by line to a List of Strings.
      * The file is always closed.
      *
-     * @param fName     the file to read, must not be <code>null</code>
+     * @param fName    the file to read, must not be <code>null</code>
      * @param encoding the encoding to use, <code>null</code> means platform default
      * @return the list of Strings representing each line in the file, never <code>null</code>
      * @throws Exception

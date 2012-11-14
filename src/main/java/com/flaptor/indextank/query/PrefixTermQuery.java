@@ -31,32 +31,30 @@ limitations under the License.
 */
 package com.flaptor.indextank.query;
 
-import java.io.Serializable;
-import java.util.Set;
-
+import com.google.common.collect.Sets;
 import org.apache.lucene.index.Term;
 
-import com.google.common.collect.Sets;
+import java.io.Serializable;
+import java.util.Set;
 
 /**
  * Query that searches for a term prefix in a specific field.
  * The query will match documents with terms that start with the prefix term.
- *  
- * @author iperez
  *
+ * @author iperez
  */
 public final class PrefixTermQuery extends QueryNode implements Serializable {
 
     private static final long serialVersionUID = 1L;
     protected String field;
-	protected String term;
+    protected String term;
     protected float boost;
-    
+
     /**
      * Basic constructor.
-     * 
+     *
      * @param field the field where to look the term in. Must not be null.
-     * @param term the prefix to search for. Must not be null.
+     * @param term  the prefix to search for. Must not be null.
      * @throws IllegalArgumentException if term or field are null.
      */
     public PrefixTermQuery(final String field, final String term) {
@@ -65,19 +63,19 @@ public final class PrefixTermQuery extends QueryNode implements Serializable {
         this.field = field;
         this.term = term;
     }
-    
+
     public String getField() {
-    	return field;
+        return field;
     }
-    
+
     public String getTerm() {
-    	return term;
+        return term;
     }
 
     public void setField(String field) {
         this.field = field;
     }
-    
+
     public void setTerm(String term) {
         this.term = term;
     }
@@ -98,7 +96,7 @@ public final class PrefixTermQuery extends QueryNode implements Serializable {
     public String toString() {
         return "field: " + field + "; term: " + term + boostString();
     }
-    
+
     @Override
     public boolean equals(final Object obj) {
         if (!super.equals(obj))
@@ -106,7 +104,7 @@ public final class PrefixTermQuery extends QueryNode implements Serializable {
         PrefixTermQuery tq = (PrefixTermQuery) obj;
         return field.equals(tq.field) && term.equals(tq.term);
     }
-    
+
     @Override
     public int hashCode() {
         int hash = 3;

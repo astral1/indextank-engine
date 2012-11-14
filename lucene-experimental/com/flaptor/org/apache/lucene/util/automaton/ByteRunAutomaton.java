@@ -7,9 +7,9 @@ package com.flaptor.org.apache.lucene.util.automaton;
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p/>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p/>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -18,26 +18,28 @@ package com.flaptor.org.apache.lucene.util.automaton;
  */
 
 public class ByteRunAutomaton extends RunAutomaton {
-  
-  public ByteRunAutomaton(Automaton a) {
-    this(a, false);
-  }
-  
-  /** expert: if utf8 is true, the input is already byte-based */
-  public ByteRunAutomaton(Automaton a, boolean utf8) {
-    super(utf8 ? a : new UTF32ToUTF8().convert(a), 256, true);
-  }
 
-  /**
-   * Returns true if the given byte array is accepted by this automaton
-   */
-  public boolean run(byte[] s, int offset, int length) {
-    int p = initial;
-    int l = offset + length;
-    for (int i = offset; i < l; i++) {
-      p = step(p, s[i] & 0xFF);
-      if (p == -1) return false;
+    public ByteRunAutomaton(Automaton a) {
+        this(a, false);
     }
-    return accept[p];
-  }
+
+    /**
+     * expert: if utf8 is true, the input is already byte-based
+     */
+    public ByteRunAutomaton(Automaton a, boolean utf8) {
+        super(utf8 ? a : new UTF32ToUTF8().convert(a), 256, true);
+    }
+
+    /**
+     * Returns true if the given byte array is accepted by this automaton
+     */
+    public boolean run(byte[] s, int offset, int length) {
+        int p = initial;
+        int l = offset + length;
+        for (int i = offset; i < l; i++) {
+            p = step(p, s[i] & 0xFF);
+            if (p == -1) return false;
+        }
+        return accept[p];
+    }
 }

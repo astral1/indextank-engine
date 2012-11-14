@@ -38,27 +38,31 @@ public class RealTimeIndexStub extends RealTimeIndex {
     @Override
     public QueryMatcher getSearchSession() {
         return new QueryMatcher() {
-        	@Override
-        	public TopMatches findMatches(Query query, Predicate<DocId> docFilter, int limit, int scoringFunctionIndex) {
-        		return res;
-        	}
+            @Override
+            public TopMatches findMatches(Query query, Predicate<DocId> docFilter, int limit, int scoringFunctionIndex) {
+                return res;
+            }
+
             @Override
             public TopMatches findMatches(Query query, int limit, int scoringFunctionIndex) {
                 return res;
             }
+
             @Override
             public boolean hasChanges(DocId docid) {
                 return false;
             }
+
             @Override
             public int countMatches(Query query) {
                 return res.getTotalMatches();
             }
+
             @Override
             public int countMatches(Query query, Predicate<DocId> idFilter) {
                 return res.getTotalMatches();
             }
         };
     }
-    
+
 }

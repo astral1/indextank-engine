@@ -17,19 +17,15 @@
 
 package com.flaptor.indextank.storage;
 
-import static com.flaptor.util.TestInfo.TestType.UNIT;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.thrift.TException;
-
 import com.flaptor.indextank.rpc.LogRecord;
 import com.flaptor.util.TestInfo;
-import com.flaptor.util.TestInfo.TestType;
 import com.google.common.collect.Lists;
+import org.apache.thrift.TException;
+
+import java.io.IOException;
+import java.util.List;
+
+import static com.flaptor.util.TestInfo.TestType.UNIT;
 
 public class LogStorageTest extends BaseLogStorageTest {
 
@@ -72,8 +68,8 @@ public class LogStorageTest extends BaseLogStorageTest {
         assertRecordIds(records3, 9L, 11L);
         assertRecordDocIds(records3, "e", "f");
     }*/
-    
-    @TestInfo(testType=UNIT)
+
+    @TestInfo(testType = UNIT)
     public void testLiveLog() throws TException, IOException {
         RawLog log = new RawLog(root, 100);
         log.write(text(addRecord("a", "idx"), "some text goes here"));
@@ -83,37 +79,37 @@ public class LogStorageTest extends BaseLogStorageTest {
         log.write(text(addRecord("c", "idx"), "some text goes here 3"));
         log.write(text(addRecord("b", "idx"), "another text goes here 3"));
         log.flush();
-    
+
         List<Segment> segments = log.getLiveSegments();
         assertEquals("Didn't find 3 segments as expected", 3, segments.size());
-        
+
         Segment s1 = segments.get(0);
         //assertSegmentInfo(s1, 1L, 2L, false);
-        
+
         for (LogRecord r : s1.reader()) {
             System.out.println(r);
         }
-        
+
         List<LogRecord> records1 = Lists.newArrayList(s1.reader());
         //assertRecordIds(records1, 1L, 2L);
         assertRecordDocIds(records1, "a", "a");
-        
+
         Segment s2 = segments.get(1);
         //assertSegmentInfo(s2, 3L, 4L, false);
-        
+
         List<LogRecord> records2 = Lists.newArrayList(s2.reader());
         //assertRecordIds(records2, 3L, 4L);
         assertRecordDocIds(records2, "c", "b");
-        
+
         Segment s3 = segments.get(2);
         //assertSegmentInfo(s3, 5L, null, false);
-        
+
         List<LogRecord> records3 = Lists.newArrayList(s3.reader());
         //assertRecordIds(records3, 5L, 6L);
         assertRecordDocIds(records3, "c", "b");
     }
 
-    @TestInfo(testType=UNIT)
+    @TestInfo(testType = UNIT)
     public void testLiveLogReopen() throws TException, IOException {
         RawLog log = new RawLog(root, 100);
         log.write(text(addRecord("a", "idx"), "some text goes here"));
@@ -124,27 +120,27 @@ public class LogStorageTest extends BaseLogStorageTest {
         log.flush();
         log.write(text(addRecord("b", "idx"), "another text goes here 3"));
         log.flush();
-        
+
         List<Segment> segments = log.getLiveSegments();
         assertEquals("Didn't find 3 segments as expected", 3, segments.size());
-        
+
         Segment s1 = segments.get(0);
         //assertSegmentInfo(s1, 1L, 2L, false);
-        
+
         List<LogRecord> records1 = Lists.newArrayList(s1.reader());
         //assertRecordIds(records1, 1L, 2L);
         assertRecordDocIds(records1, "a", "a");
-        
+
         Segment s2 = segments.get(1);
         ///assertSegmentInfo(s2, 3L, 4L, false);
-        
+
         List<LogRecord> records2 = Lists.newArrayList(s2.reader());
         //assertRecordIds(records2, 3L, 4L);
         assertRecordDocIds(records2, "c", "b");
-        
+
         Segment s3 = segments.get(2);
         //assertSegmentInfo(s3, 5L, null, false);
-        
+
         List<LogRecord> records3 = Lists.newArrayList(s3.reader());
         //assertRecordIds(records3, 5L, 6L);
         assertRecordDocIds(records3, "c", "b");

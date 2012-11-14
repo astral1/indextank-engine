@@ -16,16 +16,14 @@
 
 package org.cojen.classfile;
 
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.MissingResourceException;
 
 /**
- * 
- *
  * @author Brian S O'Neill
  */
 public abstract class AbstractCodeAssembler implements CodeAssembler {
@@ -43,38 +41,38 @@ public abstract class AbstractCodeAssembler implements CodeAssembler {
         choice = choice.intern();
 
         switch (type.getTypeCode()) {
-        default:
-            if (choice == "==") {
-                ifEqualBranch(location, true);
-            } else if (choice == "!=") {
-                ifEqualBranch(location, false);
-            } else {
-                throw new IllegalArgumentException
-                    ("Comparison not allowed on object types: " + choice);
-            }
-            return;
+            default:
+                if (choice == "==") {
+                    ifEqualBranch(location, true);
+                } else if (choice == "!=") {
+                    ifEqualBranch(location, false);
+                } else {
+                    throw new IllegalArgumentException
+                            ("Comparison not allowed on object types: " + choice);
+                }
+                return;
 
-        case TypeDesc.BOOLEAN_CODE:
-        case TypeDesc.CHAR_CODE:
-        case TypeDesc.BYTE_CODE:
-        case TypeDesc.SHORT_CODE:
-        case TypeDesc.INT_CODE:
-            ifComparisonBranch(location, choice);
-            return;
+            case TypeDesc.BOOLEAN_CODE:
+            case TypeDesc.CHAR_CODE:
+            case TypeDesc.BYTE_CODE:
+            case TypeDesc.SHORT_CODE:
+            case TypeDesc.INT_CODE:
+                ifComparisonBranch(location, choice);
+                return;
 
-        case TypeDesc.LONG_CODE:
-            math(Opcode.LCMP);
-            break;
+            case TypeDesc.LONG_CODE:
+                math(Opcode.LCMP);
+                break;
 
-        case TypeDesc.FLOAT_CODE:
-            math((choice == (trueBranch ? "<=" : ">") || choice == (trueBranch ? "<" : ">=")) 
-                 ? Opcode.FCMPG : Opcode.FCMPL);
-            break;
+            case TypeDesc.FLOAT_CODE:
+                math((choice == (trueBranch ? "<=" : ">") || choice == (trueBranch ? "<" : ">="))
+                        ? Opcode.FCMPG : Opcode.FCMPL);
+                break;
 
-        case TypeDesc.DOUBLE_CODE:
-            math((choice == (trueBranch ? "<=" : ">") || choice == (trueBranch ? "<" : ">=")) 
-                 ? Opcode.DCMPG : Opcode.DCMPL);
-            break;
+            case TypeDesc.DOUBLE_CODE:
+                math((choice == (trueBranch ? "<=" : ">") || choice == (trueBranch ? "<" : ">="))
+                        ? Opcode.DCMPG : Opcode.DCMPL);
+                break;
         }
 
         ifZeroComparisonBranch(location, choice);
@@ -103,7 +101,7 @@ public abstract class AbstractCodeAssembler implements CodeAssembler {
             cf = ClassFile.readFrom(in);
         } catch (IOException e) {
             MissingResourceException e2 = new MissingResourceException
-                ("Error loading class file: " + e.getMessage(), className, null);
+                    ("Error loading class file: " + e.getMessage(), className, null);
             try {
                 e2.initCause(e);
             } catch (NoSuchMethodError e3) {
@@ -115,7 +113,7 @@ public abstract class AbstractCodeAssembler implements CodeAssembler {
         MethodInfo defineMethod = null;
 
         MethodInfo[] methods = cf.getMethods();
-        for (int i=0; i<methods.length; i++) {
+        for (int i = 0; i < methods.length; i++) {
             MethodInfo method = methods[i];
             if ("define".equals(method.getName())) {
                 if (defineMethod != null) {
@@ -133,7 +131,7 @@ public abstract class AbstractCodeAssembler implements CodeAssembler {
         // Copy stack arguments to expected local variables.
         TypeDesc[] paramTypes = defineMethod.getMethodDescriptor().getParameterTypes();
         LocalVariable[] paramVars = new LocalVariable[paramTypes.length];
-        for (int i=paramVars.length; --i>=0; ) {
+        for (int i = paramVars.length; --i >= 0; ) {
             LocalVariable paramVar = createLocalVariable(null, paramTypes[i]);
             storeLocal(paramVar);
             paramVars[i] = paramVar;
@@ -150,7 +148,7 @@ public abstract class AbstractCodeAssembler implements CodeAssembler {
 
         Class[] paramClasses = method.getParameterTypes();
         TypeDesc[] params = new TypeDesc[paramClasses.length];
-        for (int i=0; i<params.length; i++) {
+        for (int i = 0; i < params.length; i++) {
             params[i] = TypeDesc.forClass(paramClasses[i]);
         }
 
@@ -158,19 +156,19 @@ public abstract class AbstractCodeAssembler implements CodeAssembler {
 
         if (Modifier.isStatic(method.getModifiers())) {
             invokeStatic(clazz.getName(),
-                         method.getName(),
-                         ret, 
-                         params);
+                    method.getName(),
+                    ret,
+                    params);
         } else if (clazz.isInterface()) {
             invokeInterface(clazz.getName(),
-                            method.getName(),
-                            ret, 
-                            params);
+                    method.getName(),
+                    ret,
+                    params);
         } else {
             invokeVirtual(clazz.getName(),
-                          method.getName(),
-                          ret, 
-                          params);
+                    method.getName(),
+                    ret,
+                    params);
         }
     }
 
@@ -179,20 +177,20 @@ public abstract class AbstractCodeAssembler implements CodeAssembler {
 
         Class[] paramClasses = method.getParameterTypes();
         TypeDesc[] params = new TypeDesc[paramClasses.length];
-        for (int i=0; i<params.length; i++) {
+        for (int i = 0; i < params.length; i++) {
             params[i] = TypeDesc.forClass(paramClasses[i]);
         }
 
         invokeSuper(method.getDeclaringClass().getName(),
-                    method.getName(),
-                    ret, 
-                    params);
+                method.getName(),
+                ret,
+                params);
     }
 
     public void invoke(Constructor constructor) {
         Class[] paramClasses = constructor.getParameterTypes();
         TypeDesc[] params = new TypeDesc[paramClasses.length];
-        for (int i=0; i<params.length; i++) {
+        for (int i = 0; i < params.length; i++) {
             params[i] = TypeDesc.forClass(paramClasses[i]);
         }
 

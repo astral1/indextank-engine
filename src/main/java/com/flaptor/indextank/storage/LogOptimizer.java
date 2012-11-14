@@ -16,33 +16,32 @@
 
 package com.flaptor.indextank.storage;
 
+import com.flaptor.indextank.rpc.IndexLogInfo;
+import com.flaptor.indextank.rpc.LogRecord;
+import com.flaptor.indextank.rpc.QueueScore;
+import com.flaptor.indextank.util.FormatLogger;
+import com.flaptor.indextank.util.IndexTankUtil;
+import com.flaptor.util.CollectionsUtil.PeekingIterator;
+import com.flaptor.util.Execute;
+import com.google.common.base.Function;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import org.apache.thrift.TException;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.PriorityQueue;
 import java.util.Map.Entry;
-
-import org.apache.thrift.TException;
-
-import com.flaptor.indextank.rpc.IndexLogInfo;
-import com.flaptor.indextank.rpc.LogRecord;
-import com.flaptor.indextank.rpc.QueueScore;
-import com.flaptor.indextank.util.FormatLogger;
-import com.flaptor.indextank.util.IndexTankUtil;
-import com.flaptor.util.Execute;
-import com.flaptor.util.CollectionsUtil.PeekingIterator;
-import com.google.common.base.Function;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import java.util.PriorityQueue;
 
 
 public class LogOptimizer implements Runnable {
     private static final FormatLogger logger = new FormatLogger();
-    
+
     private LogRoot root;
     private final LogDealer dealer;
 
@@ -50,7 +49,7 @@ public class LogOptimizer implements Runnable {
     private Map<String, Score> scores = Maps.newHashMap();
 
     private final LogCleaner cleaner;
-    
+
     public LogOptimizer(LogCleaner cleaner, LogDealer dealer, LogRoot root) {
         this.cleaner = cleaner;
         this.dealer = dealer;
@@ -65,12 +64,13 @@ public class LogOptimizer implements Runnable {
             }
         });
     }
-    
+
     private static class Score {
         public Score(int priority, float score) {
             this.priority = priority;
             this.score = score;
         }
+
         private int priority;
         private float score;
     }
@@ -113,6 +113,7 @@ public class LogOptimizer implements Runnable {
         }
 
     }
+
     public synchronized void enqueue(String code, int priority, float score) {
         Score current = scores.get(code);
         if (current != null) {
@@ -122,7 +123,7 @@ public class LogOptimizer implements Runnable {
         scores.put(code, new Score(priority, score));
         queue.add(code);
     }
-    
+
     public void run() {
         while (true) {
             try {
@@ -146,12 +147,12 @@ public class LogOptimizer implements Runnable {
             Execute.sleep(5000);
         }
     }
-    
+
     public void start() {
         new Thread(this).start();
         new DiscoveryThread().start();
     }
-    
+
     public IndexLogInfo getIndexInfo(String code) {
         IndexLogInfo info = new IndexLogInfo();
         IndexLog log = new IndexLog(code, root, IndexLog.DEFAULT_SEGMENT_SIZE);
@@ -165,7 +166,7 @@ public class LogOptimizer implements Runnable {
         }
         info.set_optimized_record_count(optimizedCount);
         info.set_last_optimization_timestamp(lastTimestamp);
-        
+
         long unoptimizedCount = 0;
         int unoptimizedSegments = 0;
         boolean unsortedSegments = false;
@@ -184,10 +185,10 @@ public class LogOptimizer implements Runnable {
         if (unsortedSegments) unoptimizedSegments++;
         info.set_unoptimized_record_count(unoptimizedCount);
         info.set_unoptimized_segments(unoptimizedSegments);
-        
+
         return info;
     }
-    
+
     public void optimize(String code) throws TException, IOException {
         cleaner.lockIndexesForRead();
         dealer.sortNow(code);
@@ -211,16 +212,16 @@ public class LogOptimizer implements Runnable {
                 break;
             }
         }
-        
+
         logger.info("Optimizing %d segments for index %s. Last optimized segment had %d records. Total records to merge: %d", segments.size(), log.code, optimizedCount, totalCount);
 
         long t = System.currentTimeMillis();
-        
+
         Iterator<LogRecord> merged = mergeSegments(segments);
-        
-        long timestamp = segments.get(segments.size()-1).timestamp;
+
+        long timestamp = segments.get(segments.size() - 1).timestamp;
         Segment optimized = Segment.createOptimizedSegment(root, log.getOptimizedPath(), timestamp, merged);
-        
+
         double ratio = 100.0 * optimized.recordCount / totalCount;
         logger.info("Finished optimization. New segment: %s - ratio: %.2f%% - time: %.2fs", optimized, ratio, (System.currentTimeMillis() - t) / 1000.0);
     }
@@ -230,7 +231,7 @@ public class LogOptimizer implements Runnable {
         Function<Segment, PeekingIterator<LogRecord>> toPeakingIterators = new Function<Segment, PeekingIterator<LogRecord>>() {
             @Override
             public PeekingIterator<LogRecord> apply(Segment s) {
-                return new PeekingIterator<LogRecord>(s.reader(1024*1024).iterator());
+                return new PeekingIterator<LogRecord>(s.reader(1024 * 1024).iterator());
             }
         };
         List<PeekingIterator<LogRecord>> cursors = Lists.newArrayList(Iterables.transform(sortedSegments, toPeakingIterators));

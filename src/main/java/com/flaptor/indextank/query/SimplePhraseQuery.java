@@ -31,13 +31,13 @@ limitations under the License.
  */
 package com.flaptor.indextank.query;
 
+import com.google.common.collect.ImmutableList;
+
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import com.google.common.collect.ImmutableList;
 
 /**
  * @author Flaptor Development Team
@@ -49,7 +49,7 @@ public final class SimplePhraseQuery extends QueryNode implements Serializable {
     private final int[] termPositions;
 
     public SimplePhraseQuery(final String field, final String[] terms,
-            int[] positions) {
+                             int[] positions) {
         if (null == field)
             throw new IllegalArgumentException(
                     "constructor: field must not be null.");
@@ -84,12 +84,13 @@ public final class SimplePhraseQuery extends QueryNode implements Serializable {
 
     /**
      * Terms getter intended to modify the phrase query
+     *
      * @return
      */
     public String[] getTermsArray() {
         return terms;
     }
-    
+
     public int[] getTermPositions() {
         return this.termPositions;
     }
@@ -155,10 +156,10 @@ public final class SimplePhraseQuery extends QueryNode implements Serializable {
     public QueryNode duplicate() {
         String[] newTerms = new String[this.terms.length];
         int[] newPositions = new int[this.termPositions.length];
-        
+
         System.arraycopy(this.terms, 0, newTerms, 0, this.terms.length);
         System.arraycopy(this.termPositions, 0, newPositions, 0, this.termPositions.length);
-        
+
         QueryNode qn = new SimplePhraseQuery(this.field, newTerms, newPositions);
         qn.setBoost(this.getBoost());
         qn.setNorm(this.getNorm());

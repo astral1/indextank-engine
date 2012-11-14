@@ -26,14 +26,14 @@ import java.io.UnsupportedEncodingException;
 
 
 public class DocId implements Serializable, Comparable<DocId> {
-    
+
     private static final long serialVersionUID = 1L;
-    
+
     private byte[] buffer;
     private int start;
     private int count;
     private int hash;
-    
+
     public DocId(String string) {
         try {
             this.buffer = string.getBytes("UTF-8");
@@ -43,35 +43,35 @@ public class DocId implements Serializable, Comparable<DocId> {
             throw new RuntimeException(e);
         }
     }
-    
+
     public DocId(byte[] buffer, int start, int count) {
         this.buffer = buffer;
         this.start = start;
         this.count = count;
     }
-    
+
     @Override
     public int hashCode() {
         int h = hash;
         if (h == 0) {
-            int off = start; 
+            int off = start;
             byte[] buf = buffer;
             int len = count;
             for (int i = 0; i < len; i++) {
-                h = 31*h + buf[off++];
+                h = 31 * h + buf[off++];
             }
             hash = h;
         }
         return h;
     }
-    
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
             return true;
         }
         if (obj instanceof DocId) {
-            DocId oid = (DocId)obj;
+            DocId oid = (DocId) obj;
             int n = count;
             if (n == oid.count) {
                 byte v1[] = buffer;
@@ -87,7 +87,7 @@ public class DocId implements Serializable, Comparable<DocId> {
         }
         return false;
     }
-    
+
     @Override
     public String toString() {
         return new String(buffer, start, count);
@@ -97,21 +97,23 @@ public class DocId implements Serializable, Comparable<DocId> {
         oos.writeInt(count);
         oos.write(buffer, start, count);
     }
-    
+
     private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
         this.start = 0;
         this.count = ois.readInt();
         this.buffer = new byte[count];
         ois.read(this.buffer);
     }
+
     public void writeData(DataOutputStream dos) throws IOException {
         dos.writeInt(count);
         dos.write(buffer, start, count);
     }
+
     public static void writeNull(DataOutputStream dos) throws IOException {
         dos.writeInt(-1);
     }
-    
+
     public static DocId readData(DataInputStream dis) throws IOException {
         int count = dis.readInt();
         if (count < 0) return null;
@@ -126,11 +128,11 @@ public class DocId implements Serializable, Comparable<DocId> {
         int i = start, j = o.start;
         int end = i + n;
         if (i == j) {
-          while (i < end) {
-              int c = buffer[i] - o.buffer[i];
-              if (c != 0) return c;
-              ++i;
-          }
+            while (i < end) {
+                int c = buffer[i] - o.buffer[i];
+                if (c != 0) return c;
+                ++i;
+            }
         } else {
             while (i < end) {
                 int c = buffer[i++] - o.buffer[j++];
@@ -146,7 +148,7 @@ public class DocId implements Serializable, Comparable<DocId> {
         this.count = count;
         this.hash = 0;
     }
-    
+
     public void updateFrom(DocId docid) {
         byte[] buf = this.buffer;
         byte[] obuf = docid.buffer;
@@ -161,19 +163,20 @@ public class DocId implements Serializable, Comparable<DocId> {
         this.count = docid.count;
         this.hash = 0;
     }
-    
+
     public DocId copy() {
         return this.copy(this.count);
     }
+
     public DocId copy(int targetBufferSize) {
         byte[] buf = this.buffer;
         int off = this.start;
         int len = this.count;
-        
+
         targetBufferSize = Math.max(targetBufferSize, len);
         byte[] clonedBuffer = new byte[targetBufferSize];
         System.arraycopy(buf, off, clonedBuffer, 0, len);
         return new DocId(clonedBuffer, 0, len);
     }
-    
+
 }

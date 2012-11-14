@@ -22,11 +22,11 @@ import java.util.ArrayList;
  * Utility class that supports parsing of Java method declarations. For
  * example, <code>public static int myMethod(java.lang.String, int value,
  * java.lang.String... extra)</code>.
- *
+ * <p/>
  * <p>The parser is fairly lenient. It doesn't care if the set of modifiers is
  * illegal, and it doesn't require that arguments have variable names assigned.
  * A semi-colon may appear at the end of the signature.
- *
+ * <p/>
  * <p>At most one variable argument is supported (at the end), and all class
  * names must be fully qualified.
  *
@@ -137,7 +137,8 @@ public class MethodDeclarationParser {
         Modifiers modifiers = Modifiers.NONE;
 
         int length = src.length();
-        loop: while (pos[0] < length) {
+        loop:
+        while (pos[0] < length) {
             int savedPos = pos[0];
             String ident = parseIdentifier(src, pos);
             int newPos = pos[0];
@@ -148,72 +149,72 @@ public class MethodDeclarationParser {
             }
 
             switch (ident.charAt(0)) {
-            case 'a':
-                if ("abstract".equals(ident)) {
-                    modifiers = modifiers.toAbstract(true);
-                } else {
-                    break loop;
-                }
-                break;
+                case 'a':
+                    if ("abstract".equals(ident)) {
+                        modifiers = modifiers.toAbstract(true);
+                    } else {
+                        break loop;
+                    }
+                    break;
 
-            case 'f':
-                if ("final".equals(ident)) {
-                    modifiers = modifiers.toFinal(true);
-                } else {
-                    break loop;
-                }
-                break;
+                case 'f':
+                    if ("final".equals(ident)) {
+                        modifiers = modifiers.toFinal(true);
+                    } else {
+                        break loop;
+                    }
+                    break;
 
-            case 'n':
-                if ("native".equals(ident)) {
-                    modifiers = modifiers.toNative(true);
-                } else {
-                    break loop;
-                }
-                break;
+                case 'n':
+                    if ("native".equals(ident)) {
+                        modifiers = modifiers.toNative(true);
+                    } else {
+                        break loop;
+                    }
+                    break;
 
-            case 'p':
-                if ("public".equals(ident)) {
-                    modifiers = modifiers.toPublic(true);
-                } else if ("private".equals(ident)) {
-                    modifiers = modifiers.toPrivate(true);
-                } else if ("protected".equals(ident)) {
-                    modifiers = modifiers.toProtected(true);
-                } else {
-                    break loop;
-                }
-                break;
+                case 'p':
+                    if ("public".equals(ident)) {
+                        modifiers = modifiers.toPublic(true);
+                    } else if ("private".equals(ident)) {
+                        modifiers = modifiers.toPrivate(true);
+                    } else if ("protected".equals(ident)) {
+                        modifiers = modifiers.toProtected(true);
+                    } else {
+                        break loop;
+                    }
+                    break;
 
-            case 's':
-                if ("static".equals(ident)) {
-                    modifiers = modifiers.toStatic(true);
-                } else if ("synchronized".equals(ident)) {
-                    modifiers = modifiers.toSynchronized(true);
-                } else if ("strict".equals(ident)) {
-                    modifiers = modifiers.toStrict(true);
-                } else {
-                    break loop;
-                }
-                break;
+                case 's':
+                    if ("static".equals(ident)) {
+                        modifiers = modifiers.toStatic(true);
+                    } else if ("synchronized".equals(ident)) {
+                        modifiers = modifiers.toSynchronized(true);
+                    } else if ("strict".equals(ident)) {
+                        modifiers = modifiers.toStrict(true);
+                    } else {
+                        break loop;
+                    }
+                    break;
 
-            case 't':
-                if ("transient".equals(ident)) {
-                    modifiers = modifiers.toTransient(true);
-                } else {
-                    break loop;
-                }
-                break;
+                case 't':
+                    if ("transient".equals(ident)) {
+                        modifiers = modifiers.toTransient(true);
+                    } else {
+                        break loop;
+                    }
+                    break;
 
-            case 'v':
-                if ("volatile".equals(ident)) {
-                    modifiers = modifiers.toVolatile(true);
-                } else {
-                    break loop;
-                }
-                break;
+                case 'v':
+                    if ("volatile".equals(ident)) {
+                        modifiers = modifiers.toVolatile(true);
+                    } else {
+                        break loop;
+                    }
+                    break;
 
-            default:
-                break loop;
+                default:
+                    break loop;
             } // end switch
 
             // If this point is reached, valid modifier was parsed. Advance position.
@@ -323,6 +324,6 @@ public class MethodDeclarationParser {
     }
 
     public TypeDesc[] getParameters() {
-        return (TypeDesc[])mParameters.clone();
+        return (TypeDesc[]) mParameters.clone();
     }
 }

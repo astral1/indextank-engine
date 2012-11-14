@@ -16,34 +16,33 @@
 
 package com.flaptor.indextank.storage;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
-
-import org.apache.thrift.protocol.TBinaryProtocol;
-import org.apache.thrift.protocol.TProtocol;
-import org.apache.thrift.transport.TSocket;
-import org.apache.thrift.transport.TTransportException;
-
 import com.flaptor.indextank.rpc.LogBatch;
 import com.flaptor.indextank.rpc.LogPage;
 import com.flaptor.indextank.rpc.LogPageToken;
 import com.flaptor.indextank.rpc.LogReader;
-import com.flaptor.indextank.rpc.LogRecord;
 import com.flaptor.indextank.rpc.LogReader.Client;
+import com.flaptor.indextank.rpc.LogRecord;
 import com.flaptor.indextank.util.FormatLogger;
 import com.flaptor.util.Execute;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.AbstractIterator;
 import com.google.common.collect.ImmutableList;
+import org.apache.thrift.protocol.TBinaryProtocol;
+import org.apache.thrift.protocol.TProtocol;
+import org.apache.thrift.transport.TSocket;
+import org.apache.thrift.transport.TTransportException;
+
+import java.util.Iterator;
+import java.util.List;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class LogStorageIndexReader implements Iterable<LogRecord> {
-    
+
     private static final LogBatch END_BATCH = new LogBatch(ImmutableList.<LogRecord>of());
-    
+
     private static FormatLogger logger = new FormatLogger();
-    
+
     private final String readerHost;
     private final int readerPort;
     private final int pagesBuffer;
@@ -56,8 +55,8 @@ public class LogStorageIndexReader implements Iterable<LogRecord> {
         this.pagesBuffer = pagesBuffer;
         this.indexCode = indexCode;
     }
-    
-    
+
+
     @Override
     public Iterator<LogRecord> iterator() {
         return new AbstractIterator<LogRecord>() {
@@ -69,7 +68,7 @@ public class LogStorageIndexReader implements Iterable<LogRecord> {
             private boolean finished;
             private List<LogRecord> current;
             private int currentPosition;
-            
+
             private void reloadClient() {
                 transport = new TSocket(readerHost, readerPort);
                 protocol = new TBinaryProtocol(transport);
@@ -79,12 +78,12 @@ public class LogStorageIndexReader implements Iterable<LogRecord> {
                 } catch (TTransportException e) {
                 }
             }
-            
-            { 
-                reloadClient(); 
+
+            {
+                reloadClient();
                 new Thread() {
                     private LogPageToken token = new LogPageToken();
-                    
+
                     public void run() {
                         try {
                             while (true) {
@@ -96,7 +95,7 @@ public class LogStorageIndexReader implements Iterable<LogRecord> {
                                         break;
                                     } catch (Throwable t) {
                                         if (retries++ >= 30) throw t;
-                                        int wait = (int) Math.min(60, Math.pow(3, retries-1));
+                                        int wait = (int) Math.min(60, Math.pow(3, retries - 1));
                                         logger.warn(t, "Failed to read a page for index %s. Retry #%d. Waiting %d seconds", indexCode, retries, wait);
                                         Execute.close(transport);
                                         reloadClient();
@@ -124,7 +123,7 @@ public class LogStorageIndexReader implements Iterable<LogRecord> {
 
                 }.start();
             }
-            
+
             private void addBatch(LogBatch batch) {
                 while (true) {
                     try {
@@ -135,7 +134,7 @@ public class LogStorageIndexReader implements Iterable<LogRecord> {
                     break;
                 }
             }
-            
+
             @Override
             protected LogRecord computeNext() {
                 while (!failed && !finished && (current == null || currentPosition >= current.size())) {
@@ -161,18 +160,18 @@ public class LogStorageIndexReader implements Iterable<LogRecord> {
             }
         };
     }
-    
+
     public static void main(String[] args) {
         LogStorageIndexReader reader = new LogStorageIndexReader(args[0], Integer.parseInt(args[1]), Integer.parseInt(args[2]), args[3]);
         String format = "id:%d - ts:%d - docid:%s - delete:%s - fields:%s - fields[timestamp]:%s";
         for (LogRecord record : reader) {
             String line = String.format(
-                    format, 
-                    record.get_id(), 
-                    record.get_timestamp_ms(), 
-                    record.get_docid(), 
-                    record.is_deleted(), 
-                    record.is_set_fields(), 
+                    format,
+                    record.get_id(),
+                    record.get_timestamp_ms(),
+                    record.get_docid(),
+                    record.is_deleted(),
+                    record.is_set_fields(),
                     record.is_set_fields() ? record.get_fields().get("timestamp") : null);
             System.out.println(line);
         }

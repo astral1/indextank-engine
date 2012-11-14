@@ -36,7 +36,7 @@ public class ResourceClassFileDataLoader implements ClassFileDataLoader {
 
     /**
      * @param loader ClassLoader for finding resources; if null, use system
-     * ClassLoader.
+     *               ClassLoader.
      */
     public ResourceClassFileDataLoader(ClassLoader loader) {
         mLoader = loader;

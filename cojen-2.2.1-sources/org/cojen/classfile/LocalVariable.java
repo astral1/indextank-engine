@@ -17,7 +17,6 @@
 package org.cojen.classfile;
 
 /**
- * 
  * @author Brian S O'Neill
  * @see CodeBuilder#createLocalVariable
  */
@@ -34,7 +33,7 @@ public interface LocalVariable {
     boolean isDoubleWord();
 
     /**
-     * Returns the number used by this LocalVariable, or -1 if not yet 
+     * Returns the number used by this LocalVariable, or -1 if not yet
      * resolved.
      */
     int getNumber();

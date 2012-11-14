@@ -27,11 +27,17 @@ import java.util.MissingResourceException;
  * @author Brian S O'Neill
  */
 public interface CodeAssembler {
-    /** Convert floating point values as normal */
+    /**
+     * Convert floating point values as normal
+     */
     public final static int CONVERT_FP_NORMAL = 0;
-    /** Convert floating point values as bits (NaN is canonicalized) */
+    /**
+     * Convert floating point values as bits (NaN is canonicalized)
+     */
     public final static int CONVERT_FP_BITS = 1;
-    /** Convert floating point values as raw bits */
+    /**
+     * Convert floating point values as raw bits
+     */
     public final static int CONVERT_FP_RAW_BITS = 2;
 
     /**
@@ -50,12 +56,12 @@ public interface CodeAssembler {
 
     /**
      * Creates a LocalVariable reference from a name and type. Although name
-     * is optional, it is encouraged that a name be provided. Names do not 
+     * is optional, it is encouraged that a name be provided. Names do not
      * need to be unique.
      *
      * @param name Optional name for the LocalVariable.
-     * @param type The type of data that the requested LocalVariable can 
-     * store. 
+     * @param type The type of data that the requested LocalVariable can
+     *             store.
      */
     LocalVariable createLocalVariable(String name, TypeDesc type);
 
@@ -63,7 +69,7 @@ public interface CodeAssembler {
      * Creates a label, whose location must be set. To create a label and
      * locate it here, the following example demonstrates how the call to
      * setLocation can be chained:
-     *
+     * <p/>
      * <pre>
      * CodeBuilder builder;
      * ...
@@ -71,27 +77,27 @@ public interface CodeAssembler {
      * </pre>
      *
      * @see Label#setLocation
-     */ 
+     */
     Label createLabel();
 
     /**
      * Sets up an exception handler located here, the location of the next
      * code to be generated.
      *
-     * @param startLocation Location at the start of the section of
-     * code to be wrapped by an exception handler.
-     * @param endLocation Location directly after the end of the
-     * section of code.
-     * @param catchClassName The class name of exception to be caught; 
-     * if null, then catch every object.
+     * @param startLocation  Location at the start of the section of
+     *                       code to be wrapped by an exception handler.
+     * @param endLocation    Location directly after the end of the
+     *                       section of code.
+     * @param catchClassName The class name of exception to be caught;
+     *                       if null, then catch every object.
      */
     void exceptionHandler(Location startLocation,
                           Location endLocation,
                           String catchClassName);
-    
+
     /**
-     * Map the location of the next code to be generated to a line number 
-     * in source code. This enables line numbers in a stack trace from the 
+     * Map the location of the next code to be generated to a line number
+     * in source code. This enables line numbers in a stack trace from the
      * generated code.
      */
     void mapLineNumber(int lineNumber);
@@ -104,7 +110,7 @@ public interface CodeAssembler {
      * have any access modifier.
      *
      * @throws IllegalArgumentException if define method not found, or if
-     * multiple are found
+     *                                  multiple are found
      * @throws MissingResourceException if define code not found
      */
     void inline(Object code) throws IllegalArgumentException, MissingResourceException;
@@ -131,7 +137,7 @@ public interface CodeAssembler {
      *
      * @param type any object or primitive type
      * @throws IllegalStateException if class file target version does not
-     * support this feature
+     *                               support this feature
      */
     void loadConstant(TypeDesc type) throws IllegalStateException;
 
@@ -141,7 +147,7 @@ public interface CodeAssembler {
     void loadConstant(boolean value);
 
     /**
-     * Generates code that loads a constant int, char, short or byte value 
+     * Generates code that loads a constant int, char, short or byte value
      * onto the stack.
      */
     void loadConstant(int value);
@@ -173,7 +179,7 @@ public interface CodeAssembler {
     void loadLocal(LocalVariable local);
 
     /**
-     * Loads a reference to "this" onto the stack. Static methods have no 
+     * Loads a reference to "this" onto the stack. Static methods have no
      * "this" reference, and an exception is thrown when attempting to
      * generate "this" in a static method.
      */
@@ -183,7 +189,7 @@ public interface CodeAssembler {
 
     /**
      * Generates code that pops a value off of the stack into a local variable.
-     * Parameters passed to a method and the "this" reference are all 
+     * Parameters passed to a method and the "this" reference are all
      * considered local variables, as well as any that were created.
      *
      * @param local The local variable reference
@@ -196,10 +202,10 @@ public interface CodeAssembler {
 
     /**
      * Generates code that loads a value from an array. An array
-     * reference followed by an index must be on the stack. The array 
-     * reference and index are replaced by the value retrieved from the array 
+     * reference followed by an index must be on the stack. The array
+     * reference and index are replaced by the value retrieved from the array
      * after the generated instruction has executed.
-     * <p>
+     * <p/>
      * The type doesn't need to be an exact match for objects.
      * TypeDesc.OBJECT works fine for all objects. For primitive types, use
      * the appropriate TypeDesc. For an int, the type is TypeDesc.INT.
@@ -215,7 +221,7 @@ public interface CodeAssembler {
      * reference followed by an index, followed by a value (or two if a long
      * or double) must be on the stack. All items on the stack are gone
      * after the generated instruction has executed.
-     * <p>
+     * <p/>
      * The type doesn't need to be an exact match for objects.
      * TypeDesc.OBJECT works fine for all objects. For primitive types, use
      * the appropriate TypeDesc. For an int, the type is TypeDesc.INT.
@@ -227,18 +233,18 @@ public interface CodeAssembler {
     // load-field-to-stack style instructions
 
     /**
-     * Generates code that loads a value from a field from this class. 
-     * An object reference must be on the stack. After the generated code 
-     * has executed, the object reference is replaced by the value retrieved 
+     * Generates code that loads a value from a field from this class.
+     * An object reference must be on the stack. After the generated code
+     * has executed, the object reference is replaced by the value retrieved
      * from the field.
      */
     void loadField(String fieldName,
                    TypeDesc type);
 
     /**
-     * Generates code that loads a value from a field from any class. 
-     * An object reference must be on the stack. After the generated code 
-     * has executed, the object reference is replaced by the value retrieved 
+     * Generates code that loads a value from a field from any class.
+     * An object reference must be on the stack. After the generated code
+     * has executed, the object reference is replaced by the value retrieved
      * from the field.
      */
     void loadField(String className,
@@ -246,20 +252,20 @@ public interface CodeAssembler {
                    TypeDesc type);
 
     /**
-     * Generates code that loads a value from a field from any class. 
-     * An object reference must be on the stack. After the generated code 
-     * has executed, the object reference is replaced by the value retrieved 
+     * Generates code that loads a value from a field from any class.
+     * An object reference must be on the stack. After the generated code
+     * has executed, the object reference is replaced by the value retrieved
      * from the field.
      *
      * @throws IllegalArgumentException if classDesc refers to an array or
-     * primitive type
+     *                                  primitive type
      */
     void loadField(TypeDesc classDesc,
                    String fieldName,
                    TypeDesc type);
 
     /**
-     * Generates code that loads a value from a static field from this class. 
+     * Generates code that loads a value from a static field from this class.
      * After the generated code has executed, the value retrieved is placed
      * on the stack.
      */
@@ -267,7 +273,7 @@ public interface CodeAssembler {
                          TypeDesc type);
 
     /**
-     * Generates code that loads a value from a static field from any class. 
+     * Generates code that loads a value from a static field from any class.
      * After the generated code has executed, the value retrieved is placed
      * on the stack.
      */
@@ -276,12 +282,12 @@ public interface CodeAssembler {
                          TypeDesc type);
 
     /**
-     * Generates code that loads a value from a static field from any class. 
+     * Generates code that loads a value from a static field from any class.
      * After the generated code has executed, the value retrieved is placed
      * on the stack.
      *
      * @throws IllegalArgumentException if classDesc refers to an array or
-     * primitive type
+     *                                  primitive type
      */
     void loadStaticField(TypeDesc classDesc,
                          String fieldName,
@@ -290,8 +296,8 @@ public interface CodeAssembler {
     // store-to-field-from-stack style instructions
 
     /**
-     * Generates code that stores a value into a field from this class. 
-     * An object reference and value must be on the stack. After the generated 
+     * Generates code that stores a value into a field from this class.
+     * An object reference and value must be on the stack. After the generated
      * code has executed, the object reference and value are gone from
      * the stack.
      */
@@ -299,8 +305,8 @@ public interface CodeAssembler {
                     TypeDesc type);
 
     /**
-     * Generates code that stores a value into a field from any class. 
-     * An object reference and value must be on the stack. After the generated 
+     * Generates code that stores a value into a field from any class.
+     * An object reference and value must be on the stack. After the generated
      * code has executed, the object reference and value are gone from
      * the stack.
      */
@@ -309,29 +315,29 @@ public interface CodeAssembler {
                     TypeDesc type);
 
     /**
-     * Generates code that stores a value into a field from any class. 
-     * An object reference and value must be on the stack. After the generated 
+     * Generates code that stores a value into a field from any class.
+     * An object reference and value must be on the stack. After the generated
      * code has executed, the object reference and value are gone from
      * the stack.
      *
      * @throws IllegalArgumentException if classDesc refers to an array or
-     * primitive type
+     *                                  primitive type
      */
     void storeField(TypeDesc classDesc,
                     String fieldName,
                     TypeDesc type);
 
     /**
-     * Generates code that stores a value into a field from this class. 
-     * A value must be on the stack. After the generated 
+     * Generates code that stores a value into a field from this class.
+     * A value must be on the stack. After the generated
      * code has executed, the value is gone from the stack.
      */
     void storeStaticField(String fieldName,
                           TypeDesc type);
 
     /**
-     * Generates code that stores a value into a field from any class. 
-     * A value must be on the stack. After the generated 
+     * Generates code that stores a value into a field from any class.
+     * A value must be on the stack. After the generated
      * code has executed, the value is gone from the stack.
      */
     void storeStaticField(String className,
@@ -339,12 +345,12 @@ public interface CodeAssembler {
                           TypeDesc type);
 
     /**
-     * Generates code that stores a value into a field from any class. 
-     * A value must be on the stack. After the generated 
+     * Generates code that stores a value into a field from any class.
+     * A value must be on the stack. After the generated
      * code has executed, the value is gone from the stack.
      *
      * @throws IllegalArgumentException if classDesc refers to an array or
-     * primitive type
+     *                                  primitive type
      */
     void storeStaticField(TypeDesc classDesc,
                           String fieldName,
@@ -360,7 +366,7 @@ public interface CodeAssembler {
     /**
      * Generates code that returns an object or primitive type. The value to
      * return must be on the stack.
-     * <p>
+     * <p/>
      * The type doesn't need to be an exact match for objects.
      * TypeDesc.OBJECT works fine for all objects. For primitive types, use
      * the appropriate TypeDesc. For an int, the type is TypeDesc.INT.
@@ -373,7 +379,7 @@ public interface CodeAssembler {
      * Generates code that converts the value of a primitive type already
      * on the stack. Conversions between all primitive types are supported as
      * well as boxing and unboxing conversions. Some example conversions:
-     *
+     * <p/>
      * <pre>
      * int to char
      * byte to double
@@ -382,7 +388,7 @@ public interface CodeAssembler {
      * long to Long
      * Double to Short
      * </pre>
-     * 
+     * <p/>
      * In all, 240 conversions are supported.
      *
      * @throws IllegalArgumentException if conversion not supported
@@ -393,7 +399,7 @@ public interface CodeAssembler {
      * Generates code that converts the value of a primitive type already
      * on the stack. Conversions between all primitive types are supported as
      * well as boxing and unboxing conversions. Some example conversions:
-     *
+     * <p/>
      * <pre>
      * int to char
      * byte to double
@@ -402,11 +408,11 @@ public interface CodeAssembler {
      * long to Long
      * Double to Short
      * </pre>
-     * 
+     * <p/>
      * In all, 240 conversions are supported.
      *
      * @param fpConvertMode controls floating point conversion if converting
-     * float &lt;--&gt; int or double &lt;--&gt; long
+     *                      float &lt;--&gt; int or double &lt;--&gt; long
      * @throws IllegalArgumentException if conversion not supported
      */
     void convert(TypeDesc fromType, TypeDesc toType, int fpConvertMode);
@@ -424,7 +430,7 @@ public interface CodeAssembler {
      * Generates code to invoke a virtual method in this class. The object
      * reference and the method's argument(s) must be on the stack.
      *
-     * @param ret May be null if method returns void.
+     * @param ret    May be null if method returns void.
      * @param params May be null if method takes no parameters.
      */
     void invokeVirtual(String methodName,
@@ -435,7 +441,7 @@ public interface CodeAssembler {
      * Generates code to invoke a virtual method in any class. The object
      * reference and the method's argument(s) must be on the stack.
      *
-     * @param ret May be null if method returns void.
+     * @param ret    May be null if method returns void.
      * @param params May be null if method takes no parameters.
      */
     void invokeVirtual(String className,
@@ -447,10 +453,10 @@ public interface CodeAssembler {
      * Generates code to invoke a virtual method in any class. The object
      * reference and the method's argument(s) must be on the stack.
      *
-     * @param ret May be null if method returns void.
+     * @param ret    May be null if method returns void.
      * @param params May be null if method takes no parameters.
      * @throws IllegalArgumentException if classDesc refers to an array or
-     * primitive type
+     *                                  primitive type
      */
     void invokeVirtual(TypeDesc classDesc,
                        String methodName,
@@ -461,7 +467,7 @@ public interface CodeAssembler {
      * Generates code to invoke a static method in this class. The method's
      * argument(s) must be on the stack.
      *
-     * @param ret May be null if method returns void.
+     * @param ret    May be null if method returns void.
      * @param params May be null if method takes no parameters.
      */
     void invokeStatic(String methodName,
@@ -472,7 +478,7 @@ public interface CodeAssembler {
      * Generates code to invoke a static method in any class. The method's
      * argument(s) must be on the stack.
      *
-     * @param ret May be null if method returns void.
+     * @param ret    May be null if method returns void.
      * @param params May be null if method takes no parameters.
      */
     void invokeStatic(String className,
@@ -484,10 +490,10 @@ public interface CodeAssembler {
      * Generates code to invoke a static method in any class. The method's
      * argument(s) must be on the stack.
      *
-     * @param ret May be null if method returns void.
+     * @param ret    May be null if method returns void.
      * @param params May be null if method takes no parameters.
      * @throws IllegalArgumentException if classDesc refers to an array or
-     * primitive type
+     *                                  primitive type
      */
     void invokeStatic(TypeDesc classDesc,
                       String methodName,
@@ -498,7 +504,7 @@ public interface CodeAssembler {
      * Generates code to invoke an interface method in any class. The object
      * reference and the method's argument(s) must be on the stack.
      *
-     * @param ret May be null if method returns void.
+     * @param ret    May be null if method returns void.
      * @param params May be null if method takes no parameters.
      */
     void invokeInterface(String className,
@@ -510,10 +516,10 @@ public interface CodeAssembler {
      * Generates code to invoke an interface method in any class. The object
      * reference and the method's argument(s) must be on the stack.
      *
-     * @param ret May be null if method returns void.
+     * @param ret    May be null if method returns void.
      * @param params May be null if method takes no parameters.
      * @throws IllegalArgumentException if classDesc refers to an array or
-     * primitive type
+     *                                  primitive type
      */
     void invokeInterface(TypeDesc classDesc,
                          String methodName,
@@ -524,13 +530,13 @@ public interface CodeAssembler {
      * Generates code to invoke a private method in this class.
      * The object reference and the method's argument(s) must be on the stack.
      *
-     * @param ret May be null if method returns void.
+     * @param ret    May be null if method returns void.
      * @param params May be null if method takes no parameters.
      */
     void invokePrivate(String methodName,
                        TypeDesc ret,
                        TypeDesc[] params);
-    
+
     /**
      * Generates code to invoke a method in the super class.
      * The object reference and the method's argument(s) must be on the stack.
@@ -541,7 +547,7 @@ public interface CodeAssembler {
      * Generates code to invoke a method in the super class.
      * The object reference and the method's argument(s) must be on the stack.
      *
-     * @param ret May be null if method returns void.
+     * @param ret    May be null if method returns void.
      * @param params May be null if method takes no parameters.
      */
     void invokeSuper(String superClassName,
@@ -553,10 +559,10 @@ public interface CodeAssembler {
      * Generates code to invoke a method in the super class.
      * The object reference and the method's argument(s) must be on the stack.
      *
-     * @param ret May be null if method returns void.
+     * @param ret    May be null if method returns void.
      * @param params May be null if method takes no parameters.
      * @throws IllegalArgumentException if superClassDesc refers to an array or
-     * primitive type
+     *                                  primitive type
      */
     void invokeSuper(TypeDesc superClassDesc,
                      String methodName,
@@ -570,7 +576,7 @@ public interface CodeAssembler {
     void invoke(Constructor constructor);
 
     /**
-     * Generates code to invoke a class constructor in this class. The object 
+     * Generates code to invoke a class constructor in this class. The object
      * reference and the constructor's argument(s) must be on the stack.
      *
      * @param params May be null if constructor takes no parameters.
@@ -578,7 +584,7 @@ public interface CodeAssembler {
     void invokeConstructor(TypeDesc[] params);
 
     /**
-     * Generates code to invoke a class constructor in any class. The object 
+     * Generates code to invoke a class constructor in any class. The object
      * reference and the constructor's argument(s) must be on the stack.
      *
      * @param params May be null if constructor takes no parameters.
@@ -586,17 +592,17 @@ public interface CodeAssembler {
     void invokeConstructor(String className, TypeDesc[] params);
 
     /**
-     * Generates code to invoke a class constructor in any class. The object 
+     * Generates code to invoke a class constructor in any class. The object
      * reference and the constructor's argument(s) must be on the stack.
      *
      * @param params May be null if constructor takes no parameters.
      * @throws IllegalArgumentException if classDesc refers to an array or
-     * primitive type
+     *                                  primitive type
      */
     void invokeConstructor(TypeDesc classDesc, TypeDesc[] params);
 
     /**
-     * Generates code to invoke a super class constructor. The object 
+     * Generates code to invoke a super class constructor. The object
      * reference and the constructor's argument(s) must be on the stack.
      *
      * @param params May be null if constructor takes no parameters.
@@ -606,9 +612,9 @@ public interface CodeAssembler {
     // creation style instructions
 
     /**
-     * Generates code to create a new object. Unless the new object is an 
+     * Generates code to create a new object. Unless the new object is an
      * array, it is invalid until a constructor method is invoked on it.
-     * <p>
+     * <p/>
      * If the specified type is an array, this call is equivalent to
      * newObject(type, 1). The size of the dimension must be on the operand
      * stack. To create multi-dimensional arrays, call
@@ -623,7 +629,7 @@ public interface CodeAssembler {
      * the type of array to create. The dimensions parameter specifies the
      * amount of dimensions that will initialized, which may not be larger than
      * the amount of dimensions specified in the type.
-     * <p>
+     * <p/>
      * For each dimension, its size must be on the operand stack. If the
      * specified dimensions is 0 and the type is not an array, then this call
      * is equivalent to newObject(type).
@@ -696,11 +702,11 @@ public interface CodeAssembler {
      * Generates code that performs a conditional branch based on the
      * value of an object on the stack. A branch is performed based on whether
      * the object reference on the stack is null or not.
-     *
+     * <p/>
      * <p>The generated instruction consumes the value on the stack.
      *
      * @param location The location to branch to
-     * @param choice If true, do branch when null, else branch when not null
+     * @param choice   If true, do branch when null, else branch when not null
      */
     void ifNullBranch(Location location, boolean choice);
 
@@ -708,11 +714,11 @@ public interface CodeAssembler {
      * Generates code that performs a conditional branch based on the value of
      * two object references on the stack. A branch is performed based on
      * whether the two objects are exactly the same.
-     *
+     * <p/>
      * <p>The generated instruction consumes the two values on the stack.
      *
      * @param location The location to branch to
-     * @param choice If true, branch when equal, else branch when not equal
+     * @param choice   If true, branch when equal, else branch when not equal
      */
     void ifEqualBranch(Location location, boolean choice);
 
@@ -720,36 +726,36 @@ public interface CodeAssembler {
      * Generates code the performs a conditional branch based on a comparison
      * between an int value on the stack and zero. The int value on the
      * stack is on the left side of the comparison expression.
-     *
+     * <p/>
      * <p>The generated instruction consumes the value on the stack.
      *
      * @param location The location to branch to
-     * @param choice One of "==", "!=", "<", ">=", ">" or "<="
+     * @param choice   One of "==", "!=", "<", ">=", ">" or "<="
      * @throws IllegalArgumentException When the choice is not valid
      */
-    void ifZeroComparisonBranch(Location location, String choice) 
-        throws IllegalArgumentException;
+    void ifZeroComparisonBranch(Location location, String choice)
+            throws IllegalArgumentException;
 
     /**
      * Generates code the performs a conditional branch based on a comparison
      * between two int values on the stack. The first int value on the stack
      * is on the left side of the comparison expression.
-     *
+     * <p/>
      * <p>The generated instruction consumes the two values on the stack.
      *
      * @param location The location to branch to
-     * @param choice One of "==", "!=", "<", ">=", ">" or "<="
+     * @param choice   One of "==", "!=", "<", ">=", ">" or "<="
      * @throws IllegalArgumentException When the choice is not valid
      */
     void ifComparisonBranch(Location location, String choice)
-        throws IllegalArgumentException;
+            throws IllegalArgumentException;
 
     /**
      * Generates code the performs a conditional branch based on a comparison
      * between two values of the given type on the stack. The first int value
      * on the stack is on the left side of the comparison expression. When
      * comparing objects, only an identity comparison is performed.
-     *
+     * <p/>
      * <p>When comparing floating point values, treatment of NaN requires
      * special attention. Ordinarily, it is assumed that the branch location
      * represents the target of a comparison failure, and that the code to
@@ -757,41 +763,40 @@ public interface CodeAssembler {
      * is not the case, append a 't' suffix to the choice to indicate that the
      * target location is reached for a "true" condition. This suffix is
      * ignored if the type is not a float or double.
-     *
+     * <p/>
      * <p>The generated instruction(s) consumes the two values on the stack.
      *
      * @param location The location to branch to
-
-     * @param choice One of "==", "!=", "<", ">=", ">", "<=", "==t", "!=t",
-     * "<t", ">=t", ">t", or "<=t". Object types can only be compared for
-     * equality.
-     * @param type Type to expect on the stack
+     * @param choice   One of "==", "!=", "<", ">=", ">", "<=", "==t", "!=t",
+     *                 "<t", ">=t", ">t", or "<=t". Object types can only be compared for
+     *                 equality.
+     * @param type     Type to expect on the stack
      * @throws IllegalArgumentException When the choice is not valid
      */
     void ifComparisonBranch(Location location, String choice, TypeDesc type)
-        throws IllegalArgumentException;
+            throws IllegalArgumentException;
 
     /**
      * Generates code for a switch statement. The generated code is either a
      * lookupswitch or tableswitch. The choice of which switch type to generate
      * is made based on the amount of bytes to be generated. A tableswitch
      * is usually smaller, unless the cases are sparse.
-     *
+     * <p/>
      * <p>The key value to switch on must already be on the stack when this
      * instruction executes. It is consumed by the instruction.
      *
-     * @param cases The values to match on. The array length must be the same
-     * as for locations.
-     * @param locations The locations to branch to for each case.
-     * The array length must be the same as for cases.
+     * @param cases           The values to match on. The array length must be the same
+     *                        as for locations.
+     * @param locations       The locations to branch to for each case.
+     *                        The array length must be the same as for cases.
      * @param defaultLocation The location to branch to if the key on
-     * the stack was not matched.
+     *                        the stack was not matched.
      */
-    void switchBranch(int[] cases, 
+    void switchBranch(int[] cases,
                       Location[] locations, Location defaultLocation);
 
     /**
-     * Generates code that performs a subroutine branch to the specified 
+     * Generates code that performs a subroutine branch to the specified
      * location. The instruction generated is either jsr or jsr_w. It is most
      * often used for implementing a finally block.
      *
@@ -803,7 +808,7 @@ public interface CodeAssembler {
      * Generates code that returns from a subroutine invoked by jsr.
      *
      * @param local The local variable reference that contains the return
-     * address. The local variable must be of an object type.
+     *              address. The local variable must be of an object type.
      */
     void ret(LocalVariable local);
 
@@ -812,10 +817,10 @@ public interface CodeAssembler {
     /**
      * Generates code for either a unary or binary math operation on one
      * or two values pushed on the stack.
-     * <p>
+     * <p/>
      * Pass in an opcode from the the Opcode class. The only valid math
      * opcodes are:
-     *
+     * <p/>
      * <pre>
      * IADD, ISUB, IMUL, IDIV, IREM, INEG, IAND, IOR, IXOR, ISHL, ISHR, IUSHR
      * LADD, LSUB, LMUL, LDIV, LREM, LNEG, LAND, LOR, LXOR, LSHL, LSHR, LUSHR
@@ -826,13 +831,13 @@ public interface CodeAssembler {
      * FCMPG, FCMPL
      * DCMPG, DCMPL
      * </pre>
-     *
+     * <p/>
      * A not operation (~) is performed by doing a loadConstant with either
      * -1 or -1L followed by math(Opcode.IXOR) or math(Opcode.LXOR).
      *
      * @param opcode An opcode from the Opcode class.
      * @throws IllegalArgumentException When the opcode selected is not
-     * a math operation.
+     *                                  a math operation.
      * @see Opcode
      */
     void math(byte opcode);
@@ -864,7 +869,7 @@ public interface CodeAssembler {
     void instanceOf(TypeDesc type);
 
     /**
-     * Generates code that increments a local integer variable by a signed 
+     * Generates code that increments a local integer variable by a signed
      * constant amount.
      */
     void integerIncrement(LocalVariable local, int amount);

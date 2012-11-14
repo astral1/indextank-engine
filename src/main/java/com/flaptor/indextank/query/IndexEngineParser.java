@@ -16,12 +16,8 @@
 
 package com.flaptor.indextank.query;
 
-import java.io.IOException;
-import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
+import com.google.common.base.Preconditions;
+import com.google.common.collect.AbstractIterator;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
@@ -31,22 +27,25 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.util.Version;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.AbstractIterator;
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 public class IndexEngineParser {
-	private final Analyzer analyzer;
-	private final String defaultField;
+    private final Analyzer analyzer;
+    private final String defaultField;
 
-	public IndexEngineParser(String defaultField, Analyzer analyzer) {
-		this.defaultField = defaultField;
-		this.analyzer = analyzer;
-	}
-	
-	public IndexEngineParser(String defaultField) {
-		this(defaultField, new IndexEngineAnalyzer());
-	}
-	
+    public IndexEngineParser(String defaultField, Analyzer analyzer) {
+        this.defaultField = defaultField;
+        this.analyzer = analyzer;
+    }
+
+    public IndexEngineParser(String defaultField) {
+        this(defaultField, new IndexEngineAnalyzer());
+    }
+
     @SuppressWarnings("deprecation")
     public QueryNode parseQuery(final String queryStr) throws ParseException {
         org.apache.lucene.queryParser.QueryParser qp = new org.apache.lucene.queryParser.QueryParser(Version.LUCENE_CURRENT, defaultField, getAnalyzer());
@@ -78,7 +77,8 @@ public class IndexEngineParser {
         final OffsetAttribute offsetAtt = tkstream.addAttribute(OffsetAttribute.class);
 
         return new AbstractIterator<AToken>() {
-        	int currentPosition = 0;
+            int currentPosition = 0;
+
             @Override
             protected AToken computeNext() {
                 try {
@@ -101,14 +101,17 @@ public class IndexEngineParser {
                     public String getText() {
                         return text; //luceneTk.term();
                     }
+
                     @Override
                     public int getPosition() {
                         return position; //luceneTk.getPositionIncrement();
                     }
+
                     @Override
                     public int getStartOffset() {
                         return startOffset;
                     }
+
                     @Override
                     public int getEndOffset() {
                         return endOffset;
@@ -186,17 +189,13 @@ public class IndexEngineParser {
             return firstQuery;
         }
         if (list.get(1).isRequired()) {
-            return new AndQuery(firstQuery, internalParseBooleanQuery(list.subList(1,list.size()), null));
+            return new AndQuery(firstQuery, internalParseBooleanQuery(list.subList(1, list.size()), null));
         } else if (list.get(1).isProhibited()) {
-            return new DifferenceQuery(firstQuery, internalParseBooleanQuery(list.subList(1,list.size()), null));
+            return new DifferenceQuery(firstQuery, internalParseBooleanQuery(list.subList(1, list.size()), null));
         } else {
-            return new OrQuery(firstQuery, internalParseBooleanQuery(list.subList(1,list.size()), null));
+            return new OrQuery(firstQuery, internalParseBooleanQuery(list.subList(1, list.size()), null));
         }
     }
-
-
-
-
 
 
     public static void main(String[] args) throws Exception {

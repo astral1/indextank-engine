@@ -30,7 +30,7 @@ public class NullCodeAssembler extends AbstractCodeAssembler {
         mMethod = mi;
         TypeDesc[] paramTypes = mMethod.getMethodDescriptor().getParameterTypes();
         mParams = new LocalVariable[paramTypes.length];
-        for (int i=0; i<paramTypes.length; i++) {
+        for (int i = 0; i < paramTypes.length; i++) {
             mParams[i] = new Variable(null, paramTypes[i]);
         }
     }
@@ -60,7 +60,7 @@ public class NullCodeAssembler extends AbstractCodeAssembler {
                                  String catchClassName) {
         // Handler is not an instruction.
     }
-    
+
     public void mapLineNumber(int lineNumber) {
         // Line number is not an instruction.
     }
@@ -257,7 +257,7 @@ public class NullCodeAssembler extends AbstractCodeAssembler {
                               TypeDesc[] params) {
         mInstrCount++;
     }
-    
+
     public void invokeSuper(String superClassName,
                             String methodName,
                             TypeDesc ret,
@@ -356,7 +356,7 @@ public class NullCodeAssembler extends AbstractCodeAssembler {
         mInstrCount++;
     }
 
-    public void switchBranch(int[] cases, 
+    public void switchBranch(int[] cases,
                              Location[] locations, Location defaultLocation) {
         mInstrCount++;
     }

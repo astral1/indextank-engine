@@ -16,13 +16,6 @@
 
 package com.flaptor.indextank.search;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.apache.log4j.Logger;
-
 import com.flaptor.indextank.index.Document;
 import com.flaptor.indextank.query.AToken;
 import com.flaptor.indextank.query.IndexEngineParser;
@@ -36,50 +29,54 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import org.apache.log4j.Logger;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class SnippetSearcher extends AbstractDocumentSearcher {
-	private static final Logger logger = Logger.getLogger(Execute.whoAmI());
+    private static final Logger logger = Logger.getLogger(Execute.whoAmI());
     private final DocumentSearcher delegate;
-	private final DocumentStorage storage;
-	private final IndexEngineParser parser;
+    private final DocumentStorage storage;
+    private final IndexEngineParser parser;
     private final Map<SnippeterType, Snippeter> snippeters;
 
-    public enum SnippeterType { HTML_AWARE, LINE_AWARE }
+    public enum SnippeterType {HTML_AWARE, LINE_AWARE}
 
-    public SnippetSearcher(DocumentSearcher searcher, DocumentStorage storage, IndexEngineParser parser){
-		Preconditions.checkNotNull(searcher);
-		Preconditions.checkNotNull(storage);
+    public SnippetSearcher(DocumentSearcher searcher, DocumentStorage storage, IndexEngineParser parser) {
+        Preconditions.checkNotNull(searcher);
+        Preconditions.checkNotNull(storage);
         this.delegate = searcher;
         this.storage = storage;
         this.parser = parser;
 
 
-        this.snippeters = ImmutableMap.of(  SnippeterType.HTML_AWARE, new HtmlAwareSnippeter(),
-                                            SnippeterType.LINE_AWARE, new LineAwareSnippeter());
+        this.snippeters = ImmutableMap.of(SnippeterType.HTML_AWARE, new HtmlAwareSnippeter(),
+                SnippeterType.LINE_AWARE, new LineAwareSnippeter());
 
     }
-   
+
 
     /**
-     * @see AbstractDocumentSearcher#search(Query query, int start, int limit, int scoringFunctionIndex, Map<String, String> extraParameters).
-     *
      * @param extraParameters: It will process 'fetch_fields', 'snippet_fields' and 'snippet_type'.
-     *      'fetch_fields' and 'snippet_fields' are comma-separated lists of field names to fetch an snippet.
-     *      'snippet_type' can be either 'html' or 'lines'. 'html' is the default.
-     * 
+     *                         'fetch_fields' and 'snippet_fields' are comma-separated lists of field names to fetch an snippet.
+     *                         'snippet_type' can be either 'html' or 'lines'. 'html' is the default.
+     * @see AbstractDocumentSearcher#search(Query query, int start, int limit, int scoringFunctionIndex, Map<String, String> extraParameters).
      */
 
     @Override
     public SearchResults search(Query query, int start, int limit, int scoringFunctionIndex, Map<String, String> extraParameters) throws InterruptedException {
-    	// call delegate searcher
+        // call delegate searcher
         SearchResults results = this.delegate.search(query, start, limit, scoringFunctionIndex, extraParameters);
-        
+
         long startTime = System.currentTimeMillis();
-        
+
         String[] fetchFields = parseFields(extraParameters, "fetch");
         String[] snippetFields = parseFields(extraParameters, "snippet");
         Set<TermQuery> positiveTerms = query.getRoot().getPositiveTerms();
-                
+
         // find out which snippeter type is the right one for this query
         String snType = extraParameters.get("snippet_type");
         Snippeter sn = null;
@@ -90,16 +87,16 @@ public class SnippetSearcher extends AbstractDocumentSearcher {
         } else {
             throw new IllegalArgumentException("snippet_type has to be either 'html' or 'lines'");
         }
-        
+
         if (fetchFields.length + snippetFields.length > 0) {
-        	for (SearchResult result : results.getResults()) {
-        		Document data = storage.getDocument(result.getDocId());
+            for (SearchResult result : results.getResults()) {
+                Document data = storage.getDocument(result.getDocId());
 
 
-        		// fetch fields
-        		for (String field : fetchFields) {
+                // fetch fields
+                for (String field : fetchFields) {
                     // handle '*', as a fetch all
-                    if ("*".equals(field.trim())){
+                    if ("*".equals(field.trim())) {
                         // assume we get the actual fields, not a copy.
                         result.getFields().putAll(data.asMap());
                         break;
@@ -108,16 +105,16 @@ public class SnippetSearcher extends AbstractDocumentSearcher {
                     if (null != text) {
                         result.setField(field, text);
                     }
-				}
+                }
 
-        		// snippet fields
-        		for (String field : snippetFields) {
+                // snippet fields
+                for (String field : snippetFields) {
                     String text = data.getField(field);
                     if (null != text) {
                         result.setField("snippet_" + field, sn.snippet(positiveTerms, field, text));
                     }
-        		}
-        	}
+                }
+            }
         }
         long endTime = System.currentTimeMillis();
         logger.debug("(search) fetching & snippeting took: " + (endTime - startTime) + " ms.");
@@ -130,33 +127,34 @@ public class SnippetSearcher extends AbstractDocumentSearcher {
     public int countMatches(Query query) throws InterruptedException {
         return this.delegate.countMatches(query);
     }
-    
-	private static String[] parseFields(Map<String, String> extraParameters, String key) {
-		if (extraParameters.containsKey(key + "_fields")) {
-        	return extraParameters.get(key + "_fields").split(",");
-        } else { 
-        	return new String[0];
+
+    private static String[] parseFields(Map<String, String> extraParameters, String key) {
+        if (extraParameters.containsKey(key + "_fields")) {
+            return extraParameters.get(key + "_fields").split(",");
+        } else {
+            return new String[0];
         }
-	}
-	
-    private abstract class Snippeter { 
+    }
+
+    private abstract class Snippeter {
 
         protected abstract int adjustStart(int position, String text);
+
         protected abstract int adjustEnd(int position, String text);
 
         private String snippet(Set<TermQuery> terms, String fieldName, String text) {
             Set<String> termsForField = getTermsForField(terms, fieldName);
             long t1 = System.currentTimeMillis();
             List<AToken> tokens = Lists.newArrayList(parser.parseDocumentField(fieldName, text));
-            long t2 = System.currentTimeMillis(); 
+            long t2 = System.currentTimeMillis();
             logger.debug(String.format("Parsing field %s took %d ms.", fieldName, t2 - t1));
             List<Integer> matches = Lists.newArrayList();
-            
+
             for (int i = 0; i < tokens.size(); i++) {
                 String termInText = tokens.get(i).getText();
-                
+
                 for (String termInQuery : termsForField) {
-                    if ((termInQuery.endsWith("*") && termInText.startsWith(termInQuery.substring(0, termInQuery.length() - 1))) 
+                    if ((termInQuery.endsWith("*") && termInText.startsWith(termInQuery.substring(0, termInQuery.length() - 1)))
                             || termInQuery.equals(termInText)) {
                         matches.add(i);
                     }
@@ -166,10 +164,10 @@ public class SnippetSearcher extends AbstractDocumentSearcher {
                 return "";
             }
             Window window = findBestWindow(tokens, matches, 200);
-            long t3 = System.currentTimeMillis(); 
+            long t3 = System.currentTimeMillis();
             logger.debug(String.format("Finding best window for %d matches took %d ms.", matches.size(), t3 - t2));
             String markedText = mark(window, text);
-            long t4 = System.currentTimeMillis(); 
+            long t4 = System.currentTimeMillis();
             logger.debug(String.format("Marking text %d chars in %d ms.", markedText.length(), t4 - t3));
             return markedText;
         }
@@ -200,7 +198,7 @@ public class SnippetSearcher extends AbstractDocumentSearcher {
             escapeAndAppend(buff, text, current, finish);
             return buff.toString();
         }
-        
+
         private Window findBestWindow(List<AToken> tokens, List<Integer> matches, int maxSize) {
             if (matches.size() == 0) {
                 return null;
@@ -210,31 +208,31 @@ public class SnippetSearcher extends AbstractDocumentSearcher {
             float bestScore = 0f;
             int left = 0;
             int right = 0;
-    		while (right < matches.size()) {
-	    	    right++;
-	            while (mtokens.get(right - 1).getEndOffset() - mtokens.get(left).getStartOffset() > maxSize) {
-    		    	left++;
-	    	    }
-	            List<AToken> candidate = mtokens.subList(left, right);
-    		    float score = scoreWindow(candidate);
-	    	    if (score > bestScore) {
-		        	bestScore = score;
-    		    	best = matches.subList(left, right);
-	    	    }
-    		}
+            while (right < matches.size()) {
+                right++;
+                while (mtokens.get(right - 1).getEndOffset() - mtokens.get(left).getStartOffset() > maxSize) {
+                    left++;
+                }
+                List<AToken> candidate = mtokens.subList(left, right);
+                float score = scoreWindow(candidate);
+                if (score > bestScore) {
+                    bestScore = score;
+                    best = matches.subList(left, right);
+                }
+            }
             return getWindowContext(tokens, best);
-        } 
- 
+        }
+
         private Window getWindowContext(List<AToken> tokens, List<Integer> best) {
             int left = best.get(0);
-            int right = best.get(best.size()-1);
+            int right = best.get(best.size() - 1);
             Window window = new Window();
             window.matches = asTokens(best, tokens);
             window.start = tokens.get(Math.max(0, left - 5)).getStartOffset();
-            window.end = tokens.get(Math.min(right + 24, tokens.size()-1)).getEndOffset();
+            window.end = tokens.get(Math.min(right + 24, tokens.size() - 1)).getEndOffset();
             return window;
         }
-        
+
         private float scoreWindow(List<AToken> candidate) {
             Set<String> terms = Sets.newHashSet();
             for (AToken token : candidate) {
@@ -243,27 +241,27 @@ public class SnippetSearcher extends AbstractDocumentSearcher {
             return candidate.size() * terms.size() * terms.size();
         }
 
-    } 
+    }
 
 
     /**
      * A Snippeter that tries not to cut HTML entities
      */
-    private class HtmlAwareSnippeter extends Snippeter { 
+    private class HtmlAwareSnippeter extends Snippeter {
 
         // Snippeter abstract methods
-       
+
         protected int adjustStart(int position, String text) {
 
             // tokenizers may cut off & on entities  .. fix that
-            if (position > 0 && text.charAt(position -1) == '&') {
-                return position -1;
+            if (position > 0 && text.charAt(position - 1) == '&') {
+                return position - 1;
             }
 
             return position;
         }
-        
-        protected int adjustEnd(int position, String text){
+
+        protected int adjustEnd(int position, String text) {
 
             // tokenizers miss final ; on entities. Try to fix that
             return position;
@@ -277,7 +275,7 @@ public class SnippetSearcher extends AbstractDocumentSearcher {
     private class LineAwareSnippeter extends Snippeter {
 
         // Snippeter abstract methods
-        
+
         protected int adjustEnd(int finish, String text) {
             while (finish < text.length() && text.charAt(finish) != '\n') {
                 finish++;
@@ -289,10 +287,10 @@ public class SnippetSearcher extends AbstractDocumentSearcher {
                 finish++;
             }
             return finish;
-        } 
+        }
 
         protected int adjustStart(int current, String text) {
-            while (current > 0 && text.charAt(current-1) != '\n') {
+            while (current > 0 && text.charAt(current - 1) != '\n') {
                 current--;
             }
             return current;
@@ -309,13 +307,13 @@ public class SnippetSearcher extends AbstractDocumentSearcher {
             }
         });
     }
-    
+
     private static class Window {
-    	int start;
-    	int end;
+        int start;
+        int end;
         List<AToken> matches = Lists.newArrayList();
     }
-    
+
     private Set<String> getTermsForField(Set<TermQuery> terms, String fieldName) {
         Set<String> retval = new HashSet<String>();
         for (TermQuery t : terms) {
@@ -327,8 +325,8 @@ public class SnippetSearcher extends AbstractDocumentSearcher {
     }
 
     private void escapeAndAppend(StringBuilder dest, String str, int start, int offset) {
-        if (dest == null ) {
-            throw new IllegalArgumentException ("The Writer must not be null.");
+        if (dest == null) {
+            throw new IllegalArgumentException("The Writer must not be null.");
         }
         if (str == null) {
             return;

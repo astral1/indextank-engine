@@ -77,23 +77,23 @@ public class KeyFactory {
             return obj;
         }
         if (obj instanceof Object[]) {
-            return createKey((Object[])obj);
+            return createKey((Object[]) obj);
         } else if (obj instanceof int[]) {
-            return createKey((int[])obj);
+            return createKey((int[]) obj);
         } else if (obj instanceof float[]) {
-            return createKey((float[])obj);
+            return createKey((float[]) obj);
         } else if (obj instanceof long[]) {
-            return createKey((long[])obj);
+            return createKey((long[]) obj);
         } else if (obj instanceof double[]) {
-            return createKey((double[])obj);
+            return createKey((double[]) obj);
         } else if (obj instanceof byte[]) {
-            return createKey((byte[])obj);
+            return createKey((byte[]) obj);
         } else if (obj instanceof char[]) {
-            return createKey((char[])obj);
+            return createKey((char[]) obj);
         } else if (obj instanceof boolean[]) {
-            return createKey((boolean[])obj);
+            return createKey((boolean[]) obj);
         } else if (obj instanceof short[]) {
-            return createKey((short[])obj);
+            return createKey((short[]) obj);
         } else {
             return obj;
         }
@@ -127,7 +127,7 @@ public class KeyFactory {
         int hash = 0;
         for (int i = a.length; --i >= 0; ) {
             long v = Double.doubleToLongBits(a[i]);
-            hash = hash * 31 + (int)(v ^ v >>> 32);
+            hash = hash * 31 + (int) (v ^ v >>> 32);
         }
         return hash == 0 ? -1 : hash;
     }
@@ -152,7 +152,7 @@ public class KeyFactory {
         int hash = 0;
         for (int i = a.length; --i >= 0; ) {
             long v = a[i];
-            hash = hash * 31 + (int)(v ^ v >>> 32);
+            hash = hash * 31 + (int) (v ^ v >>> 32);
         }
         return hash == 0 ? -1 : hash;
     }
@@ -182,23 +182,23 @@ public class KeyFactory {
             return a.hashCode();
         }
         if (a instanceof Object[]) {
-            return hashCode((Object[])a);
+            return hashCode((Object[]) a);
         } else if (a instanceof int[]) {
-            return hashCode((int[])a);
+            return hashCode((int[]) a);
         } else if (a instanceof float[]) {
-            return hashCode((float[])a);
+            return hashCode((float[]) a);
         } else if (a instanceof long[]) {
-            return hashCode((long[])a);
+            return hashCode((long[]) a);
         } else if (a instanceof double[]) {
-            return hashCode((double[])a);
+            return hashCode((double[]) a);
         } else if (a instanceof byte[]) {
-            return hashCode((byte[])a);
+            return hashCode((byte[]) a);
         } else if (a instanceof char[]) {
-            return hashCode((char[])a);
+            return hashCode((char[]) a);
         } else if (a instanceof boolean[]) {
-            return hashCode((boolean[])a);
+            return hashCode((boolean[]) a);
         } else if (a instanceof short[]) {
-            return hashCode((short[])a);
+            return hashCode((short[]) a);
         } else {
             int hash = a.getClass().hashCode();
             return hash == 0 ? -1 : hash;
@@ -241,23 +241,23 @@ public class KeyFactory {
             return false;
         }
         if (a instanceof Object[]) {
-            return equals((Object[])a, (Object[])b);
+            return equals((Object[]) a, (Object[]) b);
         } else if (a instanceof int[]) {
-            return Arrays.equals((int[])a, (int[])b);
+            return Arrays.equals((int[]) a, (int[]) b);
         } else if (a instanceof float[]) {
-            return Arrays.equals((float[])a, (float[])b);
+            return Arrays.equals((float[]) a, (float[]) b);
         } else if (a instanceof long[]) {
-            return Arrays.equals((long[])a, (long[])b);
+            return Arrays.equals((long[]) a, (long[]) b);
         } else if (a instanceof double[]) {
-            return Arrays.equals((double[])a, (double[])b);
+            return Arrays.equals((double[]) a, (double[]) b);
         } else if (a instanceof byte[]) {
-            return Arrays.equals((byte[])a, (byte[])b);
+            return Arrays.equals((byte[]) a, (byte[]) b);
         } else if (a instanceof char[]) {
-            return Arrays.equals((char[])a, (char[])b);
+            return Arrays.equals((char[]) a, (char[]) b);
         } else if (a instanceof boolean[]) {
-            return Arrays.equals((boolean[])a, (boolean[])b);
+            return Arrays.equals((boolean[]) a, (boolean[]) b);
         } else if (a instanceof short[]) {
-            return Arrays.equals((short[])a, (short[])b);
+            return Arrays.equals((short[]) a, (short[]) b);
         } else {
             return a.equals(b);
         }
@@ -274,7 +274,7 @@ public class KeyFactory {
             return -1;
         }
         int length = Math.min(a.length, b.length);
-        for (int i=0; i<length; i++) {
+        for (int i = 0; i < length; i++) {
             int av = a[i] ? 0 : 1;
             int bv = b[i] ? 0 : 1;
             return av < bv ? -1 : (av > bv ? 1 : 0);
@@ -293,7 +293,7 @@ public class KeyFactory {
             return -1;
         }
         int length = Math.min(a.length, b.length);
-        for (int i=0; i<length; i++) {
+        for (int i = 0; i < length; i++) {
             byte av = a[i];
             byte bv = b[i];
             return av < bv ? -1 : (av > bv ? 1 : 0);
@@ -312,7 +312,7 @@ public class KeyFactory {
             return -1;
         }
         int length = Math.min(a.length, b.length);
-        for (int i=0; i<length; i++) {
+        for (int i = 0; i < length; i++) {
             char av = a[i];
             char bv = b[i];
             return av < bv ? -1 : (av > bv ? 1 : 0);
@@ -331,7 +331,7 @@ public class KeyFactory {
             return -1;
         }
         int length = Math.min(a.length, b.length);
-        for (int i=0; i<length; i++) {
+        for (int i = 0; i < length; i++) {
             int v = Double.compare(a[i], b[i]);
             if (v != 0) {
                 return v;
@@ -351,7 +351,7 @@ public class KeyFactory {
             return -1;
         }
         int length = Math.min(a.length, b.length);
-        for (int i=0; i<length; i++) {
+        for (int i = 0; i < length; i++) {
             int v = Float.compare(a[i], b[i]);
             if (v != 0) {
                 return v;
@@ -371,7 +371,7 @@ public class KeyFactory {
             return -1;
         }
         int length = Math.min(a.length, b.length);
-        for (int i=0; i<length; i++) {
+        for (int i = 0; i < length; i++) {
             int av = a[i];
             int bv = b[i];
             return av < bv ? -1 : (av > bv ? 1 : 0);
@@ -390,7 +390,7 @@ public class KeyFactory {
             return -1;
         }
         int length = Math.min(a.length, b.length);
-        for (int i=0; i<length; i++) {
+        for (int i = 0; i < length; i++) {
             long av = a[i];
             long bv = b[i];
             return av < bv ? -1 : (av > bv ? 1 : 0);
@@ -409,7 +409,7 @@ public class KeyFactory {
             return -1;
         }
         int length = Math.min(a.length, b.length);
-        for (int i=0; i<length; i++) {
+        for (int i = 0; i < length; i++) {
             short av = a[i];
             short bv = b[i];
             return av < bv ? -1 : (av > bv ? 1 : 0);
@@ -429,7 +429,7 @@ public class KeyFactory {
             return -1;
         }
         int length = Math.min(a.length, b.length);
-        for (int i=0; i<length; i++) {
+        for (int i = 0; i < length; i++) {
             int v = compare(a[i], b[i]);
             if (v != 0) {
                 return v;
@@ -451,29 +451,29 @@ public class KeyFactory {
         }
         Class ac = a.getClass();
         if (!(ac.isArray())) {
-            return ((Comparable)a).compareTo(b);
+            return ((Comparable) a).compareTo(b);
         }
         if (ac != b.getClass()) {
             throw new ClassCastException();
         }
         if (a instanceof Object[]) {
-            return compare((Object[])a, (Object[])b);
+            return compare((Object[]) a, (Object[]) b);
         } else if (a instanceof int[]) {
-            return compare((int[])a, (int[])b);
+            return compare((int[]) a, (int[]) b);
         } else if (a instanceof float[]) {
-            return compare((float[])a, (float[])b);
+            return compare((float[]) a, (float[]) b);
         } else if (a instanceof long[]) {
-            return compare((long[])a, (long[])b);
+            return compare((long[]) a, (long[]) b);
         } else if (a instanceof double[]) {
-            return compare((double[])a, (double[])b);
+            return compare((double[]) a, (double[]) b);
         } else if (a instanceof byte[]) {
-            return compare((byte[])a, (byte[])b);
+            return compare((byte[]) a, (byte[]) b);
         } else if (a instanceof char[]) {
-            return compare((char[])a, (char[])b);
+            return compare((char[]) a, (char[]) b);
         } else if (a instanceof boolean[]) {
-            return compare((boolean[])a, (boolean[])b);
+            return compare((boolean[]) a, (boolean[]) b);
         } else if (a instanceof short[]) {
-            return compare((short[])a, (short[])b);
+            return compare((short[]) a, (short[]) b);
         } else {
             throw new ClassCastException();
         }
@@ -505,8 +505,8 @@ public class KeyFactory {
 
         public boolean equals(Object obj) {
             return this == obj ? true :
-                (obj instanceof BooleanArrayKey ?
-                 Arrays.equals(mArray, ((BooleanArrayKey) obj).mArray) : false);
+                    (obj instanceof BooleanArrayKey ?
+                            Arrays.equals(mArray, ((BooleanArrayKey) obj).mArray) : false);
         }
 
         public int compareTo(Object obj) {
@@ -529,8 +529,8 @@ public class KeyFactory {
 
         public boolean equals(Object obj) {
             return this == obj ? true :
-                (obj instanceof ByteArrayKey ?
-                 Arrays.equals(mArray, ((ByteArrayKey) obj).mArray) : false);
+                    (obj instanceof ByteArrayKey ?
+                            Arrays.equals(mArray, ((ByteArrayKey) obj).mArray) : false);
         }
 
         public int compareTo(Object obj) {
@@ -553,8 +553,8 @@ public class KeyFactory {
 
         public boolean equals(Object obj) {
             return this == obj ? true :
-                (obj instanceof CharArrayKey ?
-                 Arrays.equals(mArray, ((CharArrayKey) obj).mArray) : false);
+                    (obj instanceof CharArrayKey ?
+                            Arrays.equals(mArray, ((CharArrayKey) obj).mArray) : false);
         }
 
         public int compareTo(Object obj) {
@@ -577,8 +577,8 @@ public class KeyFactory {
 
         public boolean equals(Object obj) {
             return this == obj ? true :
-                (obj instanceof DoubleArrayKey ?
-                 Arrays.equals(mArray, ((DoubleArrayKey) obj).mArray) : false);
+                    (obj instanceof DoubleArrayKey ?
+                            Arrays.equals(mArray, ((DoubleArrayKey) obj).mArray) : false);
         }
 
         public int compareTo(Object obj) {
@@ -601,8 +601,8 @@ public class KeyFactory {
 
         public boolean equals(Object obj) {
             return this == obj ? true :
-                (obj instanceof FloatArrayKey ?
-                 Arrays.equals(mArray, ((FloatArrayKey) obj).mArray) : false);
+                    (obj instanceof FloatArrayKey ?
+                            Arrays.equals(mArray, ((FloatArrayKey) obj).mArray) : false);
         }
 
         public int compareTo(Object obj) {
@@ -625,8 +625,8 @@ public class KeyFactory {
 
         public boolean equals(Object obj) {
             return this == obj ? true :
-                (obj instanceof IntArrayKey ?
-                 Arrays.equals(mArray, ((IntArrayKey) obj).mArray) : false);
+                    (obj instanceof IntArrayKey ?
+                            Arrays.equals(mArray, ((IntArrayKey) obj).mArray) : false);
         }
 
         public int compareTo(Object obj) {
@@ -649,8 +649,8 @@ public class KeyFactory {
 
         public boolean equals(Object obj) {
             return this == obj ? true :
-                (obj instanceof LongArrayKey ?
-                 Arrays.equals(mArray, ((LongArrayKey) obj).mArray) : false);
+                    (obj instanceof LongArrayKey ?
+                            Arrays.equals(mArray, ((LongArrayKey) obj).mArray) : false);
         }
 
         public int compareTo(Object obj) {
@@ -673,8 +673,8 @@ public class KeyFactory {
 
         public boolean equals(Object obj) {
             return this == obj ? true :
-                (obj instanceof ShortArrayKey ?
-                 Arrays.equals(mArray, ((ShortArrayKey) obj).mArray) : false);
+                    (obj instanceof ShortArrayKey ?
+                            Arrays.equals(mArray, ((ShortArrayKey) obj).mArray) : false);
         }
 
         public int compareTo(Object obj) {
@@ -697,8 +697,8 @@ public class KeyFactory {
 
         public boolean equals(Object obj) {
             return this == obj ? true :
-                (obj instanceof ObjectArrayKey ?
-                 KeyFactory.equals(mArray, ((ObjectArrayKey) obj).mArray) : false);
+                    (obj instanceof ObjectArrayKey ?
+                            KeyFactory.equals(mArray, ((ObjectArrayKey) obj).mArray) : false);
         }
 
         public int compareTo(Object obj) {

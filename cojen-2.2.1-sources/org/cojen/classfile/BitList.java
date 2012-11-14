@@ -27,7 +27,7 @@ final class BitList implements Cloneable {
 
     /**
      * @param capacity initial amount of bits to store
-     */    
+     */
     public BitList(int capacity) {
         mData = new int[(capacity + 31) >> 5];
     }
@@ -94,7 +94,7 @@ final class BitList implements Cloneable {
      */
     public boolean or(BitList list) {
         boolean changes = ensureCapacity(list.capacity());
-        for (int i=list.mData.length; --i >= 0; ) {
+        for (int i = list.mData.length; --i >= 0; ) {
             int v = mData[i];
             changes |= (v != (mData[i] = v | list.mData[i]));
         }
@@ -102,7 +102,7 @@ final class BitList implements Cloneable {
     }
 
     public boolean isAllClear() {
-        for (int i=mData.length; --i >= 0; ) {
+        for (int i = mData.length; --i >= 0; ) {
             if (mData[i] != 0) {
                 return false;
             }
@@ -111,7 +111,7 @@ final class BitList implements Cloneable {
     }
 
     public boolean isAllSet() {
-        for (int i=mData.length; --i >= 0; ) {
+        for (int i = mData.length; --i >= 0; ) {
             if (mData[i] != 0xffffffff) {
                 return false;
             }
@@ -121,11 +121,11 @@ final class BitList implements Cloneable {
 
     /**
      * @return true if the bitwise or of the two lists is different than the
-     * bitwise xor.
+     *         bitwise xor.
      */
     public boolean intersects(BitList list) {
         if (list != null) {
-            for (int i=Math.min(mData.length, list.mData.length); --i >= 0; ) {
+            for (int i = Math.min(mData.length, list.mData.length); --i >= 0; ) {
                 int v1 = mData[i];
                 int v2 = list.mData[i];
                 if ((v1 | v2) != (v1 ^ v2)) {
@@ -138,7 +138,7 @@ final class BitList implements Cloneable {
 
     public int hashCode() {
         int hash = 0;
-        for (int i=mData.length; --i >= 0; ) {
+        for (int i = mData.length; --i >= 0; ) {
             hash = hash * 31 + mData[i];
         }
         return hash;
@@ -150,20 +150,19 @@ final class BitList implements Cloneable {
 
     public boolean equals(Object obj) {
         if (obj instanceof BitList) {
-            return java.util.Arrays.equals(mData, ((BitList)obj).mData);
+            return java.util.Arrays.equals(mData, ((BitList) obj).mData);
         }
         return false;
     }
 
     public BitList copy() {
-        return (BitList)clone();
+        return (BitList) clone();
     }
 
     public Object clone() {
         try {
             return super.clone();
-        }
-        catch (CloneNotSupportedException e) {
+        } catch (CloneNotSupportedException e) {
             throw new InternalError();
         }
     }
@@ -171,9 +170,9 @@ final class BitList implements Cloneable {
     public String toString() {
         StringBuffer buf = new StringBuffer(mData.length + 2);
         buf.append('[');
-        for (int i=0; i<mData.length; i++) {
+        for (int i = 0; i < mData.length; i++) {
             String binary = Integer.toBinaryString(mData[i]);
-            for (int j=binary.length(); j<32; j++) {
+            for (int j = binary.length(); j < 32; j++) {
                 buf.append('0');
             }
             buf.append(binary);

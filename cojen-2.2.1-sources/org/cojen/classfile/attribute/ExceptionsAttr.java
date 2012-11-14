@@ -16,25 +16,26 @@
 
 package org.cojen.classfile.attribute;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.IOException;
 import org.cojen.classfile.Attribute;
 import org.cojen.classfile.ConstantPool;
 import org.cojen.classfile.constant.ConstantClassInfo;
 
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * This class corresponds to the Exceptions_attribute structure as defined in
  * section 4.7.5 of <i>The Java Virtual Machine Specification</i>.
- * 
+ *
  * @author Brian S O'Neill
  */
 public class ExceptionsAttr extends Attribute {
 
     private List<ConstantClassInfo> mExceptions = new ArrayList<ConstantClassInfo>(2);
-    
+
     public ExceptionsAttr(ConstantPool cp) {
         super(cp, EXCEPTIONS);
     }
@@ -42,19 +43,18 @@ public class ExceptionsAttr extends Attribute {
     public ExceptionsAttr(ConstantPool cp, String name) {
         super(cp, name);
     }
-    
+
     public ExceptionsAttr(ConstantPool cp, String name, int length, DataInput din)
-        throws IOException
-    {
+            throws IOException {
         super(cp, name);
-        
+
         int size = din.readUnsignedShort();
         length -= 2;
 
-        for (int i=0; i<size; i++) {
+        for (int i = 0; i < size; i++) {
             int index = din.readUnsignedShort();
             length -= 2;
-            ConstantClassInfo info = (ConstantClassInfo)cp.getConstant(index);
+            ConstantClassInfo info = (ConstantClassInfo) cp.getConstant(index);
             addException(info);
         }
 
@@ -70,15 +70,15 @@ public class ExceptionsAttr extends Attribute {
     public void addException(ConstantClassInfo type) {
         mExceptions.add(type);
     }
-    
+
     public int getLength() {
         return 2 + 2 * mExceptions.size();
     }
-    
+
     public void writeDataTo(DataOutput dout) throws IOException {
         int size = mExceptions.size();
         dout.writeShort(size);
-        for (int i=0; i<size; i++) {
+        for (int i = 0; i < size; i++) {
             ConstantClassInfo info = mExceptions.get(i);
             dout.writeShort(info.getIndex());
         }

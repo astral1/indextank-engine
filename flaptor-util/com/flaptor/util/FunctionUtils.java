@@ -1,15 +1,15 @@
 package com.flaptor.util;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Maps;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Map;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Maps;
-
 /**
  * Utility methods for the {@link Function} class.
- * 
+ *
  * @author santip
  */
 public class FunctionUtils {
@@ -27,15 +27,15 @@ public class FunctionUtils {
 
     /**
      * @return a function that will invoke the static valueOf method of the given type on
-     * its String parameter and will cast the return value to the given type.
+     *         its String parameter and will cast the return value to the given type.
      */
     public static <T> Function<String, T> getValueOf(final Class<T> type) {
         return getStaticMethod(type, String.class, type, "valueOf");
     }
-    
+
     /**
-     * @return a function that will invoke a static method using the function argument as 
-     * a parameter and will cast the return value to the given toType
+     * @return a function that will invoke a static method using the function argument as
+     *         a parameter and will cast the return value to the given toType
      */
     public static <F, T> Function<F, T> getStaticMethod(Class<?> type, Class<F> fromType, final Class<T> toType, String methodName) {
         try {
@@ -59,16 +59,16 @@ public class FunctionUtils {
             throw new RuntimeException(e);
         }
     }
-    
+
     /**
      * invokes the given method to the given target using reflection.
-
+     *
      * @return the value returned by the invoked method.
      */
     public static Object invokeMethod(Object target, String method) {
         return getMethodInvoker(method).apply(target);
     }
-    
+
     /**
      * @return a function that invokes the given method using reflection.
      */
@@ -102,15 +102,16 @@ public class FunctionUtils {
     }
 
     /**
-     * Wraps the given function in such a way that it will call the function only 
-     * once for each different key and cache the return value for future requests. 
-     * 
+     * Wraps the given function in such a way that it will call the function only
+     * once for each different key and cache the return value for future requests.
+     *
      * @param function the function to be cached.
      * @return a wrapper function that will cache the inner function's return values
      */
-    public static <K,V> Function<K,V> cachedFunction(final Function<K, V> function) {
+    public static <K, V> Function<K, V> cachedFunction(final Function<K, V> function) {
         return new Function<K, V>() {
             Map<K, V> cache = Maps.newHashMap();
+
             public V apply(K key) {
                 if (!cache.containsKey(key)) {
                     cache.put(key, function.apply(key));
@@ -119,6 +120,6 @@ public class FunctionUtils {
             }
         };
     }
-    
-    
+
+
 }

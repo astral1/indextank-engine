@@ -16,25 +16,25 @@
 
 package org.cojen.classfile.constant;
 
+import org.cojen.classfile.ConstantInfo;
+
 import java.io.DataOutput;
 import java.io.IOException;
-import org.cojen.classfile.ConstantInfo;
-import org.cojen.classfile.ConstantPool;
 
 /**
  * This class corresponds to the CONSTANT_Integer_info structure as defined in
  * section 4.4.4 of <i>The Java Virtual Machine Specification</i>.
- * 
+ *
  * @author Brian S O'Neill
  */
 public class ConstantIntegerInfo extends ConstantInfo {
     private final int mValue;
-    
+
     public ConstantIntegerInfo(int value) {
         super(TAG_INTEGER);
         mValue = value;
     }
-    
+
     public int getValue() {
         return mValue;
     }
@@ -42,18 +42,18 @@ public class ConstantIntegerInfo extends ConstantInfo {
     public int hashCode() {
         return mValue;
     }
-    
+
     public boolean equals(Object obj) {
         if (this == obj) {
             return true;
         }
         if (obj instanceof ConstantIntegerInfo) {
-            ConstantIntegerInfo other = (ConstantIntegerInfo)obj;
+            ConstantIntegerInfo other = (ConstantIntegerInfo) obj;
             return mValue == other.mValue;
         }
         return false;
     }
-    
+
     protected boolean hasPriority() {
         return true;
     }

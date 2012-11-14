@@ -16,12 +16,6 @@
 
 package org.cojen.classfile;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.IOException;
-import java.lang.reflect.Modifier;
 import org.cojen.classfile.attribute.Annotation;
 import org.cojen.classfile.attribute.AnnotationsAttr;
 import org.cojen.classfile.attribute.ConstantValueAttr;
@@ -31,6 +25,12 @@ import org.cojen.classfile.attribute.RuntimeVisibleAnnotationsAttr;
 import org.cojen.classfile.attribute.SignatureAttr;
 import org.cojen.classfile.attribute.SyntheticAttr;
 import org.cojen.classfile.constant.ConstantUTFInfo;
+
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This class corresponds to the field_info structure as defined in
@@ -50,11 +50,11 @@ public class FieldInfo {
 
     private ConstantUTFInfo mNameConstant;
     private ConstantUTFInfo mDescriptorConstant;
-    
+
     private List<Attribute> mAttributes = new ArrayList<Attribute>(2);
 
     private ConstantValueAttr mConstant;
-    
+
     FieldInfo(ClassFile parent,
               Modifiers modifiers,
               String name,
@@ -69,7 +69,7 @@ public class FieldInfo {
         mNameConstant = mCp.addConstantUTF(name);
         mDescriptorConstant = mCp.addConstantUTF(type.getDescriptor());
     }
-    
+
     private FieldInfo(ClassFile parent,
                       int modifier,
                       ConstantUTFInfo nameConstant,
@@ -105,7 +105,7 @@ public class FieldInfo {
     public TypeDesc getType() {
         return mType;
     }
-    
+
     /**
      * Returns this field's modifiers.
      */
@@ -123,10 +123,11 @@ public class FieldInfo {
     public ConstantUTFInfo getNameConstant() {
         return mNameConstant;
     }
-    
+
     /**
-     * Returns a constant from the constant pool with this field's type 
+     * Returns a constant from the constant pool with this field's type
      * descriptor string.
+     *
      * @see TypeDesc
      */
     public ConstantUTFInfo getDescriptorConstant() {
@@ -283,7 +284,7 @@ public class FieldInfo {
     public void setConstantValue(String value) {
         addAttribute(new ConstantValueAttr(mCp, mCp.addConstantString(value)));
     }
-    
+
     /**
      * Mark this field as being synthetic by adding a special attribute.
      */
@@ -303,7 +304,7 @@ public class FieldInfo {
             if (mConstant != null) {
                 mAttributes.remove(mConstant);
             }
-            mConstant = (ConstantValueAttr)attr;
+            mConstant = (ConstantValueAttr) attr;
         }
 
         mAttributes.add(attr);
@@ -312,29 +313,29 @@ public class FieldInfo {
     public Attribute[] getAttributes() {
         return mAttributes.toArray(new Attribute[mAttributes.size()]);
     }
-    
+
     /**
      * Returns the length (in bytes) of this object in the class file.
      */
     public int getLength() {
         int length = 8;
-        
+
         int size = mAttributes.size();
-        for (int i=0; i<size; i++) {
+        for (int i = 0; i < size; i++) {
             length += mAttributes.get(i).getLength();
         }
-        
+
         return length;
     }
-    
+
     public void writeTo(DataOutput dout) throws IOException {
         dout.writeShort(mModifiers.getBitmask());
         dout.writeShort(mNameConstant.getIndex());
         dout.writeShort(mDescriptorConstant.getIndex());
-        
+
         int size = mAttributes.size();
         dout.writeShort(size);
-        for (int i=0; i<size; i++) {
+        for (int i = 0; i < size; i++) {
             Attribute attr = mAttributes.get(i);
             attr.writeTo(dout);
         }
@@ -350,24 +351,23 @@ public class FieldInfo {
         }
     }
 
-    static FieldInfo readFrom(ClassFile parent, 
+    static FieldInfo readFrom(ClassFile parent,
                               DataInput din,
                               AttributeFactory attrFactory)
-        throws IOException
-    {
+            throws IOException {
         ConstantPool cp = parent.getConstantPool();
 
         int modifier = din.readUnsignedShort();
         int index = din.readUnsignedShort();
-        ConstantUTFInfo nameConstant = (ConstantUTFInfo)cp.getConstant(index);
+        ConstantUTFInfo nameConstant = (ConstantUTFInfo) cp.getConstant(index);
         index = din.readUnsignedShort();
-        ConstantUTFInfo descConstant = (ConstantUTFInfo)cp.getConstant(index);
+        ConstantUTFInfo descConstant = (ConstantUTFInfo) cp.getConstant(index);
 
         FieldInfo info = new FieldInfo(parent, modifier, nameConstant, descConstant);
 
         // Read attributes.
         int size = din.readUnsignedShort();
-        for (int i=0; i<size; i++) {
+        for (int i = 0; i < size; i++) {
             info.addAttribute(Attribute.readFrom(cp, din, attrFactory));
         }
 

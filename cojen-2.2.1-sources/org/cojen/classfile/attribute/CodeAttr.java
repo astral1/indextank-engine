@@ -16,11 +16,6 @@
 
 package org.cojen.classfile.attribute;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.IOException;
 import org.cojen.classfile.Attribute;
 import org.cojen.classfile.AttributeFactory;
 import org.cojen.classfile.CodeBuffer;
@@ -30,10 +25,16 @@ import org.cojen.classfile.LocalVariable;
 import org.cojen.classfile.Location;
 import org.cojen.classfile.MethodInfo;
 
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * This class corresponds to the Code_attribute structure as defined in
  * section 4.7.4 of <i>The Java Virtual Machine Specification</i>.
- * To make it easier to create bytecode for the CodeAttr, use the 
+ * To make it easier to create bytecode for the CodeAttr, use the
  * CodeBuilder.
  *
  * @author Brian S O'Neill
@@ -44,7 +45,7 @@ public class CodeAttr extends Attribute {
 
     private CodeBuffer mCodeBuffer;
     private List<Attribute> mAttributes = new ArrayList<Attribute>(2);
-    
+
     private LineNumberTableAttr mLineNumberTable;
     private LocalVariableTableAttr mLocalVariableTable;
 
@@ -61,11 +62,10 @@ public class CodeAttr extends Attribute {
     public CodeAttr(ConstantPool cp, String name) {
         super(cp, name);
     }
-    
+
     public CodeAttr(ConstantPool cp, String name, int length,
                     DataInput din, AttributeFactory attrFactory)
-        throws IOException
-    {
+            throws IOException {
         super(cp, name);
 
         final int maxStackDepth = din.readUnsignedShort();
@@ -75,33 +75,33 @@ public class CodeAttr extends Attribute {
         din.readFully(byteCodes);
 
         int exceptionHandlerCount = din.readUnsignedShort();
-        final ExceptionHandler[] handlers = 
-            new ExceptionHandler[exceptionHandlerCount];
+        final ExceptionHandler[] handlers =
+                new ExceptionHandler[exceptionHandlerCount];
 
-        for (int i=0; i<exceptionHandlerCount; i++) {
+        for (int i = 0; i < exceptionHandlerCount; i++) {
             handlers[i] = ExceptionHandler.readFrom(cp, din);
         }
-        
+
         mCodeBuffer = new CodeBuffer() {
             public int getMaxStackDepth() {
                 return maxStackDepth;
             }
-            
+
             public int getMaxLocals() {
                 return maxLocals;
             }
-            
+
             public byte[] getByteCodes() {
                 return byteCodes.clone();
             }
-            
+
             public ExceptionHandler[] getExceptionHandlers() {
                 return handlers.clone();
             }
         };
 
         int attributeCount = din.readUnsignedShort();
-        for (int i=0; i<attributeCount; i++) {
+        for (int i = 0; i < attributeCount; i++) {
             addAttribute(Attribute.readFrom(cp, din, attrFactory));
         }
     }
@@ -129,7 +129,7 @@ public class CodeAttr extends Attribute {
         mLocalVariableTable = null;
         mStackMapTable = null;
     }
-    
+
     /**
      * Returns the line number in the source code from the given bytecode
      * address (start_pc).
@@ -222,22 +222,22 @@ public class CodeAttr extends Attribute {
             if (mLineNumberTable != null) {
                 mAttributes.remove(mLineNumberTable);
             }
-            mLineNumberTable = (LineNumberTableAttr)attr;
+            mLineNumberTable = (LineNumberTableAttr) attr;
         } else if (attr instanceof LocalVariableTableAttr) {
             if (mLocalVariableTable != null) {
                 mAttributes.remove(mLocalVariableTable);
             }
-            mLocalVariableTable = (LocalVariableTableAttr)attr;
+            mLocalVariableTable = (LocalVariableTableAttr) attr;
         } else if (attr instanceof StackMapTableAttr) {
             if (mStackMapTable != null) {
                 mAttributes.remove(mStackMapTable);
             }
-            mStackMapTable = (StackMapTableAttr)attr;
+            mStackMapTable = (StackMapTableAttr) attr;
         }
 
         mAttributes.add(attr);
     }
-    
+
     public Attribute[] getAttributes() {
         return mAttributes.toArray(new Attribute[mAttributes.size()]);
     }
@@ -255,13 +255,13 @@ public class CodeAttr extends Attribute {
                 length += 8 * handlers.length;
             }
         }
-        
+
         int size = mAttributes.size();
-        for (int i=0; i<size; i++) {
+        for (int i = 0; i < size; i++) {
             length += mAttributes.get(i).getLength();
             length += 6; // attributes have an intial 6 byte length
         }
-        
+
         return length;
     }
 
@@ -271,10 +271,10 @@ public class CodeAttr extends Attribute {
         }
 
         ExceptionHandler[] handlers = mCodeBuffer.getExceptionHandlers();
-        
+
         dout.writeShort(mCodeBuffer.getMaxStackDepth());
         dout.writeShort(mCodeBuffer.getMaxLocals());
-        
+
         byte[] byteCodes = mCodeBuffer.getByteCodes();
         dout.writeInt(byteCodes.length);
         dout.write(byteCodes);
@@ -283,16 +283,16 @@ public class CodeAttr extends Attribute {
             int exceptionHandlerCount = handlers.length;
             dout.writeShort(exceptionHandlerCount);
 
-            for (int i=0; i<exceptionHandlerCount; i++) {
+            for (int i = 0; i < exceptionHandlerCount; i++) {
                 handlers[i].writeTo(dout);
             }
         } else {
             dout.writeShort(0);
         }
-        
+
         int size = mAttributes.size();
         dout.writeShort(size);
-        for (int i=0; i<size; i++) {
+        for (int i = 0; i < size; i++) {
             Attribute attr = mAttributes.get(i);
             attr.writeTo(dout);
         }

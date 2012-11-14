@@ -16,25 +16,25 @@
 
 package org.cojen.classfile.constant;
 
+import org.cojen.classfile.ConstantInfo;
+
 import java.io.DataOutput;
 import java.io.IOException;
-import org.cojen.classfile.ConstantInfo;
-import org.cojen.classfile.ConstantPool;
 
 /**
  * This class corresponds to the CONSTANT_Utf8_info structure as defined in
  * section 4.4.7 of <i>The Java Virtual Machine Specification</i>.
- * 
+ *
  * @author Brian S O'Neill
  */
 public class ConstantUTFInfo extends ConstantInfo {
     private final String mStr;
-    
+
     public ConstantUTFInfo(String str) {
         super(TAG_UTF8);
         mStr = str;
     }
-    
+
     public String getValue() {
         return mStr;
     }
@@ -42,16 +42,16 @@ public class ConstantUTFInfo extends ConstantInfo {
     public int hashCode() {
         return mStr.hashCode();
     }
-    
+
     public boolean equals(Object obj) {
         if (obj instanceof ConstantUTFInfo) {
-            ConstantUTFInfo other = (ConstantUTFInfo)obj;
+            ConstantUTFInfo other = (ConstantUTFInfo) obj;
             return mStr.equals(other.mStr);
         }
-        
+
         return false;
     }
-    
+
     public void writeTo(DataOutput dout) throws IOException {
         super.writeTo(dout);
         dout.writeUTF(mStr);

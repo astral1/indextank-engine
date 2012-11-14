@@ -16,24 +16,25 @@
 
 package org.cojen.classfile.constant;
 
-import java.io.DataOutput;
-import java.io.IOException;
 import org.cojen.classfile.ConstantInfo;
 import org.cojen.classfile.ConstantPool;
 import org.cojen.classfile.Descriptor;
 
+import java.io.DataOutput;
+import java.io.IOException;
+
 /**
  * This class corresponds to the CONSTANT_NameAndType_info structure as defined
  * in section 4.4.6 of <i>The Java Virtual Machine Specification</i>.
- * 
+ *
  * @author Brian S O'Neill
  */
 public class ConstantNameAndTypeInfo extends ConstantInfo {
     private final ConstantUTFInfo mNameConstant;
     private final ConstantUTFInfo mDescriptorConstant;
-    
+
     private final Descriptor mType;
-    
+
     public ConstantNameAndTypeInfo(ConstantUTFInfo nameConstant,
                                    ConstantUTFInfo descConstant) {
         super(TAG_NAME_AND_TYPE);
@@ -42,15 +43,15 @@ public class ConstantNameAndTypeInfo extends ConstantInfo {
         mType = Descriptor.parse(descConstant.getValue());
     }
 
-    public ConstantNameAndTypeInfo(ConstantPool cp, 
-                                   String name, 
+    public ConstantNameAndTypeInfo(ConstantPool cp,
+                                   String name,
                                    Descriptor type) {
         super(TAG_NAME_AND_TYPE);
         mNameConstant = cp.addConstantUTF(name);
         mDescriptorConstant = cp.addConstantUTF(type.getDescriptor());
         mType = type;
     }
-    
+
     public String getName() {
         return mNameConstant.getValue();
     }
@@ -62,17 +63,17 @@ public class ConstantNameAndTypeInfo extends ConstantInfo {
     public int hashCode() {
         return mNameConstant.hashCode();
     }
-    
+
     public boolean equals(Object obj) {
         if (obj instanceof ConstantNameAndTypeInfo) {
-            ConstantNameAndTypeInfo other = (ConstantNameAndTypeInfo)obj;
-            return mNameConstant.equals(other.mNameConstant) && 
-                mType.getDescriptor().equals(other.mType.getDescriptor());
+            ConstantNameAndTypeInfo other = (ConstantNameAndTypeInfo) obj;
+            return mNameConstant.equals(other.mNameConstant) &&
+                    mType.getDescriptor().equals(other.mType.getDescriptor());
         }
-        
+
         return false;
     }
-    
+
     public void writeTo(DataOutput dout) throws IOException {
         super.writeTo(dout);
         dout.writeShort(mNameConstant.getIndex());

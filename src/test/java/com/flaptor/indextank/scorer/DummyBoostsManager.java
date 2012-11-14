@@ -17,18 +17,18 @@
 
 package com.flaptor.indextank.scorer;
 
-import java.io.IOException;
-import java.util.Map;
-
 import com.flaptor.indextank.index.DocId;
 import com.flaptor.indextank.index.scorer.Boosts;
 import com.flaptor.indextank.index.scorer.BoostsManager;
+
+import java.io.IOException;
+import java.util.Map;
 
 public class DummyBoostsManager implements BoostsManager {
 
     @Override
     public void setBoosts(String documentId, Integer timestamp,
-            Map<Integer, Float> boosts) {
+                          Map<Integer, Float> boosts) {
         // TODO Auto-generated method stub
 
     }

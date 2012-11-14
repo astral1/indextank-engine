@@ -16,13 +16,7 @@
 
 package com.flaptor.indextank.query.analyzers;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.Reader;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
+import com.google.common.collect.ImmutableSet;
 import org.apache.lucene.analysis.LowerCaseFilter;
 import org.apache.lucene.analysis.StopFilter;
 import org.apache.lucene.analysis.StopwordAnalyzerBase;
@@ -34,10 +28,17 @@ import org.apache.lucene.util.IOUtils;
 import org.apache.lucene.util.Version;
 import org.json.simple.JSONArray;
 
-import com.google.common.collect.ImmutableSet;
+import java.io.File;
+import java.io.IOException;
+import java.io.Reader;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 public abstract class StopAnalyzer extends StopwordAnalyzerBase {
-    /** Default maximum allowed token length */
+    /**
+     * Default maximum allowed token length
+     */
     public static final int DEFAULT_MAX_TOKEN_LENGTH = 255;
 
     private int maxTokenLength = DEFAULT_MAX_TOKEN_LENGTH;
@@ -48,8 +49,10 @@ public abstract class StopAnalyzer extends StopwordAnalyzerBase {
      */
     private final boolean replaceInvalidAcronym;
 
-    /** An unmodifiable set containing some common English words that are usually not
-     useful for searching. */
+    /**
+     * An unmodifiable set containing some common English words that are usually not
+     * useful for searching.
+     */
     public static final Set<?> STOP_WORDS_SET = org.apache.lucene.analysis.StopAnalyzer.ENGLISH_STOP_WORDS_SET;
 
 
@@ -59,29 +62,37 @@ public abstract class StopAnalyzer extends StopwordAnalyzerBase {
         super(Version.LUCENE_36, getStopWords(analyzerConfiguration));
         replaceInvalidAcronym = true;
     }
-    /** Builds an analyzer with the given stop words.
+
+    /**
+     * Builds an analyzer with the given stop words.
+     *
      * @param matchVersion Lucene version to match See {@link
-     * <a href="#version">above</a>}
-     * @param stopWords stop words */
+     *                     <a href="#version">above</a>}
+     * @param stopWords    stop words
+     */
     public StopAnalyzer(Version matchVersion, Set<?> stopWords) {
         super(matchVersion, stopWords);
         replaceInvalidAcronym = matchVersion.onOrAfter(Version.LUCENE_24);
     }
 
-    /** Builds an analyzer with the default stop words ({@link
+    /**
+     * Builds an analyzer with the default stop words ({@link
      * #STOP_WORDS_SET}).
+     *
      * @param matchVersion Lucene version to match See {@link
-     * <a href="#version">above</a>}
+     *                     <a href="#version">above</a>}
      */
     public StopAnalyzer(Version matchVersion) {
         this(matchVersion, STOP_WORDS_SET);
     }
 
-    /** Builds an analyzer with the stop words from the given file.
-     * @see org.apache.lucene.analysis.WordlistLoader#getWordSet(java.io.Reader, Version)
+    /**
+     * Builds an analyzer with the stop words from the given file.
+     *
      * @param matchVersion Lucene version to match See {@link
-     * <a href="#version">above</a>}
-     * @param stopwords File to read stop words from
+     *                     <a href="#version">above</a>}
+     * @param stopwords    File to read stop words from
+     * @see org.apache.lucene.analysis.WordlistLoader#getWordSet(java.io.Reader, Version)
      * @deprecated Use {@link #StopAnalyzer(Version, java.io.Reader)} instead.
      */
     @Deprecated
@@ -90,11 +101,14 @@ public abstract class StopAnalyzer extends StopwordAnalyzerBase {
                 IOUtils.CHARSET_UTF_8), matchVersion));
     }
 
-    /** Builds an analyzer with the stop words from the given reader.
-     * @see WordlistLoader#getWordSet(java.io.Reader, Version)
+    /**
+     * Builds an analyzer with the stop words from the given reader.
+     *
      * @param matchVersion Lucene version to match See {@link
-     * <a href="#version">above</a>}
-     * @param stopwords Reader to read stop words from */
+     *                     <a href="#version">above</a>}
+     * @param stopwords    Reader to read stop words from
+     * @see WordlistLoader#getWordSet(java.io.Reader, Version)
+     */
     public StopAnalyzer(Version matchVersion, Reader stopwords) throws IOException {
         this(matchVersion, WordlistLoader.getWordSet(stopwords, matchVersion));
     }
@@ -135,13 +149,13 @@ public abstract class StopAnalyzer extends StopwordAnalyzerBase {
 
     private static Set<String> getStopWords(Map<Object, Object> analyzerConfiguration) {
         if (analyzerConfiguration.containsKey(STOPWORDS)) {
-            JSONArray stopwordList = (JSONArray)analyzerConfiguration.get(STOPWORDS);
+            JSONArray stopwordList = (JSONArray) analyzerConfiguration.get(STOPWORDS);
             Set<String> stopwords = new HashSet<String>(stopwordList.size());
-            for (Object stopword : stopwordList){
-                if ( !(stopword instanceof String) ) {
+            for (Object stopword : stopwordList) {
+                if (!(stopword instanceof String)) {
                     throw new IllegalArgumentException("Stopwords aren't Strings");
                 }
-                stopwords.add((String)stopword);
+                stopwords.add((String) stopword);
             }
             return stopwords;
         } else {

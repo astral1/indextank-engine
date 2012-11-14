@@ -16,20 +16,20 @@
 
 package org.cojen.classfile.constant;
 
+import org.cojen.classfile.ConstantInfo;
+
 import java.io.DataOutput;
 import java.io.IOException;
-import org.cojen.classfile.ConstantInfo;
-import org.cojen.classfile.ConstantPool;
 
 /**
  * This class corresponds to the CONSTANT_Float_info structure as defined in
  * section 4.4.4 of <i>The Java Virtual Machine Specification</i>.
- * 
+ *
  * @author Brian S O'Neill
  */
 public class ConstantFloatInfo extends ConstantInfo {
     private final float mValue;
-    
+
     public ConstantFloatInfo(float value) {
         super(TAG_FLOAT);
         mValue = value;
@@ -42,18 +42,18 @@ public class ConstantFloatInfo extends ConstantInfo {
     public int hashCode() {
         return Float.floatToIntBits(mValue);
     }
-    
+
     public boolean equals(Object obj) {
         if (obj == this) {
             return true;
         }
         if (obj instanceof ConstantFloatInfo) {
-            ConstantFloatInfo other = (ConstantFloatInfo)obj;
+            ConstantFloatInfo other = (ConstantFloatInfo) obj;
             return mValue == other.mValue;
         }
         return false;
     }
-    
+
     protected boolean hasPriority() {
         return true;
     }

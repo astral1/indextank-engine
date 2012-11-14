@@ -16,12 +16,18 @@
 
 package org.cojen.classfile;
 
+import org.cojen.util.KeyFactory;
+import org.cojen.util.WeakValuedHashMap;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-
+import java.security.Permission;
+import java.security.PermissionCollection;
+import java.security.Principal;
+import java.security.ProtectionDomain;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -30,22 +36,12 @@ import java.util.Random;
 import java.util.Set;
 import java.util.WeakHashMap;
 
-import java.security.Permission;
-import java.security.PermissionCollection;
-import java.security.Principal;
-import java.security.ProtectionDomain;
-
-import java.security.cert.Certificate;
-
-import org.cojen.util.KeyFactory;
-import org.cojen.util.WeakValuedHashMap;
-
 /**
  * Allows classes to be defined and loaded at runtime. A random number is
  * appended to class names to prevent name collisions and to discourage
  * referencing them persistently outside the runtime environment. This behavior
  * can be disabled by constructing with {@code explicit} set to true.
- *
+ * <p/>
  * <p>Debugging can be enabled via the java command-line option
  * "-Dorg.cojen.classfile.RuntimeClassFile.DEBUG=true". This causes all
  * generated classes to be written to the temp directory, and a message is
@@ -58,9 +54,9 @@ public class RuntimeClassFile extends ClassFile {
 
     static {
         DEBUG =
-            Boolean.getBoolean("org.cojen.classfile.RuntimeClassFile.DEBUG") ||
-            Boolean.getBoolean("org.cojen.util.ClassInjector.DEBUG") ||
-            Boolean.getBoolean("cojen.util.ClassInjector.DEBUG");
+                Boolean.getBoolean("org.cojen.classfile.RuntimeClassFile.DEBUG") ||
+                        Boolean.getBoolean("org.cojen.util.ClassInjector.DEBUG") ||
+                        Boolean.getBoolean("cojen.util.ClassInjector.DEBUG");
     }
 
     private static final Random cRandom = new Random();
@@ -81,55 +77,52 @@ public class RuntimeClassFile extends ClassFile {
     }
 
     /**
-     * @param className fully qualified class name; pass null to use default
+     * @param className      fully qualified class name; pass null to use default
      * @param superClassName fully qualified super class name; pass null to use Object.
      */
     public RuntimeClassFile(String className, String superClassName) {
         this(className, superClassName, null, null, false, null);
     }
 
-   /**
-     * @param className fully qualified class name; pass null to use default
+    /**
+     * @param className      fully qualified class name; pass null to use default
      * @param superClassName fully qualified super class name; pass null to use Object.
-     * @param parentLoader parent class loader; pass null to use default
+     * @param parentLoader   parent class loader; pass null to use default
      */
     public RuntimeClassFile(String className, String superClassName, ClassLoader parentLoader) {
         this(className, superClassName, parentLoader, null, false, null);
     }
 
     /**
-     * @param className fully qualified class name; pass null to use default
+     * @param className      fully qualified class name; pass null to use default
      * @param superClassName fully qualified super class name; pass null to use Object.
-     * @param parentLoader parent class loader; pass null to use default
-     * @param domain to define class in; pass null to use default
+     * @param parentLoader   parent class loader; pass null to use default
+     * @param domain         to define class in; pass null to use default
      */
     public RuntimeClassFile(String className, String superClassName,
-                            ClassLoader parentLoader, ProtectionDomain domain)
-    {
+                            ClassLoader parentLoader, ProtectionDomain domain) {
         this(className, superClassName, parentLoader, domain, false, null);
     }
 
     /**
-     * @param className fully qualified class name; pass null to use default
+     * @param className      fully qualified class name; pass null to use default
      * @param superClassName fully qualified super class name; pass null to use Object.
-     * @param parentLoader parent class loader; pass null to use default
-     * @param domain to define class in; pass null to use default
-     * @param explicit pass true to prevent name mangling
+     * @param parentLoader   parent class loader; pass null to use default
+     * @param domain         to define class in; pass null to use default
+     * @param explicit       pass true to prevent name mangling
      */
     public RuntimeClassFile(String className, String superClassName,
                             ClassLoader parentLoader, ProtectionDomain domain,
-                            boolean explicit)
-    {
+                            boolean explicit) {
         this(className, superClassName, parentLoader, domain, explicit, null);
     }
 
     // Magic constructor to select name and loader before calling super class constructor.
     private RuntimeClassFile(String className, String superClassName,
                              ClassLoader parentLoader, ProtectionDomain domain,
-                             boolean explicit, LoaderAndName loaderAndName)
-    {
+                             boolean explicit, LoaderAndName loaderAndName) {
         super((loaderAndName = loaderAndName
-               (className, parentLoader, domain, explicit)).mClassName, superClassName);
+                (className, parentLoader, domain, explicit)).mClassName, superClassName);
         mLoader = loaderAndName.mLoader;
     }
 
@@ -172,8 +165,7 @@ public class RuntimeClassFile extends ClassFile {
     private static LoaderAndName loaderAndName(String className,
                                                ClassLoader parentLoader,
                                                ProtectionDomain domain,
-                                               boolean explicit)
-    {
+                                               boolean explicit) {
         if (className == null) {
             if (explicit) {
                 throw new IllegalArgumentException("Explicit class name not provided");
@@ -209,15 +201,18 @@ public class RuntimeClassFile extends ClassFile {
             // Use a small identifier if possible, making it easier to read
             // stack traces and decompiled classes.
             switch (tryCount) {
-            case 0:
-                id &= 0xffL;
-                break;
-            case 1: case 2: case 3: case 4:
-                id &= 0xffffL;
-                break;
-            default:
-                id &= 0xffffffffL;
-                break;
+                case 0:
+                    id &= 0xffL;
+                    break;
+                case 1:
+                case 2:
+                case 3:
+                case 4:
+                    id &= 0xffffL;
+                    break;
+                default:
+                    id &= 0xffffffffL;
+                    break;
             }
 
             String mangled = className + '$' + id;
@@ -231,8 +226,7 @@ public class RuntimeClassFile extends ClassFile {
     }
 
     private static Object createLoaderKey(String className, ClassLoader parentLoader,
-                                          ProtectionDomain domain)
-    {
+                                          ProtectionDomain domain) {
         String packageName;
         {
             int index = className.lastIndexOf('.');
@@ -279,8 +273,8 @@ public class RuntimeClassFile extends ClassFile {
             }
         }
 
-        return KeyFactory.createKey(new Object[] {
-            parentLoader, packageName, domainKey, csKey, permsKey, principalsKey
+        return KeyFactory.createKey(new Object[]{
+                parentLoader, packageName, domainKey, csKey, permsKey, principalsKey
         });
     }
 
@@ -299,16 +293,15 @@ public class RuntimeClassFile extends ClassFile {
         }
 
         private static ProtectionDomain prepareDomain(ProtectionDomain domain,
-                                                      ClassLoader loader)
-        {
+                                                      ClassLoader loader) {
             if (domain == null) {
                 return null;
             }
 
             return new ProtectionDomain(domain.getCodeSource(),
-                                        domain.getPermissions(),
-                                        loader,
-                                        domain.getPrincipals());
+                    domain.getPermissions(),
+                    loader,
+                    domain.getPrincipals());
         }
 
         // Prevent name collisions while multiple threads are defining classes

@@ -16,22 +16,23 @@
 
 package org.cojen.classfile.attribute;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.IOException;
 import org.cojen.classfile.Attribute;
 import org.cojen.classfile.ConstantPool;
 import org.cojen.classfile.Modifiers;
 import org.cojen.classfile.constant.ConstantClassInfo;
 import org.cojen.classfile.constant.ConstantUTFInfo;
 
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * This class corresponds to the InnerClasses_attribute structure introduced in
- * JDK1.1. It is not defined in the first edition of 
+ * JDK1.1. It is not defined in the first edition of
  * <i>The Java Virual Machine Specification</i>.
- * 
+ *
  * @author Brian S O'Neill
  */
 public class InnerClassesAttr extends Attribute {
@@ -47,36 +48,35 @@ public class InnerClassesAttr extends Attribute {
     }
 
     public InnerClassesAttr(ConstantPool cp, String name, int length, DataInput din)
-        throws IOException
-    {
+            throws IOException {
         super(cp, name);
 
         int size = din.readUnsignedShort();
-        for (int i=0; i<size; i++) {
+        for (int i = 0; i < size; i++) {
             int inner_index = din.readUnsignedShort();
             int outer_index = din.readUnsignedShort();
             int name_index = din.readUnsignedShort();
             int af = din.readUnsignedShort();
-            
+
             ConstantClassInfo inner;
             if (inner_index == 0) {
                 inner = null;
             } else {
-                inner = (ConstantClassInfo)cp.getConstant(inner_index);
+                inner = (ConstantClassInfo) cp.getConstant(inner_index);
             }
 
             ConstantClassInfo outer;
             if (outer_index == 0) {
                 outer = null;
             } else {
-                outer = (ConstantClassInfo)cp.getConstant(outer_index);
+                outer = (ConstantClassInfo) cp.getConstant(outer_index);
             }
-            
+
             ConstantUTFInfo innerName;
             if (name_index == 0) {
                 innerName = null;
             } else {
-                innerName = (ConstantUTFInfo)cp.getConstant(name_index);
+                innerName = (ConstantUTFInfo) cp.getConstant(name_index);
             }
 
             mInnerClasses.add(new Info(inner, outer, innerName, Modifiers.getInstance(af)));
@@ -84,18 +84,18 @@ public class InnerClassesAttr extends Attribute {
     }
 
     /**
-     * @param inner The full inner class name
-     * @param outer The full outer class name
-     * @param name The simple name of the inner class, or null if anonymous
+     * @param inner     The full inner class name
+     * @param outer     The full outer class name
+     * @param name      The simple name of the inner class, or null if anonymous
      * @param modifiers Modifiers for the inner class
      */
     public void addInnerClass(String inner,
                               String outer,
                               String name,
                               Modifiers modifiers) {
-        
+
         ConstantClassInfo innerInfo = getConstantPool().addConstantClass(inner);
-        ConstantClassInfo outerInfo; 
+        ConstantClassInfo outerInfo;
         if (outer == null) {
             outerInfo = null;
         } else {
@@ -123,7 +123,7 @@ public class InnerClassesAttr extends Attribute {
     public void writeDataTo(DataOutput dout) throws IOException {
         int size = mInnerClasses.size();
         dout.writeShort(size);
-        for (int i=0; i<size; i++) {
+        for (int i = 0; i < size; i++) {
             mInnerClasses.get(i).writeTo(dout);
         }
     }
@@ -191,7 +191,7 @@ public class InnerClassesAttr extends Attribute {
             } else {
                 dout.writeShort(mName.getIndex());
             }
-            
+
             dout.writeShort(mModifiers.getBitmask());
         }
     }

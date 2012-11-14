@@ -17,9 +17,20 @@ package org.apache.lucene.analysis.kr.morph;
  * limitations under the License.
  */
 
-import org.apache.lucene.analysis.kr.utils.*;
+import org.apache.lucene.analysis.kr.utils.ConstraintUtil;
+import org.apache.lucene.analysis.kr.utils.DictionaryUtil;
+import org.apache.lucene.analysis.kr.utils.EomiUtil;
+import org.apache.lucene.analysis.kr.utils.IrregularUtil;
+import org.apache.lucene.analysis.kr.utils.MorphUtil;
+import org.apache.lucene.analysis.kr.utils.NounUtil;
+import org.apache.lucene.analysis.kr.utils.SyllableUtil;
+import org.apache.lucene.analysis.kr.utils.VerbUtil;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class MorphAnalyzer {
 

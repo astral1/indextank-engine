@@ -31,26 +31,28 @@ limitations under the License.
 */
 package com.flaptor.indextank.query;
 
+import com.google.common.collect.Sets;
+
 import java.io.Serializable;
 import java.util.Set;
-
-import com.google.common.collect.Sets;
 
 
 /**
  * A QueryNode composed of 2 QueryNodes joined by a binary operator.
  * This class simple adds the notion of a left operand and a right operand, and it's used to
  * implement ands, ors, -, etc.
+ *
  * @author Flaptor Development Team
  */
 public abstract class BinaryQuery extends QueryNode implements Serializable {
     private static final long serialVersionUID = 1L;
-    
+
     protected final QueryNode leftQuery;
     protected final QueryNode rightQuery;
-    
+
     /**
      * Constructor.
+     *
      * @param lq the left query (operand)
      * @param rq the right query (operand)
      */
@@ -61,7 +63,7 @@ public abstract class BinaryQuery extends QueryNode implements Serializable {
         rightQuery = rq;
         this.setNorm(lq.getBoostedNorm() + rq.getBoostedNorm());
     }
-    
+
     @Override
     public Set<TermQuery> getPositiveTerms() {
         Set<TermQuery> l = leftQuery.getPositiveTerms();
@@ -70,13 +72,14 @@ public abstract class BinaryQuery extends QueryNode implements Serializable {
         return l;
     }
 
-    public QueryNode getLeftQuery(){
+    public QueryNode getLeftQuery() {
         return leftQuery;
     }
-    public QueryNode getRightQuery(){
+
+    public QueryNode getRightQuery() {
         return rightQuery;
     }
-    
+
     @Override
     public Iterable<QueryNode> getChildren() {
         return Sets.newHashSet(leftQuery, rightQuery);
@@ -96,12 +99,12 @@ public abstract class BinaryQuery extends QueryNode implements Serializable {
         if (!super.equals(obj))
             return false;
         BinaryQuery other = (BinaryQuery) obj;
-        
+
         return ((leftQuery.equals(other.leftQuery) &&
                 rightQuery.equals(other.rightQuery)) ||
                 (leftQuery.equals(other.rightQuery) &&
-                 rightQuery.equals(other.leftQuery)));
+                        rightQuery.equals(other.leftQuery)));
     }
-    
-    
+
+
 }

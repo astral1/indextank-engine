@@ -16,6 +16,10 @@
 
 package com.flaptor.indextank.storage;
 
+import com.flaptor.util.Execute;
+import com.flaptor.util.FileUtil;
+import com.google.common.collect.MapMaker;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -24,20 +28,16 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.util.concurrent.ConcurrentMap;
 
-import com.flaptor.util.Execute;
-import com.flaptor.util.FileUtil;
-import com.google.common.collect.MapMaker;
-
 public class LogRoot {
-    
+
     public static final File DEFAULT_PATH = new File("/data/storage");
     public static final int DEFAULT_READING_PAGE_SIZE = 5 * 1024 * 1024;
-    
+
     private ConcurrentMap<String, FileChannel> components = new MapMaker().makeMap();
     private File path;
 
     private int readingPageSize;
-    
+
     public LogRoot() {
         this(DEFAULT_PATH, DEFAULT_READING_PAGE_SIZE);
     }
@@ -46,23 +46,23 @@ public class LogRoot {
         this.path = rootPath;
         this.readingPageSize = readingPageSize;
     }
-    
+
     public File getPath() {
         return path;
     }
-    
+
     public File getRawLogPath() {
         return new File(getPath(), "raw");
     }
-    
+
     public File getHistoryLogPath() {
         return new File(getRawLogPath(), "history");
     }
-    
+
     public File getLiveLogPath() {
         return new File(getRawLogPath(), "live");
     }
-    
+
     public File getIndexesLogPath() {
         return new File(getPath(), "indexes");
     }
@@ -74,22 +74,23 @@ public class LogRoot {
     public File getPreviousIndexesLogPath() {
         return new File(getPreviousPath(), "indexes");
     }
-    
+
     public File getIndexLogPath(String code) {
         return new File(getIndexesLogPath(), code);
     }
-    
+
     public File getSafeToReadFile() {
         return new File(getPath(), "safe_to_read");
     }
-    
+
     public File getMigratedPath() {
         return new File(getPath(), "migrated");
     }
+
     public File getMigratedIndexesLogPath() {
         return new File(getMigratedPath(), "indexes");
     }
-    
+
     public boolean lockComponent(String name) throws FileNotFoundException {
         File file = lockFile(name);
         RandomAccessFile raf = new RandomAccessFile(file, "rwd");
@@ -117,7 +118,7 @@ public class LogRoot {
         Execute.close(channel);
         return true;
     }
-    
+
     public String loadInfo(String name) throws IOException {
         File file = infoFile(name);
         return file.exists() ? FileUtil.readFile(file).trim() : null;
@@ -126,20 +127,18 @@ public class LogRoot {
     public void saveInfo(String name, String info) throws IOException {
         FileUtil.writeFile(infoFile(name), info);
     }
-    
+
     private File infoFile(String name) {
         return new File(getPath(), name + ".info");
     }
-    
+
     private File lockFile(String name) {
         return new File(getPath(), name + ".lock");
     }
-    
+
     public int getReadingPageSize() {
         return readingPageSize;
     }
 
-    
-    
-    
+
 }

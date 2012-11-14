@@ -34,10 +34,10 @@
 
 package org.cojen.util;
 
-import java.util.Stack;
-
 import org.cojen.classfile.TypeDesc;
 import org.cojen.classfile.attribute.Annotation;
+
+import java.util.Stack;
 
 /**
  * Builds all Annotation properties to a Cojen Annotation definition.
@@ -56,8 +56,7 @@ public class AnnotationBuilder extends AnnotationVisitor<Object, Annotation> {
     }
 
     public Object visit(String name, int pos, java.lang.annotation.Annotation value,
-                        Annotation ann)
-    {
+                        Annotation ann) {
         if (name == null && mStack.size() == 0) {
             // Root annotation.
             super.visit(name, pos, value, ann);
@@ -123,13 +122,12 @@ public class AnnotationBuilder extends AnnotationVisitor<Object, Annotation> {
 
     public Object visit(String name, int pos, Enum value, Annotation ann) {
         put(ann, name, pos,
-            ann.makeMemberValue(TypeDesc.forClass(value.getDeclaringClass()), value.name()));
+                ann.makeMemberValue(TypeDesc.forClass(value.getDeclaringClass()), value.name()));
         return null;
     }
 
     public Object visit(String name, int pos, java.lang.annotation.Annotation[] value,
-                        Annotation ann)
-    {
+                        Annotation ann) {
         mStack.push(new Annotation.MemberValue[value.length]);
         super.visit(name, pos, value, ann);
         put(ann, name, pos, ann.makeMemberValue(mStack.pop()));

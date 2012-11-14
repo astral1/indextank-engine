@@ -16,17 +16,17 @@
 
 package com.flaptor.indextank.storage;
 
+import com.flaptor.indextank.rpc.LogRecord;
+import com.flaptor.indextank.util.FormatLogger;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import com.flaptor.indextank.rpc.LogRecord;
-import com.flaptor.indextank.util.FormatLogger;
-
 public class SegmentReader implements Iterable<LogRecord> {
 
     private static final FormatLogger alertLogger = FormatLogger.getAlertsLogger();
-    
+
     private Segment segment;
     private int bufferingSize;
     private long start = -1;
@@ -35,10 +35,12 @@ public class SegmentReader implements Iterable<LogRecord> {
     SegmentReader(Segment segment) {
         this(segment, 64 * 1024);
     }
+
     SegmentReader(Segment segment, int bufferingSize) {
         this.segment = segment;
         this.bufferingSize = bufferingSize;
     }
+
     SegmentReader(Segment segment, long start, long end) {
         this(segment);
         this.start = start;
@@ -72,5 +74,5 @@ public class SegmentReader implements Iterable<LogRecord> {
             }
         }
     }
-    
+
 }

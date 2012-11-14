@@ -16,16 +16,17 @@
 
 package org.cojen.classfile.attribute;
 
-import java.io.DataInput;
-import java.io.IOException;
 import org.cojen.classfile.Attribute;
 import org.cojen.classfile.ConstantPool;
 
+import java.io.DataInput;
+import java.io.IOException;
+
 /**
  * This class corresponds to the Synthetic_attribute structure introduced in
- * JDK1.1. It is not defined in the first edition of 
+ * JDK1.1. It is not defined in the first edition of
  * <i>The Java Virual Machine Specification</i>.
- * 
+ *
  * @author Brian S O'Neill
  */
 public class SyntheticAttr extends Attribute {
@@ -39,8 +40,7 @@ public class SyntheticAttr extends Attribute {
     }
 
     public SyntheticAttr(ConstantPool cp, String name, int length, DataInput din)
-        throws IOException
-    {
+            throws IOException {
         super(cp, name);
         if (length > 0) {
             din.skipBytes(length);

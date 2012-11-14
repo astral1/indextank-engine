@@ -16,10 +16,6 @@
 
 package com.flaptor.indextank.index.lsi;
 
-import java.util.concurrent.BlockingDeque;
-
-import org.apache.log4j.Logger;
-
 import com.flaptor.indextank.index.DocId;
 import com.flaptor.indextank.index.QueryMatcher;
 import com.flaptor.indextank.index.TopMatches;
@@ -27,10 +23,13 @@ import com.flaptor.indextank.query.Query;
 import com.flaptor.util.Execute;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
+import org.apache.log4j.Logger;
+
+import java.util.concurrent.BlockingDeque;
 
 class LsiSearcher implements QueryMatcher {
     @SuppressWarnings("unused")
-	private static final Logger logger = Logger.getLogger(Execute.whoAmI());
+    private static final Logger logger = Logger.getLogger(Execute.whoAmI());
     private LsiIndex index;
 
     LsiSearcher(LsiIndex index) {
@@ -60,8 +59,8 @@ class LsiSearcher implements QueryMatcher {
         }
     }
 
-	@Override
-	public boolean hasChanges(DocId docid) throws InterruptedException {
+    @Override
+    public boolean hasChanges(DocId docid) throws InterruptedException {
         BlockingDeque<QueryMatcher> queue = index.getQueryMatcherPool();
         QueryMatcher matcher = queue.takeFirst();
         try {
@@ -69,7 +68,7 @@ class LsiSearcher implements QueryMatcher {
         } finally {
             queue.putFirst(matcher);
         }
-	}
+    }
 
     @Override
     public int countMatches(Query query) throws InterruptedException {
@@ -93,6 +92,5 @@ class LsiSearcher implements QueryMatcher {
         }
     }
 
-	
-	
+
 }

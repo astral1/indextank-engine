@@ -16,19 +16,20 @@
 
 package org.cojen.classfile;
 
-import java.io.Serializable;
-import java.io.Externalizable;
-import java.io.ObjectOutput;
-import java.io.ObjectInput;
-import java.io.IOException;
-import java.io.ObjectStreamException;
-import java.lang.reflect.Method;
-import java.util.List;
-import java.util.ArrayList;
 import org.cojen.util.WeakCanonicalSet;
 
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+import java.io.ObjectStreamException;
+import java.io.Serializable;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- * This class is used to build method descriptor strings as 
+ * This class is used to build method descriptor strings as
  * defined in <i>The Java Virtual Machine Specification</i>, section 4.3.3.
  * MethodDesc instances are canonicalized and therefore "==" comparable.
  *
@@ -46,7 +47,8 @@ public class MethodDesc extends Descriptor implements Serializable {
 
     /**
      * Acquire a MethodDesc from a set of arguments.
-     * @param ret return type of method; null implies void
+     *
+     * @param ret    return type of method; null implies void
      * @param params parameters to method; null implies none
      */
     public static MethodDesc forArguments(TypeDesc ret, TypeDesc[] params) {
@@ -63,9 +65,8 @@ public class MethodDesc extends Descriptor implements Serializable {
      * Acquire a MethodDesc from a type descriptor. This syntax is described in
      * section 4.3.3, Method Descriptors.
      */
-    public static MethodDesc forDescriptor(String desc) 
-        throws IllegalArgumentException
-    {
+    public static MethodDesc forDescriptor(String desc)
+            throws IllegalArgumentException {
         try {
             int cursor = 0;
             char c;
@@ -79,31 +80,31 @@ public class MethodDesc extends Descriptor implements Serializable {
 
             while ((c = desc.charAt(cursor++)) != ')') {
                 switch (c) {
-                case 'V':
-                case 'I':
-                case 'C':
-                case 'Z':
-                case 'D':
-                case 'F':
-                case 'J':
-                case 'B':
-                case 'S':
-                    buf.append(c);
-                    break;
-                case '[':
-                    buf.append(c);
-                    continue;
-                case 'L':
-                    while (true) {
+                    case 'V':
+                    case 'I':
+                    case 'C':
+                    case 'Z':
+                    case 'D':
+                    case 'F':
+                    case 'J':
+                    case 'B':
+                    case 'S':
                         buf.append(c);
-                        if (c == ';') {
-                            break;
+                        break;
+                    case '[':
+                        buf.append(c);
+                        continue;
+                    case 'L':
+                        while (true) {
+                            buf.append(c);
+                            if (c == ';') {
+                                break;
+                            }
+                            c = desc.charAt(cursor++);
                         }
-                        c = desc.charAt(cursor++);
-                    }
-                    break;
-                default:
-                    throw invalidDescriptor(desc);
+                        break;
+                    default:
+                        throw invalidDescriptor(desc);
                 }
 
                 list.add(TypeDesc.forDescriptor(buf.toString()));
@@ -129,7 +130,7 @@ public class MethodDesc extends Descriptor implements Serializable {
             paramTypes = EMPTY_PARAMS;
         } else {
             paramTypes = new TypeDesc[paramClasses.length];
-            for (int i=paramClasses.length; --i>=0; ) {
+            for (int i = paramClasses.length; --i >= 0; ) {
                 paramTypes[i] = TypeDesc.forClass(paramClasses[i]);
             }
         }
@@ -143,7 +144,7 @@ public class MethodDesc extends Descriptor implements Serializable {
     private transient final String mDescriptor;
     private transient final TypeDesc mRetType;
     private transient final TypeDesc[] mParams;
-    
+
     private MethodDesc(TypeDesc ret, TypeDesc[] params) {
         mDescriptor = generateDescriptor(ret, params);
         mRetType = ret;
@@ -181,7 +182,7 @@ public class MethodDesc extends Descriptor implements Serializable {
 
     public TypeDesc[] getParameterTypes() {
         TypeDesc[] params = mParams;
-        return (params != EMPTY_PARAMS) ? (TypeDesc[])params.clone() : params;
+        return (params != EMPTY_PARAMS) ? (TypeDesc[]) params.clone() : params;
     }
 
     /**
@@ -196,9 +197,9 @@ public class MethodDesc extends Descriptor implements Serializable {
     /**
      * Returns this in Java method signature syntax.
      *
-     * @param name method name
+     * @param name    method name
      * @param varargs request that the last argument, if it is an array, to
-     * be formatted in varargs syntax.
+     *                be formatted in varargs syntax.
      */
     public String toMethodSignature(String name, boolean varargs) {
         StringBuffer buf = new StringBuffer();
@@ -208,7 +209,7 @@ public class MethodDesc extends Descriptor implements Serializable {
         buf.append('(');
 
         TypeDesc[] params = mParams;
-        for (int i=0; i<params.length; i++) {
+        for (int i = 0; i < params.length; i++) {
             if (i > 0) {
                 buf.append(", ");
             }
@@ -238,7 +239,7 @@ public class MethodDesc extends Descriptor implements Serializable {
             return true;
         }
         if (other instanceof MethodDesc) {
-            return ((MethodDesc)other).mDescriptor.equals(mDescriptor);
+            return ((MethodDesc) other).mDescriptor.equals(mDescriptor);
         }
         return false;
     }
@@ -250,14 +251,14 @@ public class MethodDesc extends Descriptor implements Serializable {
     private static String generateDescriptor(TypeDesc ret, TypeDesc[] params) {
         int length = ret.getDescriptor().length() + 2;
         int paramsLength = params.length;
-        for (int i=paramsLength; --i >=0; ) {
+        for (int i = paramsLength; --i >= 0; ) {
             length += params[i].getDescriptor().length();
         }
         char[] buf = new char[length];
         buf[0] = '(';
         int index = 1;
         String paramDesc;
-        for (int i=0; i<paramsLength; i++) {
+        for (int i = 0; i < paramsLength; i++) {
             paramDesc = params[i].getDescriptor();
             int paramDescLength = paramDesc.length();
             paramDesc.getChars(0, paramDescLength, buf, index);

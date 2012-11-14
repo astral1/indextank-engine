@@ -17,14 +17,14 @@
 
 package com.flaptor.indextank.index.scorer;
 
-import static com.flaptor.util.TestInfo.TestType.UNIT;
-
 import com.flaptor.indextank.IndexTankTestCase;
 import com.flaptor.util.TestInfo;
 
+import static com.flaptor.util.TestInfo.TestType.UNIT;
+
 public class CategoryEncoderTest extends IndexTankTestCase {
 
-    @TestInfo(testType=UNIT)
+    @TestInfo(testType = UNIT)
     public void testConsistentCoding() {
         int[] data = new int[2];
         int[] bitmask = new int[2];
@@ -47,14 +47,14 @@ public class CategoryEncoderTest extends IndexTankTestCase {
             fail("should throw exception");
         } catch (IllegalArgumentException e) {
             //This is ok.
-            }
+        }
     }
 
-    @TestInfo(testType=UNIT)
+    @TestInfo(testType = UNIT)
     public void testCrossCoding() {
         int[] data = new int[2];
         int[] bitmask1 = new int[2];
-        int[] bitmask2= new int[2];
+        int[] bitmask2 = new int[2];
         bitmask1[0] = 0x3010;
         bitmask1[1] = 0x0002; //just 4 bits
         bitmask2[0] = 0x4020;
@@ -74,13 +74,13 @@ public class CategoryEncoderTest extends IndexTankTestCase {
         assertEquals(value2, decodedValue2);
     }
 
-    @TestInfo(testType=UNIT)
+    @TestInfo(testType = UNIT)
     public void testCrossCodingDontChangeOtherDataLong() {
         int[] data = new int[4];
         int payload = 0x73ea3333;
         data[0] = payload;
         int[] bitmask1 = new int[2];
-        int[] bitmask2= new int[2];
+        int[] bitmask2 = new int[2];
         bitmask1[0] = 0x3010;
         bitmask1[1] = 0x0002; //just 4 bits
         bitmask2[0] = 0x4020;
@@ -101,13 +101,13 @@ public class CategoryEncoderTest extends IndexTankTestCase {
         assertEquals(payload, data[0]);
     }
 
-    @TestInfo(testType=UNIT)
+    @TestInfo(testType = UNIT)
     public void testCrossCodingDontChangeOtherDataShort() {
         int[] data = new int[1];
         int payload = 0x73ea3333;
         data[0] = payload;
         int[] bitmask1 = new int[2];
-        int[] bitmask2= new int[2];
+        int[] bitmask2 = new int[2];
         bitmask1[0] = 0x3010;
         bitmask1[1] = 0x0002; //just 4 bits
         bitmask2[0] = 0x4020;
@@ -128,12 +128,12 @@ public class CategoryEncoderTest extends IndexTankTestCase {
         assertEquals(payload, data[0]);
     }
 
-    @TestInfo(testType=UNIT)
+    @TestInfo(testType = UNIT)
     public void testGrowInvariance() {
         int[] data = new int[1];
         int[] bitmask1s = new int[1];
-        int[] bitmask1l= new int[2];
-        int[] bitmask2l= new int[2];
+        int[] bitmask1l = new int[2];
+        int[] bitmask2l = new int[2];
         bitmask1s[0] = 0x0011;
         bitmask1l[0] = bitmask1s[0];
         bitmask2l[0] = 0x1100;

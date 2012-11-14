@@ -17,6 +17,10 @@
 
 package com.flaptor.indextank.suggest;
 
+import com.flaptor.util.FileUtil;
+import com.google.common.collect.HashMultiset;
+import com.google.common.collect.Multiset;
+
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.File;
@@ -24,15 +28,11 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Random;
 
-import com.flaptor.util.FileUtil;
-import com.google.common.collect.HashMultiset;
-import com.google.common.collect.Multiset;
-
 public class PopularityIndexBenchmark {
 
     static String[] words;
     static Multiset<String> input;
-    
+
     static void load(String file) throws IOException {
         DataInputStream dis = new DataInputStream(new BufferedInputStream(new FileInputStream(file)));
         input = HashMultiset.create();
@@ -43,7 +43,7 @@ public class PopularityIndexBenchmark {
         }
         words = input.elementSet().toArray(new String[0]);
     }
-    
+
     public static void main(String[] args) throws IOException {
         load(args[0]);
         System.out.println(input.size());
@@ -64,15 +64,16 @@ public class PopularityIndexBenchmark {
         int c = 0;
         for (String string : input) {
             npi.addTerm(string);
-            if (++c % 100000 == 0) { 
+            if (++c % 100000 == 0) {
                 long t2 = System.currentTimeMillis();
                 long d = t2 - t;
                 long d1 = t2 - t1;
-                System.out.format("%d so far: %.3f ms avg (%.3f avg last 100k)\n", c, 1.0*d/c, 1.0*d1/c);
+                System.out.format("%d so far: %.3f ms avg (%.3f avg last 100k)\n", c, 1.0 * d / c, 1.0 * d1 / c);
             }
             if (c == max) break;
         }
     }
+
     private static NewPopularityIndex testRandom(int max) throws IOException {
         File f = FileUtil.createTempDir("PopularityIndexTest", ".tmp");
         NewPopularityIndex npi = new NewPopularityIndex(f);
@@ -83,16 +84,17 @@ public class PopularityIndexBenchmark {
         for (int i = 0; i < input.size(); i++) {
             int k = r.nextInt(words.length);
             npi.addTerm(words[k]);
-            if (++c % 100000 == 0) { 
+            if (++c % 100000 == 0) {
                 long t2 = System.currentTimeMillis();
                 long d = t2 - t;
                 long d1 = t2 - t1;
-                System.out.format("%d so far: %.3f ms avg (%.3f avg last 100k)\n", c, 1.0*d/c, 1.0*d1/c);
+                System.out.format("%d so far: %.3f ms avg (%.3f avg last 100k)\n", c, 1.0 * d / c, 1.0 * d1 / c);
             }
             if (c == max) break;
         }
         return npi;
     }
+
     private static void testQueries(NewPopularityIndex npi, int max) throws IOException {
         long t = System.currentTimeMillis();
         long t1 = t;
@@ -102,14 +104,15 @@ public class PopularityIndexBenchmark {
             int k = r.nextInt(words.length);
             //int l = r.nextInt(words[k].length());
             npi.getMostPopular(words[k]);
-            if (++c % 100000 == 0) { 
+            if (++c % 100000 == 0) {
                 long t2 = System.currentTimeMillis();
                 long d = t2 - t;
                 long d1 = t2 - t1;
-                System.out.format("%d so far: %.3f ms avg (%.3f avg last 100k)\n", c, 1.0*d/c, 1.0*d1/c);
+                System.out.format("%d so far: %.3f ms avg (%.3f avg last 100k)\n", c, 1.0 * d / c, 1.0 * d1 / c);
             }
         }
     }
+
     private static void btestLinear1by1(int max) throws IOException {
         File f = FileUtil.createTempDir("PopularityIndexTest", ".tmp");
         PopularityIndex npi = new PopularityIndex(f, false);
@@ -118,15 +121,16 @@ public class PopularityIndexBenchmark {
         int c = 0;
         for (String string : input) {
             npi.add(string);
-            if (++c % 100000 == 0) { 
+            if (++c % 100000 == 0) {
                 long t2 = System.currentTimeMillis();
                 long d = t2 - t;
                 long d1 = t2 - t1;
-                System.out.format("%d so far: %.3f ms avg (%.3f avg last 100k)\n", c, 1.0*d/c, 1.0*d1/c);
+                System.out.format("%d so far: %.3f ms avg (%.3f avg last 100k)\n", c, 1.0 * d / c, 1.0 * d1 / c);
             }
             if (c == max) break;
         }
     }
+
     private static PopularityIndex btestRandom(int max) throws IOException {
         File f = FileUtil.createTempDir("PopularityIndexTest", ".tmp");
         PopularityIndex npi = new PopularityIndex(f, false);
@@ -137,16 +141,17 @@ public class PopularityIndexBenchmark {
         for (int i = 0; i < input.size(); i++) {
             int k = r.nextInt(words.length);
             npi.add(words[k]);
-            if (++c % 100000 == 0) { 
+            if (++c % 100000 == 0) {
                 long t2 = System.currentTimeMillis();
                 long d = t2 - t;
                 long d1 = t2 - t1;
-                System.out.format("%d so far: %.3f ms avg (%.3f avg last 100k)\n", c, 1.0*d/c, 1.0*d1/c);
+                System.out.format("%d so far: %.3f ms avg (%.3f avg last 100k)\n", c, 1.0 * d / c, 1.0 * d1 / c);
             }
             if (c == max) break;
         }
         return npi;
     }
+
     private static void btestQueries(PopularityIndex npi, int max) throws IOException {
         long t = System.currentTimeMillis();
         long t1 = t;
@@ -156,13 +161,13 @@ public class PopularityIndexBenchmark {
             int k = r.nextInt(words.length);
             //int l = r.nextInt(words[k].length());
             npi.getMostPopular(words[k]);
-            if (++c % 100000 == 0) { 
+            if (++c % 100000 == 0) {
                 long t2 = System.currentTimeMillis();
                 long d = t2 - t;
                 long d1 = t2 - t1;
-                System.out.format("%d so far: %.3f ms avg (%.3f avg last 100k)\n", c, 1.0*d/c, 1.0*d1/c);
+                System.out.format("%d so far: %.3f ms avg (%.3f avg last 100k)\n", c, 1.0 * d / c, 1.0 * d1 / c);
             }
         }
     }
-    
+
 }

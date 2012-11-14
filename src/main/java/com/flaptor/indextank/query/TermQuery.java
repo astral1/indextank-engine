@@ -31,31 +31,32 @@ limitations under the License.
 */
 package com.flaptor.indextank.query;
 
+import org.apache.lucene.index.Term;
+
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
-
-import org.apache.lucene.index.Term;
 
 /**
  * Query that searches for a specific term in a specific field.
  * The term passed to the constructor does not suffer any modifications, no case conversions,
  * no tokenization. So great care has to be taken to be sure the term passed is consistent with
  * the tokenization made at index time.
- * @author spike
  *
+ * @author spike
  */
 public final class TermQuery extends QueryNode implements Serializable {
 
     private static final long serialVersionUID = 1L;
     protected String field;
-	protected String term;
+    protected String term;
     protected float boost;
-    
+
     /**
      * Basic constructor.
+     *
      * @param field the field where to look the term in. Must not be null.
-     * @param term the term to search for. Must not be null.
+     * @param term  the term to search for. Must not be null.
      * @throws IllegalArgumentException if term or field are null.
      */
     public TermQuery(final String field, final String term) {
@@ -64,19 +65,19 @@ public final class TermQuery extends QueryNode implements Serializable {
         this.field = field;
         this.term = term;
     }
-    
+
     public String getField() {
-    	return field;
+        return field;
     }
-    
+
     public String getTerm() {
-    	return term;
+        return term;
     }
 
     public void setField(String field) {
         this.field = field;
     }
-    
+
     public void setTerm(String term) {
         this.term = term;
     }
@@ -99,7 +100,7 @@ public final class TermQuery extends QueryNode implements Serializable {
     public String toString() {
         return "field: " + field + "; term: " + term + boostString();
     }
-    
+
     @Override
     public boolean equals(final Object obj) {
         if (!super.equals(obj))
@@ -107,7 +108,7 @@ public final class TermQuery extends QueryNode implements Serializable {
         TermQuery tq = (TermQuery) obj;
         return field.equals(tq.field) && term.equals(tq.term);
     }
-    
+
     @Override
     public int hashCode() {
         int hash = 3;

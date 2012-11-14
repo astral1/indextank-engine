@@ -29,19 +29,19 @@ import java.util.concurrent.TimeUnit;
 import static com.flaptor.util.TestInfo.TestType.UNIT;
 
 public class TrafficLimitingSearcherTest extends IndexTankTestCase {
-	private TrafficLimitingSearcher sleepSearcher;
+    private TrafficLimitingSearcher sleepSearcher;
     private TrafficLimitingSearcher fastSearcher;
 
     @Override
-	protected void setUp() throws Exception {
+    protected void setUp() throws Exception {
         super.setUp();
         this.sleepSearcher = new TrafficLimitingSearcher(new SleepingSearcher(3000), 3);
         this.fastSearcher = new TrafficLimitingSearcher(new SleepingSearcher(0), 3);
-	}
+    }
 
     @Override
     protected void tearDown() throws Exception {
-    	super.tearDown();
+        super.tearDown();
     }
 
     private void sleep(int millis) {
@@ -51,8 +51,8 @@ public class TrafficLimitingSearcherTest extends IndexTankTestCase {
             e.printStackTrace();
         }
     }
-    
-    @TestInfo(testType=UNIT)
+
+    @TestInfo(testType = UNIT)
     public void testQueueTooLong() {
         // start 3 that can run in parallel, and sleep to let them start
         new Thread(new RunSearch(sleepSearcher)).start();
@@ -78,7 +78,7 @@ public class TrafficLimitingSearcherTest extends IndexTankTestCase {
         }
     }
 
-    @TestInfo(testType=UNIT)
+    @TestInfo(testType = UNIT)
     public void testNonConcurrentSearching() throws InterruptedException {
         // make sure serial searches don't cause an InterruptedException
         for (int i = 0; i < 100; i++) {
@@ -86,8 +86,8 @@ public class TrafficLimitingSearcherTest extends IndexTankTestCase {
             fastSearcher.search(query, 0, 10, 0);
         }
     }
-    
-    @TestInfo(testType=UNIT)
+
+    @TestInfo(testType = UNIT)
     public void testConstructor() {
         new TrafficLimitingSearcher(sleepSearcher, 0);
         try {
@@ -108,7 +108,7 @@ public class TrafficLimitingSearcherTest extends IndexTankTestCase {
         @Override
         public void run() {
             try {
-                final Query query = new Query(new TermQuery("text","hola"),null,null);
+                final Query query = new Query(new TermQuery("text", "hola"), null, null);
                 searcher.search(query, 0, 10, 0);
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -131,7 +131,7 @@ public class TrafficLimitingSearcherTest extends IndexTankTestCase {
 
         @Override
         public int countMatches(Query query) throws InterruptedException {
-            sleep(sleepTime);                
+            sleep(sleepTime);
             return 0;
         }
     }

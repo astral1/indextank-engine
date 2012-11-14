@@ -31,12 +31,12 @@ public interface AttributeFactory {
      * Create an attribute, using the provided name to determine which type.
      * Return null if attribute type is unknown.
      *
-     * @param cp ConstantPool, needed for constructing attributes
-     * @param name Name of attribute
+     * @param cp     ConstantPool, needed for constructing attributes
+     * @param name   Name of attribute
      * @param length Attribute length, in bytes
-     * @param din Attribute data source
+     * @param din    Attribute data source
      */
-    Attribute createAttribute(ConstantPool cp, 
+    Attribute createAttribute(ConstantPool cp,
                               String name,
                               int length,
                               DataInput din) throws IOException;

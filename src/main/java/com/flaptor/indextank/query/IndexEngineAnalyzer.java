@@ -28,7 +28,7 @@ import java.util.Map;
 public class IndexEngineAnalyzer extends StopAnalyzer {
 
     @SuppressWarnings("deprecation")
-	public IndexEngineAnalyzer(Map<Object, Object> configuration) {
+    public IndexEngineAnalyzer(Map<Object, Object> configuration) {
         super(configuration);
     }
 
@@ -46,5 +46,5 @@ public class IndexEngineAnalyzer extends StopAnalyzer {
     public static Analyzer buildAnalyzer(Map<Object, Object> configuration) {
         return new IndexEngineAnalyzer(configuration);
     }
-    
+
 }

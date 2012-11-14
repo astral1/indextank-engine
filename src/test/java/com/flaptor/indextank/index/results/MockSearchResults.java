@@ -15,12 +15,7 @@
  */
 
 
-
 package com.flaptor.indextank.index.results;
-
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 
 import com.flaptor.indextank.index.DocId;
 import com.flaptor.indextank.index.ScoredMatch;
@@ -28,6 +23,10 @@ import com.flaptor.indextank.index.TopMatches;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multiset;
+
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 public class MockSearchResults implements TopMatches {
 
@@ -45,19 +44,19 @@ public class MockSearchResults implements TopMatches {
         return results.size();
     }
 
-	@Override
-	public int getLimit() {
-		return results.size();
-	}
+    @Override
+    public int getLimit() {
+        return results.size();
+    }
 
-	@Override
-	public Iterator<ScoredMatch> iterator() {
-		return results.iterator();
-	}
+    @Override
+    public Iterator<ScoredMatch> iterator() {
+        return results.iterator();
+    }
 
-	@Override
-	public Map<String, Multiset<String>> getFacetingResults() {
-		return Maps.newHashMap();
-	}
+    @Override
+    public Map<String, Multiset<String>> getFacetingResults() {
+        return Maps.newHashMap();
+    }
 
 }

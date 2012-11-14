@@ -20,29 +20,19 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.cojen.classfile.attribute.CodeAttr;
-import org.cojen.classfile.attribute.SignatureAttr;
 
 /**
  * Disassembles a class file, sending the results to standard out. The class
  * can be specified by name or by a file name. If the class is specified by
  * name, it must be available in the classpath.
- * <p>
+ * <p/>
  * Two output formats are supported: assembly and builder. The assembly format
  * is the default, and it produces a pseudo Java source file, where the method
  * bodies contain JVM assembly code.
- * <p>
+ * <p/>
  * The builder format produces a valid Java file, which uses the Cojen
  * classfile API. When compiled and run, it rebuilds the original class and
  * inner classes. This format makes it easier to understand how to use the
@@ -53,11 +43,11 @@ import org.cojen.classfile.attribute.SignatureAttr;
 public class DisassemblyTool {
     /**
      * Disassembles a class file, sending the results to standard out.
-     *
+     * <p/>
      * <pre>
      * DisassemblyTool [-f &lt;format style&gt;] &lt;file or class name&gt;
      * </pre>
-     * 
+     * <p/>
      * The format style may be "assembly" (the default) or "builder".
      */
     public static void main(String[] args) throws Exception {
@@ -87,8 +77,7 @@ public class DisassemblyTool {
             in = new FileInputStream(file);
             loader = new ClassFileDataLoader() {
                 public InputStream getClassData(String name)
-                    throws IOException
-                {
+                        throws IOException {
                     name = name.substring(name.lastIndexOf('.') + 1);
                     File f = new File(file.getParentFile(), name + ".class");
 

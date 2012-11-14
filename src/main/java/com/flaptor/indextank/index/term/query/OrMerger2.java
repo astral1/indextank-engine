@@ -23,13 +23,13 @@ import com.flaptor.indextank.util.SkippableIterable;
 import com.flaptor.indextank.util.SkippableIterator;
 
 final class OrMerger2 extends AbstractSkippableIterable<RawMatch> {
-	
-	OrMerger2(SkippableIterable<RawMatch> l, SkippableIterable<RawMatch> r, double boost, double leftBoost, double rightBoost, double leftNorm, double rightNorm) {
-	    this.left = l;
-	    this.right = r;
+
+    OrMerger2(SkippableIterable<RawMatch> l, SkippableIterable<RawMatch> r, double boost, double leftBoost, double rightBoost, double leftNorm, double rightNorm) {
+        this.left = l;
+        this.right = r;
         this.boost = boost;
         this.leftBoost = leftBoost;
-        this.rightBoost = rightBoost;        
+        this.rightBoost = rightBoost;
         this.leftNorm = leftNorm;
         this.rightNorm = rightNorm;
     }
@@ -47,7 +47,7 @@ final class OrMerger2 extends AbstractSkippableIterable<RawMatch> {
         return new AbstractSkippableIterator<RawMatch>() {
             private PeekingSkippableIterator<RawMatch> it1 = new PeekingSkippableIterator<RawMatch>(left.iterator());
             private PeekingSkippableIterator<RawMatch> it2 = new PeekingSkippableIterator<RawMatch>(right.iterator());
-            
+
             @Override
             protected RawMatch computeNext() {
                 while (true) {
@@ -70,16 +70,17 @@ final class OrMerger2 extends AbstractSkippableIterable<RawMatch> {
                             return t;
                         }
                     }
-                    
+
                     RawMatch t1 = it1.peek();
                     RawMatch t2 = it2.peek();
                     int c = t1.compareTo(t2);
-                    
+
                     if (c == 0) {
                         //System.out.println("OR: [S:"+t1.getScore()+", B:"+t1.getBoost()+"] + [S:"+t2.getScore()+", B:"+t2.getBoost()+"] = [S:"+(t1.getBoostedScore()+t2.getBoostedScore())+", B:"+boost+"]");
                         t1.setScore(t1.getBoostedScore() + t2.getBoostedScore());
                         t1.setBoost(boost);
-                        it1.next(); it2.next();
+                        it1.next();
+                        it2.next();
                         return t1;
                     } else if (c < 0) {
                         //System.out.println("OR<: [S:"+t1.getScore()+", B:"+t1.getBoost()+"] + [S:0, B:"+t2.getBoost()+"] = [S:"+t1.getBoostedScore()+", B:"+boost+"]");
@@ -96,7 +97,7 @@ final class OrMerger2 extends AbstractSkippableIterable<RawMatch> {
                     }
                 }
             }
-            
+
             @Override
             public void skipTo(int i) {
                 it1.skipTo(i);

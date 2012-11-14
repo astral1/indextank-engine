@@ -16,6 +16,18 @@
 
 package com.flaptor.indextank.storage;
 
+import com.flaptor.indextank.rpc.LogRecord;
+import com.flaptor.indextank.rpc.SegmentInfo;
+import com.google.common.base.Function;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Predicate;
+import com.google.common.base.Predicates;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Iterators;
+import com.google.common.collect.Lists;
+import com.google.common.io.PatternFilenameFilter;
+import org.apache.thrift.TException;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -30,24 +42,11 @@ import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.thrift.TException;
-
-import com.flaptor.indextank.rpc.LogRecord;
-import com.flaptor.indextank.rpc.SegmentInfo;
-import com.google.common.base.Function;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
-import com.google.common.base.Predicates;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Iterators;
-import com.google.common.collect.Lists;
-import com.google.common.io.PatternFilenameFilter;
-
 public class Segment {
 
     private final LogRoot root;
     private final List<File> alternativeParents = Lists.newArrayList();
-    
+
     long timestamp;
     Type type;
     Integer recordCount;
@@ -81,7 +80,7 @@ public class Segment {
             this.recordCount = Integer.valueOf(suffix.substring(this.type.key.length() + 1));
         }
     }
-    
+
     private Segment(LogRoot root, File parent, Type type, long timestamp, Integer count) {
         this.root = root;
         this.parent = parent;
@@ -89,11 +88,11 @@ public class Segment {
         this.timestamp = timestamp;
         this.recordCount = count;
     }
-    
+
     public long length() {
         return buildFile(false).length();
     }
-    
+
     public boolean isRaw() {
         return type == Type.RAW;
     }
@@ -103,7 +102,7 @@ public class Segment {
     }
 
     public boolean isLocked() throws IOException {
-        RandomAccessFile raf = new RandomAccessFile(buildFile(false ), "rw");
+        RandomAccessFile raf = new RandomAccessFile(buildFile(false), "rw");
         FileLock lock = raf.getChannel().tryLock();
         if (lock == null) return true;
         raf.close();
@@ -149,7 +148,7 @@ public class Segment {
         File[] files = new File[alternativeParents.size() + 1];
         files[0] = buildFile(false);
         for (int i = 1; i < files.length; i++) {
-            files[i] = buildForParent(alternativeParents.get(i-1), false);
+            files[i] = buildForParent(alternativeParents.get(i - 1), false);
         }
         return files;
     }
@@ -192,7 +191,7 @@ public class Segment {
     private File buildFile(boolean temp) {
         return buildForParent(parent, temp);
     }
-    
+
     private File buildForParent(File parent, boolean temp) {
         String name, kind;
         String format = "%s.%s";
@@ -239,17 +238,19 @@ public class Segment {
     public static List<Segment> getSegments(final LogRoot root, final File parent) {
         return getSegments(root, parent, null);
     }
+
     public static List<Segment> getSegments(final LogRoot root, final File parent, Boolean sortedOnly) {
         return Lists.newArrayList(iterateSegments(root, parent, sortedOnly));
     }
-    
+
     public static List<Segment> iterateSegments(final LogRoot root, File parent) {
         return Lists.transform(listSegmentFiles(parent), new Function<File, Segment>() {
-            public Segment apply(File f) { 
-                return new Segment(root, f); 
+            public Segment apply(File f) {
+                return new Segment(root, f);
             }
         });
     }
+
     public static Iterable<Segment> iterateSegments(final LogRoot root, File parent, Boolean sortedOnly) {
         Iterable<Segment> segments = iterateSegments(root, parent);
         if (sortedOnly != null) {
@@ -267,8 +268,8 @@ public class Segment {
     };
 
     public static final Function<Segment, RecordIterator> TO_RECORD_ITERATOR = new Function<Segment, RecordIterator>() {
-        public RecordIterator apply(Segment s) { 
-            return s.reader().iterator(); 
+        public RecordIterator apply(Segment s) {
+            return s.reader().iterator();
         }
     };
 
@@ -289,9 +290,9 @@ public class Segment {
 
     public static enum Type {
         RAW("raw"), UNSORTED("unsorted"), SORTED("sorted"), OPTIMIZED("optimized");
-        
+
         private final String key;
-    
+
         Type(String key) {
             this.key = key;
         }
@@ -307,7 +308,7 @@ public class Segment {
             }
             if (s.timestamp == timestamp) {
                 found = true;
-            }           
+            }
         }
         if (!found) {
             for (Segment s : iterateSegments(manager, archive)) {
@@ -316,12 +317,12 @@ public class Segment {
                 }
                 if (s.timestamp == timestamp) {
                     found = true;
-                }           
+                }
             }
             if (found) {
                 return firstLive;
             } else {
-                throw new MissingSegmentException(); 
+                throw new MissingSegmentException();
             }
         }
         return null;

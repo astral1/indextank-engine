@@ -16,20 +16,19 @@
 
 package com.flaptor.indextank.storage;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import org.apache.thrift.TException;
-
 import com.flaptor.indextank.rpc.LogRecord;
 import com.flaptor.indextank.util.FormatLogger;
 import com.flaptor.indextank.util.IndexTankUtil;
 import com.flaptor.util.Execute;
 import com.google.common.collect.Maps;
 import com.google.common.io.Files;
+import org.apache.thrift.TException;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.Map;
+import java.util.Map.Entry;
 
 
 public class LogDealer extends Thread {
@@ -47,7 +46,8 @@ public class LogDealer extends Thread {
 
     /**
      * Constructor for tests only. Used to run cycles without actually starting the server.
-     * @param cleaner 
+     *
+     * @param cleaner
      */
     LogDealer(LogCleaner cleaner, LogRoot root, int liveSegmentSize, int indexSegmentSize) {
         this.root = root;
@@ -55,9 +55,9 @@ public class LogDealer extends Thread {
         this.indexSegmentSize = indexSegmentSize;
         this.cleaner = cleaner;
     }
-    
+
     LogDealer(LogCleaner cleaner) {
-        this.root = new LogRoot(); 
+        this.root = new LogRoot();
         this.liveSegmentSize = RawLog.DEFAULT_SEGMENT_SIZE;
         this.indexSegmentSize = IndexLog.DEFAULT_SEGMENT_SIZE;
         this.cleaner = cleaner;
@@ -95,9 +95,9 @@ public class LogDealer extends Thread {
     public void runCycle() throws IOException, TException, FileNotFoundException {
         if (IndexTankUtil.isMaster() && root.getSafeToReadFile().exists()) {
             nextTimestamp = getNextTimestamp();
-            
+
             RawLog live = new RawLog(root, liveSegmentSize);
-            
+
             boolean dealt = false;
             Segment current = null;
             for (Segment next : live.getLiveSegments()) {
@@ -120,14 +120,14 @@ public class LogDealer extends Thread {
                 current = next;
                 root.saveInfo("dealer.next_timestamp", String.valueOf(nextTimestamp));
             }
-            
+
             if (!dealt) {
                 logger.debug("Nothing to deal. Waiting...");
                 Execute.sleep(15000);
             }
         } else {
             if (root.getMigratedIndexesLogPath().exists()) {
-                
+
                 // delete previous files and move current files to previous
                 logger.info("Found migrated data. Removing previous directory...");
                 Files.deleteDirectoryContents(root.getPreviousPath().getCanonicalFile());
@@ -146,7 +146,7 @@ public class LogDealer extends Thread {
             long masterDelta = Math.max(0, getMasterDelta() + 5000);
             logger.info("Timestamp has been updated from %d to %d. Master delta is now %d", nextTimestamp, newNextTimestamp, masterDelta);
             nextTimestamp = newNextTimestamp;
-            
+
             RawLog live = new RawLog(root, liveSegmentSize);
             Segment lastSegment = null;
             for (Segment segment : live.getLiveSegments()) {
@@ -189,11 +189,13 @@ public class LogDealer extends Thread {
         long lastId = lastIdInfo == null ? 0L : Long.parseLong(lastIdInfo);
         return lastId;
     }
+
     public long getNextTimestamp() throws IOException {
         String lastIdInfo = root.loadInfo("dealer.next_timestamp");
         long lastId = lastIdInfo == null ? 0L : Long.parseLong(lastIdInfo);
         return lastId;
     }
+
     public long getMasterDelta() throws IOException {
         String masterDeltaInfo = root.loadInfo("master_delta");
         long masterDelta = masterDeltaInfo == null ? 0L : Long.parseLong(masterDeltaInfo) * 1000L;

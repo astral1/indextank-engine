@@ -34,24 +34,24 @@
 
 package org.cojen.util;
 
+import org.cojen.classfile.CodeBuilder;
+import org.cojen.classfile.RuntimeClassFile;
+import org.cojen.classfile.TypeDesc;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.UndeclaredThrowableException;
-import java.util.Map;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-
-import org.cojen.classfile.CodeBuilder;
-import org.cojen.classfile.RuntimeClassFile;
-import org.cojen.classfile.TypeDesc;
+import java.util.Map;
 
 /**
  * Generates code to invoke constructors. This is a replacement for {@link
  * java.lang.reflect.Constructor} which is easier to use and performs
  * better. In one tested situation, overall performance was improved by about
  * 10%.
- *
+ * <p/>
  * <p>QuickConstructorGenerator is not general purpose however, as the
  * parameters to the constructor must be known, and the constructor must be
  * public. It is intended to be used for constructing instances of
@@ -72,11 +72,11 @@ public class QuickConstructorGenerator {
      * exceptions declared thrown by the constructor must also be declared by
      * the method. The method return types can be the same type as the
      * constructed object or a supertype.
-     *
+     * <p/>
      * <p>Here is a contrived example for constructing strings. In practice,
      * such a string factory is useless, since the "new" operator can be
      * invoked directly.
-     *
+     * <p/>
      * <pre>
      * public interface StringFactory {
      *     String newEmptyString();
@@ -87,9 +87,9 @@ public class QuickConstructorGenerator {
      *         throws UnsupportedEncodingException;
      * }
      * </pre>
-     *
+     * <p/>
      * Here's an example of it being used:
-     *
+     * <p/>
      * <pre>
      * StringFactory sf = QuickConstructorGenerator.getInstance(String.class, StringFactory.class);
      * ...
@@ -97,14 +97,13 @@ public class QuickConstructorGenerator {
      * </pre>
      *
      * @param objectType type of object to construct
-     * @param factory interface defining which objects can be constructed
+     * @param factory    interface defining which objects can be constructed
      * @throws IllegalArgumentException if factory type is not an interface or
-     * if it is malformed
+     *                                  if it is malformed
      */
     @SuppressWarnings("unchecked")
     public static synchronized <F> F getInstance(final Class<?> objectType,
-                                                 final Class<F> factory)
-    {
+                                                 final Class<F> factory) {
         Map<Class<?>, Object> innerCache = cCache.get(factory);
         if (innerCache == null) {
             innerCache = new SoftValuedHashMap();
@@ -134,8 +133,7 @@ public class QuickConstructorGenerator {
     }
 
     private static synchronized <F> F getInstance(Map<Class<?>, Object> innerCache,
-                                                  Class<?> objectType, Class<F> factory)
-    {
+                                                  Class<?> objectType, Class<F> factory) {
         String prefix = objectType.getName();
         if (prefix.startsWith("java.")) {
             // Defining classes in java packages is restricted.
@@ -161,18 +159,19 @@ public class QuickConstructorGenerator {
 
             if (!method.getReturnType().isAssignableFrom(objectType)) {
                 throw new IllegalArgumentException
-                    ("Method return type must be \"" +
-                     objectType.getName() + "\" or supertype: " + method);
+                        ("Method return type must be \"" +
+                                objectType.getName() + "\" or supertype: " + method);
             }
 
             Class<?>[] methodExTypes = method.getExceptionTypes();
 
             for (Class<?> ctorExType : ctor.getExceptionTypes()) {
                 if (RuntimeException.class.isAssignableFrom(ctorExType) ||
-                    Error.class.isAssignableFrom(ctorExType)) {
+                        Error.class.isAssignableFrom(ctorExType)) {
                     continue;
                 }
-                exCheck: {
+                exCheck:
+                {
                     // Make sure method declares throwing it or a supertype.
                     for (Class<?> methodExType : methodExTypes) {
                         if (methodExType.isAssignableFrom(ctorExType)) {
@@ -180,7 +179,7 @@ public class QuickConstructorGenerator {
                         }
                     }
                     throw new IllegalArgumentException("Method must declare throwing \"" +
-                                                       ctorExType.getName() +"\": " + method);
+                            ctorExType.getName() + "\": " + method);
                 }
             }
 
@@ -198,7 +197,7 @@ public class QuickConstructorGenerator {
             b.newObject(TypeDesc.forClass(objectType));
             b.dup();
             int count = b.getParameterCount();
-            for (int i=0; i<count; i++) {
+            for (int i = 0; i < count; i++) {
                 b.loadLocal(b.getParameter(i));
             }
             b.invoke(ctor);

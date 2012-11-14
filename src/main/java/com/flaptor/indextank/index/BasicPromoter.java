@@ -16,6 +16,11 @@
 
 package com.flaptor.indextank.index;
 
+import com.flaptor.util.Execute;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Maps;
+import org.apache.log4j.Logger;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -29,14 +34,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import org.apache.log4j.Logger;
-
-import com.flaptor.util.Execute;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Maps;
-
 public class BasicPromoter extends AbstractPromoter {
-	private static final Logger logger = Logger.getLogger(Execute.whoAmI());
+    private static final Logger logger = Logger.getLogger(Execute.whoAmI());
     private static final String MAIN_FILE_NAME = "promoter";
     private final ConcurrentMap<String, String> storage;
     private final File backupDir;
@@ -44,12 +43,13 @@ public class BasicPromoter extends AbstractPromoter {
     /**
      * Constructor.
      * Creates an empty Promoter.
+     *
      * @param backupDir the directory to wich the data stored in this Scorer shall be
-     * @param load if true, the promoter is generated from it's serialized version.
-     * persisted.
+     * @param load      if true, the promoter is generated from it's serialized version.
+     *                  persisted.
      */
     @SuppressWarnings("unchecked")
-	public BasicPromoter(File backupDir, boolean load) throws IOException {
+    public BasicPromoter(File backupDir, boolean load) throws IOException {
         checkDirArgument(backupDir);
         this.backupDir = backupDir;
         if (!load) {

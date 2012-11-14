@@ -16,18 +16,17 @@
 
 package com.flaptor.indextank.storage;
 
-import java.io.IOException;
-import java.util.List;
-
-import org.apache.thrift.TException;
-import org.apache.thrift.transport.TTransportException;
-
 import com.flaptor.indextank.rpc.LogRecord;
 import com.flaptor.indextank.storage.Segment.MissingSegmentException;
 import com.flaptor.indextank.util.FormatLogger;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import org.apache.thrift.TException;
+import org.apache.thrift.transport.TTransportException;
+
+import java.io.IOException;
+import java.util.List;
 
 public class RawLog {
 
@@ -44,11 +43,11 @@ public class RawLog {
     private int segmentRecords;
 
     private long lastTime;
-    
+
     public RawLog() {
         this(new LogRoot(), DEFAULT_SEGMENT_SIZE);
     }
-    
+
     public RawLog(LogRoot root, int segmentSize) {
         this.root = root;
         this.segmentSize = segmentSize;
@@ -70,9 +69,9 @@ public class RawLog {
         if (System.currentTimeMillis() - lastTime > 5000) {
             logger.debug("%d records so far (current segment: %d, bytes: %d / %d)", records, segmentRecords, writingHead.length(), segmentSize);
             lastTime = System.currentTimeMillis();
-            
+
         }
-        
+
         if (writingHead.length() > segmentSize) {
             logger.info("Closing a segment with %d records", segmentRecords);
             writingHead.release();
@@ -94,7 +93,7 @@ public class RawLog {
         }
         return live;
     }
-    
+
     public List<Segment> getAllSegments() {
         List<Segment> live = Segment.getSegments(root, root.getLiveLogPath());
         List<Segment> history = Segment.getSegments(root, root.getHistoryLogPath());
@@ -121,7 +120,7 @@ public class RawLog {
         }
         return segment;
     }
-    
+
     public Segment findFollowingSegment(long timestamp) throws MissingSegmentException {
         Segment segment = Segment.findNextSegment(root, timestamp, root.getHistoryLogPath(), root.getLiveLogPath());
         if (segment != null && segment.parent.equals(root.getLiveLogPath())) {
@@ -130,5 +129,5 @@ public class RawLog {
         return segment;
     }
 
-    
+
 }

@@ -16,18 +16,6 @@
 
 package org.cojen.util;
 
-import java.io.PrintStream;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.util.AbstractList;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Stack;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import org.cojen.classfile.CodeBuilder;
 import org.cojen.classfile.Label;
 import org.cojen.classfile.LocalVariable;
@@ -36,6 +24,19 @@ import org.cojen.classfile.Modifiers;
 import org.cojen.classfile.Opcode;
 import org.cojen.classfile.RuntimeClassFile;
 import org.cojen.classfile.TypeDesc;
+
+import java.io.PrintStream;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+import java.util.AbstractList;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Stack;
 
 /**
  * Provides fast matching of strings against patterns containing wildcards.
@@ -52,7 +53,7 @@ public abstract class PatternMatcher<V> {
 
     public static synchronized <V> PatternMatcher<V> forPatterns(Map<String, V> patternMap) {
         final Maker maker = new Maker(patternMap);
-        final Class clazz = (Class)cPatternMatcherClasses.get(maker.getKey());
+        final Class clazz = (Class) cPatternMatcherClasses.get(maker.getKey());
 
         return AccessController.doPrivileged(new PrivilegedAction<PatternMatcher<V>>() {
             public PatternMatcher<V> run() {
@@ -65,7 +66,7 @@ public abstract class PatternMatcher<V> {
 
                 try {
                     Constructor ctor = clz.getConstructor(new Class[]{Object[].class});
-                    return (PatternMatcher)ctor.newInstance(new Object[]{maker.getMappedValues()});
+                    return (PatternMatcher) ctor.newInstance(new Object[]{maker.getMappedValues()});
                 } catch (NoSuchMethodException e) {
                     throw new InternalError(e.toString());
                 } catch (InstantiationException e) {
@@ -93,11 +94,11 @@ public abstract class PatternMatcher<V> {
         char[] chars = new char[strLen + 1];
         lookup.getChars(0, strLen, chars, 0);
         chars[strLen] = '\uffff';
-        
+
         TinyList resultList = new TinyList();
         fillMatchResults(chars, 1, resultList);
 
-        return (Result)resultList.mElement;
+        return (Result) resultList.mElement;
     }
 
     /**
@@ -110,11 +111,11 @@ public abstract class PatternMatcher<V> {
         char[] chars = new char[strLen + 1];
         lookup.getChars(0, strLen, chars, 0);
         chars[strLen] = '\uffff';
-        
+
         List resultList = new ArrayList();
         fillMatchResults(chars, limit, resultList);
 
-        return (Result[])resultList.toArray(new Result[resultList.size()]);
+        return (Result[]) resultList.toArray(new Result[resultList.size()]);
     }
 
     protected abstract void fillMatchResults(char[] lookup,
@@ -126,8 +127,7 @@ public abstract class PatternMatcher<V> {
                                             String pattern,
                                             Object value,
                                             int[] positions,
-                                            int len)
-    {
+                                            int len) {
         int size = results.size();
         if (size < limit) {
             if (positions == null || len == 0) {
@@ -135,7 +135,7 @@ public abstract class PatternMatcher<V> {
             } else {
                 int[] original = positions;
                 positions = new int[len];
-                for (int i=0; i<len; i++) {
+                for (int i = 0; i < len; i++) {
                     positions[i] = original[i];
                 }
             }
@@ -205,9 +205,9 @@ public abstract class PatternMatcher<V> {
         private int mReferenceLine;
 
         Maker(Map patternMap) {
-            String[] keys = (String[])patternMap.keySet().toArray(new String[0]);
+            String[] keys = (String[]) patternMap.keySet().toArray(new String[0]);
 
-            for (int i=0; i<keys.length; i++) {
+            for (int i = 0; i < keys.length; i++) {
                 String key = keys[i];
                 // Ensure terminating patterns end in the special
                 // terminator char.
@@ -221,17 +221,17 @@ public abstract class PatternMatcher<V> {
             Arrays.sort(keys, new PatternComparator());
 
             mMappedValues = new Object[keys.length];
-            for (int i=0; i<keys.length; i++) {
+            for (int i = 0; i < keys.length; i++) {
                 String key = keys[i];
                 if (key.endsWith("\uffff")) {
                     key = key.substring(0, key.length() - 1);
                 }
                 mMappedValues[i] = patternMap.get(key);
             }
-            
+
             // Build tree structure for managing pattern matching.
             mPatternRoot = new PatternNode();
-            for (int i=0; i<keys.length; i++) {
+            for (int i = 0; i < keys.length; i++) {
                 String key = keys[i];
                 mPatternRoot.buildPathTo(key, i);
             }
@@ -251,13 +251,13 @@ public abstract class PatternMatcher<V> {
 
         public RuntimeClassFile createClassFile() {
             RuntimeClassFile cf = new RuntimeClassFile
-                (PatternMatcher.class.getName(),
-                 PatternMatcher.class.getName(),
-                 PatternMatcher.class.getClassLoader());
+                    (PatternMatcher.class.getName(),
+                            PatternMatcher.class.getName(),
+                            PatternMatcher.class.getClassLoader());
 
             cf.markSynthetic();
             cf.setSourceFile(PatternMatcher.class.getName());
-            
+
             // constructor
             TypeDesc objectArrayType = TypeDesc.OBJECT.toArrayType();
             TypeDesc[] params = {objectArrayType};
@@ -321,17 +321,17 @@ public abstract class PatternMatcher<V> {
 
             if (c == '*') {
                 LocalVariable savedIndex;
-                
+
                 if (mTempLocals.isEmpty()) {
                     savedIndex =
-                        mBuilder.createLocalVariable("temp", mIntType);
+                            mBuilder.createLocalVariable("temp", mIntType);
                 } else {
-                    savedIndex = (LocalVariable)mTempLocals.pop();
+                    savedIndex = (LocalVariable) mTempLocals.pop();
                 }
-                
+
                 mBuilder.loadLocal(mIndexLocal);
                 mBuilder.storeLocal(savedIndex);
-                
+
                 // Save position of wildcard start.
                 mBuilder.loadLocal(mPositionsLocal);
                 mBuilder.loadConstant(posIndex);
@@ -341,19 +341,19 @@ public abstract class PatternMatcher<V> {
                     mBuilder.math(Opcode.IADD);
                 }
                 mBuilder.storeToArray(TypeDesc.INT);
-                
+
                 if (subNodes == null) {
                     generateWildcard(null, depth, posIndex + 2);
                 } else {
                     int size = subNodes.size();
-                    for (int i=0; i<size; i++) {
-                        generateWildcard((PatternNode)subNodes.get(i),
-                                         depth, posIndex + 2);
+                    for (int i = 0; i < size; i++) {
+                        generateWildcard((PatternNode) subNodes.get(i),
+                                depth, posIndex + 2);
                         mBuilder.loadLocal(savedIndex);
                         mBuilder.storeLocal(mIndexLocal);
                     }
                 }
-                
+
                 mTempLocals.push(savedIndex);
 
                 if (node.mPattern != null) {
@@ -378,19 +378,19 @@ public abstract class PatternMatcher<V> {
                     }
                     mBuilder.loadFromArray(TypeDesc.CHAR);
                 }
-                
-                mBuilder.loadConstant((char)c);
+
+                mBuilder.loadConstant((char) c);
                 mBuilder.ifComparisonBranch(noMatch, "!=");
             }
-            
+
             if (subNodes != null) {
                 int size = subNodes.size();
-                for (int i=0; i<size; i++) {
+                for (int i = 0; i < size; i++) {
                     generateBranches
-                        ((PatternNode)subNodes.get(i), depth + 1, posIndex);
+                            ((PatternNode) subNodes.get(i), depth + 1, posIndex);
                 }
             }
-            
+
             if (node.mPattern != null) {
                 // Matched pattern; save results.
                 generateAddMatchResult(node);
@@ -398,7 +398,7 @@ public abstract class PatternMatcher<V> {
 
             noMatch.setLocation();
         }
-        
+
         private void generateWildcard(PatternNode node, int depth,
                                       int posIndex) {
             Label loopStart = mBuilder.createLabel().setLocation();
@@ -430,9 +430,9 @@ public abstract class PatternMatcher<V> {
                 LocalVariable tempChar;
                 if (mTempLocals.isEmpty()) {
                     tempChar =
-                        mBuilder.createLocalVariable("temp", mIntType);
+                            mBuilder.createLocalVariable("temp", mIntType);
                 } else {
-                    tempChar = (LocalVariable)mTempLocals.pop();
+                    tempChar = (LocalVariable) mTempLocals.pop();
                 }
                 mBuilder.storeLocal(tempChar);
                 mBuilder.loadLocal(tempChar);
@@ -463,16 +463,16 @@ public abstract class PatternMatcher<V> {
             mBuilder.loadConstant(node.getWildcardCount() * 2);
 
             TypeDesc[] params = {
-                mIntType,
-                mListType,
-                mStringType,
-                mObjectType,
-                mIntArrayType,
-                mIntType
+                    mIntType,
+                    mListType,
+                    mStringType,
+                    mObjectType,
+                    mIntArrayType,
+                    mIntType
             };
-            
+
             mBuilder.invokeStatic(PatternMatcher.class.getName(),
-                                  "addMatchResult", mBooleanType, params);
+                    "addMatchResult", mBooleanType, params);
             mBuilder.ifZeroComparisonBranch(mReturnLabel, "==");
         }
     }
@@ -499,8 +499,8 @@ public abstract class PatternMatcher<V> {
             int height = 1;
             if (mSubNodes != null) {
                 int size = mSubNodes.size();
-                for (int i=0; i<size; i++) {
-                    int subH = ((PatternNode)mSubNodes.get(i)).getHeight();
+                for (int i = 0; i < size; i++) {
+                    int subH = ((PatternNode) mSubNodes.get(i)).getHeight();
                     if (subH > height) {
                         height = subH;
                     }
@@ -514,7 +514,7 @@ public abstract class PatternMatcher<V> {
             String pattern = mPattern;
             if (pattern != null) {
                 int len = pattern.length();
-                for (int i=0; i<len; i++) {
+                for (int i = 0; i < len; i++) {
                     if (pattern.charAt(i) == '*') {
                         wildCount++;
                     }
@@ -525,11 +525,11 @@ public abstract class PatternMatcher<V> {
 
         public int getMaxWildcardCount() {
             int wildCount = getWildcardCount();
-            
+
             if (mSubNodes != null) {
-                for (int i=0; i<mSubNodes.size(); i++) {
-                    int count = 
-                        ((PatternNode)mSubNodes.get(i)).getMaxWildcardCount();
+                for (int i = 0; i < mSubNodes.size(); i++) {
+                    int count =
+                            ((PatternNode) mSubNodes.get(i)).getMaxWildcardCount();
                     if (count > wildCount) {
                         wildCount = count;
                     }
@@ -557,8 +557,8 @@ public abstract class PatternMatcher<V> {
             }
 
             int size = mSubNodes.size();
-            for (int i=0; i<size; i++) {
-                PatternNode node = (PatternNode)mSubNodes.get(i);
+            for (int i = 0; i < size; i++) {
+                PatternNode node = (PatternNode) mSubNodes.get(i);
                 if (node.mChar == c) {
                     node.buildPathTo(pattern, order, index + 1);
                     return;
@@ -575,13 +575,13 @@ public abstract class PatternMatcher<V> {
         public void dump(PrintStream out, String indent) {
             if (mSubNodes != null) {
                 String subIndent = indent.concat(" ");
-                for (int i=0; i<mSubNodes.size(); i++) {
-                    ((PatternNode)mSubNodes.get(i)).dump(out, subIndent);
+                for (int i = 0; i < mSubNodes.size(); i++) {
+                    ((PatternNode) mSubNodes.get(i)).dump(out, subIndent);
                 }
             }
             out.print(indent);
             out.print('\'');
-            out.print((char)mChar);
+            out.print((char) mChar);
             out.print('\'');
             if (mPattern != null) {
                 out.print(" -> ");
@@ -593,14 +593,14 @@ public abstract class PatternMatcher<V> {
 
     private static class PatternComparator implements Comparator {
         public int compare(Object a, Object b) {
-            String sa = (String)a;
-            String sb = (String)b;
-            
+            String sa = (String) a;
+            String sb = (String) b;
+
             int alen = sa.length();
             int blen = sb.length();
             int mlen = Math.min(alen, blen);
-            
-            for (int i=0; i<mlen; i++) {
+
+            for (int i = 0; i < mlen; i++) {
                 char ca = sa.charAt(i);
                 char cb = sb.charAt(i);
                 if (ca == '*') {
@@ -617,14 +617,14 @@ public abstract class PatternMatcher<V> {
                     return 1;
                 }
             }
-            
+
             // The shorter string is sorted high.
             if (alen < blen) {
                 return 1;
             } else if (alen > blen) {
                 return -1;
             }
-            
+
             return 0;
         }
     }

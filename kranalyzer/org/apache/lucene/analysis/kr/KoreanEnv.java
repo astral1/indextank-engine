@@ -104,7 +104,7 @@ public class KoreanEnv {
      * Given a property file name, load the property file and return an object
      * representing the property values.
      *
-     * @param def          Default property values, or <code>null</code> if there are no defaults.
+     * @param def Default property values, or <code>null</code> if there are no defaults.
      * @return The loaded SortedProperties object.
      */
     private Properties loadProperties(Properties def) throws MorphException {

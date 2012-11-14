@@ -16,10 +16,6 @@
 
 package com.flaptor.indextank.blender;
 
-import java.util.Map;
-
-import org.apache.log4j.Logger;
-
 import com.flaptor.indextank.index.DocId;
 import com.flaptor.indextank.index.Promoter;
 import com.flaptor.indextank.index.QueryMatcher;
@@ -41,13 +37,16 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import org.apache.log4j.Logger;
+
+import java.util.Map;
+
 /**
- *
  * @author Flaptor Team
  */
 public class Blender extends AbstractDocumentSearcher implements QueryMatcher {
     @SuppressWarnings("unused")
-	private static final Logger logger = Logger.getLogger(Execute.whoAmI());
+    private static final Logger logger = Logger.getLogger(Execute.whoAmI());
 
     private final LargeScaleIndex lsi;
     private final RealTimeIndex rti;
@@ -66,44 +65,46 @@ public class Blender extends AbstractDocumentSearcher implements QueryMatcher {
         this.suggestor = suggestor;
         this.promoter = promoter;
         this.boostsManager = boostsManager;
-    };
+    }
+
+    ;
 
     private QueryMatcher getSearcher() {
-    	QueryMatcher matcher = new BlendingQueryMatcher(lsi, rti.getSearchSession());
-    	matcher = new BlendingQueryMatcher(matcher, promoter);
-    	return matcher;
+        QueryMatcher matcher = new BlendingQueryMatcher(lsi, rti.getSearchSession());
+        matcher = new BlendingQueryMatcher(matcher, promoter);
+        return matcher;
     }
-    
+
     @Override
     public TopMatches findMatches(Query query, Predicate<DocId> docFilter, int limit, int scoringFunctionIndex) throws InterruptedException {
         TopMatches retVal = getSearcher().findMatches(query, docFilter, limit, scoringFunctionIndex);
-    	suggestor.noteQuery(query, retVal.getTotalMatches());
-    	return retVal;
+        suggestor.noteQuery(query, retVal.getTotalMatches());
+        return retVal;
     }
-    
+
     @Override
     public TopMatches findMatches(Query query, int limit, int scoringFunctionIndex) throws InterruptedException {
         Preconditions.checkNotNull(query);
         Preconditions.checkArgument(limit > 0);
         TopMatches retVal = getSearcher().findMatches(query, limit, scoringFunctionIndex);
-    	suggestor.noteQuery(query, retVal.getTotalMatches());
-    	return retVal;
+        suggestor.noteQuery(query, retVal.getTotalMatches());
+        return retVal;
     }
 
-	@Override
-	public boolean hasChanges(DocId docid) throws InterruptedException {
-		return getSearcher().hasChanges(docid);
-	}
+    @Override
+    public boolean hasChanges(DocId docid) throws InterruptedException {
+        return getSearcher().hasChanges(docid);
+    }
 
-	@Override
+    @Override
     public SearchResults search(Query query, int start, int limit, int scoringFunctionIndex, Map<String, String> extraParameters) throws InterruptedException {
-        TopMatches matches = this.findMatches(query, start+limit, scoringFunctionIndex);
+        TopMatches matches = this.findMatches(query, start + limit, scoringFunctionIndex);
         Iterable<ScoredMatch> ids = matches;
-        
+
         // apply pagination 
         ids = SkippingIterable.skipping(ids, start);
         ids = CollectionsUtil.limit(ids, limit);
-        
+
         // base transform function
         final Function<ScoredMatch, SearchResult> baseTransform = ScoredMatch.SEARCH_RESULT_FUNCTION;
         Function<ScoredMatch, SearchResult> transformFunction = baseTransform;
@@ -134,16 +135,16 @@ public class Blender extends AbstractDocumentSearcher implements QueryMatcher {
                 }
             };
         }
-        
+
         // convert to search results
-        Iterable<SearchResult> results = Iterables.transform(ids, transformFunction);        
+        Iterable<SearchResult> results = Iterables.transform(ids, transformFunction);
 
         // fix'em in a list
         results = Lists.newArrayList(results);
 
         return new SearchResults(results, matches.getTotalMatches(), matches.getFacetingResults());
     }
-	
+
     @Override
     public int countMatches(Query query) throws InterruptedException {
         return getSearcher().countMatches(query);
@@ -153,5 +154,5 @@ public class Blender extends AbstractDocumentSearcher implements QueryMatcher {
     public int countMatches(Query query, Predicate<DocId> idFilter) throws InterruptedException {
         return getSearcher().countMatches(query, idFilter);
     }
-    	
+
 }

@@ -34,33 +34,31 @@
 
 package org.cojen.util;
 
-import java.util.concurrent.Executors;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.Map;
-
-import java.lang.reflect.Method;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Modifier;
-
-import java.security.AccessController;
-import java.security.PrivilegedAction;
-
-import org.cojen.classfile.CodeBuilder;
 import org.cojen.classfile.ClassFile;
+import org.cojen.classfile.CodeBuilder;
 import org.cojen.classfile.Label;
 import org.cojen.classfile.MethodDesc;
 import org.cojen.classfile.Modifiers;
 import org.cojen.classfile.RuntimeClassFile;
 import org.cojen.classfile.TypeDesc;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicReference;
+
 /**
  * Generic one-shot factory which supports late object creation. If the object
  * creation results in an exception or is taking too long, the object produced
  * instead is a bogus one. After retrying, if the real object is created, then
  * the bogus object turns into a wrapper to the real object.
- *
+ * <p/>
  * <p>Note: If a bogus object is created, the wrapper cannot always be a drop-in
  * replacement for the real object. If the wrapper is cloned, it won't have the
  * same behavior as cloning the real object. Also, synchronizing on the wrapper
@@ -93,9 +91,9 @@ public abstract class BelatedCreator<T, E extends Exception> {
     private CreateThread mCreateThread;
 
     /**
-     * @param type type of object created
+     * @param type                type of object created
      * @param minRetryDelayMillis minimum milliseconds to wait before retrying
-     * to create object after failure; if negative, never retry
+     *                            to create object after failure; if negative, never retry
      * @throws IllegalArgumentException if type is null or is not an interface
      */
     protected BelatedCreator(Class<T> type, int minRetryDelayMillis) {
@@ -117,7 +115,7 @@ public abstract class BelatedCreator<T, E extends Exception> {
      * returning a bogus object immediately instead.
      *
      * @param timeoutMillis maximum time to wait for real object before
-     * returning bogus one; if negative, potentially wait forever
+     *                      returning bogus one; if negative, potentially wait forever
      * @throws E exception thrown from createReal
      */
     public synchronized T get(final int timeoutMillis) throws E {
@@ -180,7 +178,7 @@ public abstract class BelatedCreator<T, E extends Exception> {
             error.fillInStackTrace();
             StackTraceElement[] localTrace = error.getStackTrace();
             StackTraceElement[] completeTrace =
-                new StackTraceElement[trace.length + localTrace.length];
+                    new StackTraceElement[trace.length + localTrace.length];
             System.arraycopy(trace, 0, completeTrace, 0, trace.length);
             System.arraycopy(localTrace, 0, completeTrace, trace.length, localTrace.length);
             error.setStackTrace(completeTrace);
@@ -308,7 +306,7 @@ public abstract class BelatedCreator<T, E extends Exception> {
         cf.addField(Modifiers.PRIVATE.toFinal(true), REF_FIELD_NAME, atomicRefType);
 
         CodeBuilder b = new CodeBuilder(cf.addConstructor(Modifiers.PUBLIC,
-                                                          new TypeDesc[] {atomicRefType}));
+                new TypeDesc[]{atomicRefType}));
         b.loadThis();
         b.invokeSuperConstructor(null);
         b.loadThis();
@@ -339,7 +337,7 @@ public abstract class BelatedCreator<T, E extends Exception> {
             int modifiers = m.getModifiers();
             if (!Modifier.isFinal(modifiers) && Modifier.isPublic(modifiers)) {
                 b = new CodeBuilder
-                    (cf.addMethod(Modifiers.PUBLIC, m.getName(), MethodDesc.forMethod(m)));
+                        (cf.addMethod(Modifiers.PUBLIC, m.getName(), MethodDesc.forMethod(m)));
                 addWrappedCall(cf, b, m);
             }
         }
@@ -387,7 +385,7 @@ public abstract class BelatedCreator<T, E extends Exception> {
         b.checkCast(TypeDesc.forClass(mType));
 
         // Load parameters...
-        for (int i=0; i<b.getParameterCount(); i++) {
+        for (int i = 0; i < b.getParameterCount(); i++) {
             b.loadLocal(b.getParameter(i));
         }
 

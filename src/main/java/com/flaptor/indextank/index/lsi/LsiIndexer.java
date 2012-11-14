@@ -16,17 +16,16 @@
 
 package com.flaptor.indextank.index.lsi;
 
-import java.io.IOException;
-
+import com.flaptor.indextank.Indexer;
+import com.flaptor.indextank.index.Document;
+import com.flaptor.util.Execute;
+import com.google.common.base.Preconditions;
 import org.apache.log4j.Logger;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.Term;
 
-import com.flaptor.indextank.Indexer;
-import com.flaptor.indextank.index.Document;
-import com.flaptor.util.Execute;
-import com.google.common.base.Preconditions;
+import java.io.IOException;
 
 /**
  * @author Flaptor Development Team
@@ -39,7 +38,7 @@ public final class LsiIndexer implements Indexer {
     private IndexWriter writer;
 
     /**
-     * Default constructor. 
+     * Default constructor.
      */
     public LsiIndexer(LsiIndex index) {
         Preconditions.checkNotNull(index);
@@ -48,7 +47,7 @@ public final class LsiIndexer implements Indexer {
     }
 
     /**
-     *@inheritDoc
+     * @inheritDoc
      */
     public synchronized void add(final String docId, final Document itdoc) {
         if (null == docId) {
@@ -60,7 +59,7 @@ public final class LsiIndexer implements Indexer {
         org.apache.lucene.document.Field docidPayloadField = new org.apache.lucene.document.Field(LsiIndex.PAYLOAD_TERM_FIELD, docId, Field.Store.NO, Field.Index.ANALYZED);
         doc.add(docidPayloadField);
 
-        doc.add(new Field("documentId",docId,Field.Store.NO,Field.Index.NOT_ANALYZED));
+        doc.add(new Field("documentId", docId, Field.Store.NO, Field.Index.NOT_ANALYZED));
         try {
             if (logger.isDebugEnabled()) {
                 logger.debug("Adding document with docId=" + docId + ". Doc is " + itdoc.getFieldNames());
@@ -72,9 +71,8 @@ public final class LsiIndexer implements Indexer {
     }
 
 
-
     /**
-     *@inheritDoc
+     * @inheritDoc
      */
     public synchronized void del(final String docId) {
         try {
@@ -91,6 +89,7 @@ public final class LsiIndexer implements Indexer {
 
     /**
      * Opens the writer.
+     *
      * @throws RuntimeException if there was a problem opening the writer.
      */
     private void openWriter() {
@@ -102,17 +101,18 @@ public final class LsiIndexer implements Indexer {
      * then calls the shell command that makes a copy of it. Used to make a copy
      * of the directory while it's in a consistent state. If there is an index
      * optimization scheduled, it'll be performed here.
+     *
      * @throws IllegalStateException if the index copy couldn't be made.
-     * @throws RuntimeException if there was a problem opening the index.
+     * @throws RuntimeException      if there was a problem opening the index.
      */
     public synchronized void makeDirectoryCheckpoint() {
         workIndex.flush();
     }
 
     // Helper method to transform an IndexTank Document to a Lucene Document
-    private static org.apache.lucene.document.Document asLuceneDocument(Document itd){
+    private static org.apache.lucene.document.Document asLuceneDocument(Document itd) {
         org.apache.lucene.document.Document doc = new org.apache.lucene.document.Document();
-        for (String field: itd.getFieldNames()) {
+        for (String field : itd.getFieldNames()) {
             doc.add(new Field(field, itd.getField(field), Field.Store.NO, Field.Index.ANALYZED));
         }
 

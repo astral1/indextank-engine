@@ -20,7 +20,12 @@ package org.apache.lucene.analysis.kr;
 import org.apache.lucene.analysis.Token;
 import org.apache.lucene.analysis.TokenFilter;
 import org.apache.lucene.analysis.TokenStream;
-import org.apache.lucene.analysis.kr.morph.*;
+import org.apache.lucene.analysis.kr.morph.AnalysisOutput;
+import org.apache.lucene.analysis.kr.morph.CompoundEntry;
+import org.apache.lucene.analysis.kr.morph.MorphAnalyzer;
+import org.apache.lucene.analysis.kr.morph.MorphException;
+import org.apache.lucene.analysis.kr.morph.PatternConstants;
+import org.apache.lucene.analysis.kr.morph.WordSpaceAnalyzer;
 import org.apache.lucene.analysis.kr.utils.DictionaryUtil;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
@@ -30,7 +35,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 public class KoreanFilter extends TokenFilter {
     private static final Logger logger = LoggerFactory.getLogger(KoreanFilter.class);

@@ -16,6 +16,8 @@
 
 package org.cojen.util;
 
+import org.cojen.classfile.ClassFile;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -27,19 +29,17 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
-import org.cojen.classfile.ClassFile;
-
 /**
  * ClassInjector allows transient classes to be loaded, where a transient class
  * is defined as being dynamically created at runtime. Unless explicit, the
  * name given to transient classes is randomly assigned to prevent name
  * collisions and to discourage referencing the classname persistently outside
  * the runtime environment.
- * <p>
+ * <p/>
  * Classes defined by ClassInjector may be unloaded, if no references to it
  * exist. Once unloaded, they cannot be loaded again by name since the
  * original bytecode was never preserved.
- * <p>
+ * <p/>
  * Debugging can be enabled via the java command-line option
  * "-Dorg.cojen.util.ClassInjector.DEBUG=true". This causes all generated classes
  * to be written to the temp directory, and a message is written to System.out
@@ -54,9 +54,9 @@ public class ClassInjector {
 
     static {
         DEBUG =
-            Boolean.getBoolean("org.cojen.classfile.RuntimeClassFile.DEBUG") ||
-            Boolean.getBoolean("org.cojen.util.ClassInjector.DEBUG") ||
-            Boolean.getBoolean("cojen.util.ClassInjector.DEBUG");
+                Boolean.getBoolean("org.cojen.classfile.RuntimeClassFile.DEBUG") ||
+                        Boolean.getBoolean("org.cojen.util.ClassInjector.DEBUG") ||
+                        Boolean.getBoolean("cojen.util.ClassInjector.DEBUG");
     }
 
     private static final Random cRandom = new Random();
@@ -77,7 +77,7 @@ public class ClassInjector {
      * which is used as the start of the auto-generated class name. If the
      * parent ClassLoader is not specified, it will default to the ClassLoader of
      * the ClassInjector class.
-     * <p>
+     * <p/>
      * If the parent loader was used for loading injected classes, the new
      * class will be loaded by it. This allows auto-generated classes access to
      * package accessible members, as long as they are defined in the same
@@ -94,13 +94,13 @@ public class ClassInjector {
      * Create a ClassInjector for defining one class with an explicit name. If
      * the parent ClassLoader is not specified, it will default to the
      * ClassLoader of the ClassInjector class.
-     * <p>
+     * <p/>
      * If the parent loader was used for loading injected classes, the new
      * class will be loaded by it. This allows auto-generated classes access to
      * package accessible members, as long as they are defined in the same
      * package.
      *
-     * @param name required class name
+     * @param name   required class name
      * @param parent optional parent ClassLoader
      * @throws IllegalArgumentException if name is null
      */
@@ -126,7 +126,8 @@ public class ClassInjector {
         Loader loader;
 
         synchronized (cRandom) {
-            getLoader: {
+            getLoader:
+            {
                 if (parent instanceof Loader) {
                     // Use the same loader, allowing the new class access to
                     // same package protected members.
@@ -146,8 +147,9 @@ public class ClassInjector {
             }
 
             if (explicit) {
-                reserveCheck: {
-                    for (int i=0; i<2; i++) {
+                reserveCheck:
+                {
+                    for (int i = 0; i < 2; i++) {
                         if (loader.reserveName(name)) {
                             try {
                                 loader.loadClass(name);
@@ -157,7 +159,7 @@ public class ClassInjector {
                         }
                         if (i > 0) {
                             throw new IllegalStateException
-                                ("Class name already reserved: " + name);
+                                    ("Class name already reserved: " + name);
                         }
                         // Make a new loader and try again.
                         loader = parent == null ? new Loader() : new Loader(parent);
@@ -169,29 +171,29 @@ public class ClassInjector {
             } else {
                 for (int tryCount = 0; tryCount < 1000; tryCount++) {
                     name = null;
-                    
+
                     long ID = cRandom.nextInt();
-                    
+
                     // Use a small identifier if possible, making it easier to read
                     // stack traces and decompiled classes.
                     switch (tryCount) {
-                    case 0:
-                        ID &= 0xffL;
-                        break;
-                    case 1:
-                        ID &= 0xffffL;
-                        break;
-                    default:
-                        ID &= 0xffffffffL;
-                        break;
+                        case 0:
+                            ID &= 0xffL;
+                            break;
+                        case 1:
+                            ID &= 0xffffL;
+                            break;
+                        default:
+                            ID &= 0xffffffffL;
+                            break;
                     }
-                    
+
                     name = prefix + '$' + ID;
-                    
+
                     if (!loader.reserveName(name)) {
                         continue;
                     }
-                    
+
                     try {
                         loader.loadClass(name);
                     } catch (ClassNotFoundException e) {
@@ -231,7 +233,7 @@ public class ClassInjector {
      * Open a stream to define the new class into.
      *
      * @throws IllegalStateException if new class has already been defined
-     * or if a stream has already been opened
+     *                               or if a stream has already been opened
      */
     public OutputStream openStream() throws IllegalStateException {
         if (mClass != null) {
@@ -250,7 +252,7 @@ public class ClassInjector {
      *
      * @return the newly created class
      * @throws IllegalStateException if new class has already been defined
-     * or if a stream has already been opened
+     *                               or if a stream has already been opened
      */
     public Class defineClass(ClassFile cf) {
         try {

@@ -16,6 +16,13 @@
 
 package com.flaptor.indextank.storage;
 
+import com.flaptor.indextank.rpc.LogRecord;
+import com.google.common.collect.AbstractIterator;
+import org.apache.thrift.TException;
+import org.apache.thrift.protocol.TBinaryProtocol;
+import org.apache.thrift.protocol.TProtocol;
+import org.apache.thrift.transport.TTransportException;
+
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -23,14 +30,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.channels.Channels;
-
-import org.apache.thrift.TException;
-import org.apache.thrift.protocol.TBinaryProtocol;
-import org.apache.thrift.protocol.TProtocol;
-import org.apache.thrift.transport.TTransportException;
-
-import com.flaptor.indextank.rpc.LogRecord;
-import com.google.common.collect.AbstractIterator;
 
 public final class RecordIterator extends AbstractIterator<LogRecord> {
 
@@ -63,7 +62,7 @@ public final class RecordIterator extends AbstractIterator<LogRecord> {
         }
         LogRecord record = new LogRecord();
         try {
-            ((TBinaryProtocol)protocol).setReadLength(10000000);
+            ((TBinaryProtocol) protocol).setReadLength(10000000);
             record.read(protocol);
             if (transport != null) {
                 safelyRead = transport.getBytesRead();
@@ -94,23 +93,25 @@ public final class RecordIterator extends AbstractIterator<LogRecord> {
         }
         return record;
     }
-    
+
     public long getSafelyRead() {
         return safelyRead;
     }
-    
+
     public long getTotalRead() {
         return totalRead;
     }
-    
+
     public static RecordIterator forFiles(File... files) throws IOException {
         return forFiles(8192, files);
     }
+
     public static RecordIterator forFiles(int bufferingSize, File... files) throws IOException {
         return forFiles(-1, -1, bufferingSize, files);
     }
+
     public static RecordIterator forFiles(long start, long end, int bufferingSize, File... files) throws IOException {
-        FileInputStream in; 
+        FileInputStream in;
         int i = 0;
         long fileLength = 0;
         while (true) {
@@ -139,11 +140,11 @@ public final class RecordIterator extends AbstractIterator<LogRecord> {
                 length = end;
             }
         }
-        return new RecordIterator(transport, protocol, length, files[i-1].getAbsolutePath());
+        return new RecordIterator(transport, protocol, length, files[i - 1].getAbsolutePath());
     }
-    
+
     public String getDescription() {
         return description;
     }
-    
+
 }

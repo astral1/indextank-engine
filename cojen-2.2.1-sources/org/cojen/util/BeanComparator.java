@@ -16,16 +16,6 @@
 
 package org.cojen.util;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
-import java.lang.reflect.InvocationTargetException;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import org.cojen.classfile.CodeBuilder;
 import org.cojen.classfile.Label;
 import org.cojen.classfile.LocalVariable;
@@ -35,27 +25,38 @@ import org.cojen.classfile.Opcode;
 import org.cojen.classfile.RuntimeClassFile;
 import org.cojen.classfile.TypeDesc;
 
+import java.io.Serializable;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+
 /**
  * A highly customizable, high-performance Comparator, designed specifically
  * for advanced sorting of JavaBeans. BeanComparators contain dynamically
  * auto-generated code and perform as well as hand written Comparators.
- * <p>
+ * <p/>
  * BeanComparator instances are immutable; order customization methods
  * return new BeanComparators with refined rules. Calls to customizers can
  * be chained together to read like a formula. The following example produces
  * a Comparator that orders Threads by name, thread group name, and reverse
  * priority.
- *
+ * <p/>
  * <pre>
  * Comparator c = BeanComparator.forClass(Thread.class)
  *     .orderBy("name")
  *     .orderBy("threadGroup.name")
  *     .orderBy("-priority");
  * </pre>
- *
+ * <p/>
  * The results of sorting Threads using this Comparator and displaying the
  * results in a table may look like this:
- *
+ * <p/>
  * <p><table border="2">
  * <tr><th>name</th><th>threadGroup.name</th><th>priority</th></tr>
  * <tr><td>daemon</td><td>appGroup</td><td>9</td></tr>
@@ -69,9 +70,9 @@ import org.cojen.classfile.TypeDesc;
  * <tr><td>worker</td><td>secureGroup</td><td>8</td></tr>
  * <tr><td>worker</td><td>secureGroup</td><td>5</td></tr>
  * </table><p>
- *
+ * <p/>
  * An equivalent Thread ordering Comparator may be specified as:
- *
+ * <p/>
  * <pre>
  * Comparator c = BeanComparator.forClass(Thread.class)
  *     .orderBy("name")
@@ -80,11 +81,11 @@ import org.cojen.classfile.TypeDesc;
  *     .orderBy("priority")
  *     .reverse();
  * </pre>
- *
+ * <p/>
  * The current implementation of BeanComparator has been optimized for fast
  * construction and execution of BeanComparators. For maximum performance,
  * however, save and re-use BeanComparators wherever possible.
- * <p>
+ * <p/>
  * Even though BeanComparator makes use of auto-generated code, instances are
  * fully Serializable, as long as all passed in Comparators are also
  * Serializable.
@@ -102,7 +103,7 @@ public class BeanComparator<T> implements Comparator<T>, Serializable {
     /**
      * Get or create a new BeanComparator for beans of the given type. Without
      * any {@link #orderBy order-by} properties specified, the returned
-     * BeanComparator can only order against null beans (null is 
+     * BeanComparator can only order against null beans (null is
      * {@link #nullHigh high} by default), and treats all other comparisons as
      * equal.
      */
@@ -115,7 +116,7 @@ public class BeanComparator<T> implements Comparator<T>, Serializable {
      */
     private static boolean equalTest(Object obj1, Object obj2) {
         return (obj1 == obj2) ? true :
-            ((obj1 == null || obj2 == null) ? false : obj1.equals(obj2));
+                ((obj1 == null || obj2 == null) ? false : obj1.equals(obj2));
     }
 
     /**
@@ -172,35 +173,34 @@ public class BeanComparator<T> implements Comparator<T>, Serializable {
      * {@link #compare compare} is called on the returned comparator, the
      * property is ignored. Call {@link #using using} on the returned
      * BeanComparator to specify a Comparator to use for this property instead.
-     * <p>
+     * <p/>
      * The specified propery name may refer to sub-properties using a dot
      * notation. For example, if the bean being compared contains a property
      * named "info" of type "Information", and "Information" contains a
      * property named "text", then ordering by the info text can be specified
      * by "info.text". Sub-properties of sub-properties may be refered to as
      * well, a.b.c.d.e etc.
-     * <p>
+     * <p/>
      * If property type is a primitive, ordering is the same as for its
      * Comparable object peer. Primitive booleans are ordered false low, true
      * high. Floating point primitves are ordered exactly the same way as
      * {@link Float#compareTo(Float) Float.compareTo} and
      * {@link Double#compareTo(Double) Double.compareTo}.
-     * <p>
+     * <p/>
      * As a convenience, property names may have a '-' or '+' character prefix
      * to specify sort order. A prefix of '-' indicates that the property
      * is to be sorted in reverse (descending). By default, properties are
      * sorted in ascending order, and so a prefix of '+' has no effect.
-     * <p>
+     * <p/>
      * Any previously applied {@link #reverse reverse-order}, {@link #nullHigh
      * null-order} and {@link #caseSensitive case-sensitive} settings are not
      * carried over, and are reset to the defaults for this order-by property.
      *
      * @throws IllegalArgumentException when property doesn't exist or cannot
-     * be read.
+     *                                  be read.
      */
     public BeanComparator<T> orderBy(String propertyName)
-        throws IllegalArgumentException
-    {
+            throws IllegalArgumentException {
         int dot = propertyName.indexOf('.');
         String subName;
         if (dot < 0) {
@@ -214,13 +214,13 @@ public class BeanComparator<T> implements Comparator<T>, Serializable {
         if (propertyName.length() > 0) {
             char prefix = propertyName.charAt(0);
             switch (prefix) {
-            default:
-                break;
-            case '-':
-                reverse = true;
-                // Fall through
-            case '+':
-                propertyName = propertyName.substring(1);
+                default:
+                    break;
+                case '-':
+                    reverse = true;
+                    // Fall through
+                case '+':
+                    propertyName = propertyName.substring(1);
             }
         }
 
@@ -228,13 +228,13 @@ public class BeanComparator<T> implements Comparator<T>, Serializable {
 
         if (prop == null) {
             throw new IllegalArgumentException
-                ("Property '" + propertyName + "' doesn't exist in '" +
-                 mBeanClass.getName() + '\'');
+                    ("Property '" + propertyName + "' doesn't exist in '" +
+                            mBeanClass.getName() + '\'');
         }
 
         if (prop.getReadMethod() == null) {
             throw new IllegalArgumentException
-                ("Property '" + propertyName + "' cannot be read");
+                    ("Property '" + propertyName + "' cannot be read");
         }
 
         if (propertyName.equals(mOrderByName)) {
@@ -263,14 +263,14 @@ public class BeanComparator<T> implements Comparator<T>, Serializable {
      * {@link Comparable} or for applying special ordering rules for a
      * property. If no order-by properties have been specified, then Comparator
      * is applied to the compared beans.
-     * <p>
+     * <p/>
      * Any previously applied String {@link #caseSensitive case-sensitive} or
      * {@link #collate collator} settings are overridden by this Comparator.
      * If property values being compared are primitive, they are converted to
      * their object peers before being passed to the Comparator.
      *
      * @param c Comparator to use on the last order-by property. Passing null
-     * restores the default comparison for the last order-by property.
+     *          restores the default comparison for the last order-by property.
      */
     public <S> BeanComparator<T> using(Comparator<S> c) {
         BeanComparator<T> bc = new BeanComparator<T>(this);
@@ -300,7 +300,7 @@ public class BeanComparator<T> implements Comparator<T>, Serializable {
      * compared beans. Null high order is the default for consistency with the
      * high ordering of {@link Float#NaN NaN} by
      * {@link Float#compareTo(Float) Float}.
-     * <p>
+     * <p/>
      * Calling 'nullHigh, reverse' is equivalent to calling 'reverse, nullLow'.
      */
     public BeanComparator<T> nullHigh() {
@@ -316,7 +316,7 @@ public class BeanComparator<T> implements Comparator<T>, Serializable {
      * on just the last {@link #orderBy order-by} property. If no order-by
      * properties have been specified, then null low order is applied to the
      * compared beans.
-     * <p>
+     * <p/>
      * Calling 'reverse, nullLow' is equivalent to calling 'nullHigh, reverse'.
      */
     public BeanComparator<T> nullLow() {
@@ -332,7 +332,7 @@ public class BeanComparator<T> implements Comparator<T>, Serializable {
      * {@link String#compareTo(String) String.compareTo}, if it is of type
      * String. If no order-by properties have been specified then this call is
      * ineffective.
-     * <p>
+     * <p/>
      * A {@link #using using} Comparator disables this setting. Passing null to
      * the using method will re-enable a case-sensitive setting.
      */
@@ -354,13 +354,13 @@ public class BeanComparator<T> implements Comparator<T>, Serializable {
      * using {@link String#CASE_INSENSITIVE_ORDER}. Passing null for a collator
      * will cause all String comparisons to use
      * {@link String#compareTo(String) String.compareTo}.
-     * <p>
+     * <p/>
      * A {@link #using using} Comparator disables this setting. Passing null
      * to the using method will re-enable a collator.
      *
      * @param c Comparator to use for ordering all Strings. Passing null
-     * causes all Strings to be ordered by
-     * {@link String#compareTo(String) String.compareTo}.
+     *          causes all Strings to be ordered by
+     *          {@link String#compareTo(String) String.compareTo}.
      */
     public BeanComparator<T> collate(Comparator<String> c) {
         BeanComparator<T> bc = new BeanComparator<T>(this);
@@ -405,14 +405,14 @@ public class BeanComparator<T> implements Comparator<T>, Serializable {
      */
     public boolean equals(Object obj) {
         if (obj instanceof BeanComparator) {
-            BeanComparator bc = (BeanComparator)obj;
- 
+            BeanComparator bc = (BeanComparator) obj;
+
             return mFlags == bc.mFlags &&
-                equalTest(mBeanClass, bc.mBeanClass) &&
-                equalTest(mOrderByName, bc.mOrderByName) &&
-                equalTest(mUsingComparator, bc.mUsingComparator) &&
-                equalTest(mCollator, bc.mCollator) &&
-                equalTest(mParent, bc.mParent);
+                    equalTest(mBeanClass, bc.mBeanClass) &&
+                    equalTest(mOrderByName, bc.mOrderByName) &&
+                    equalTest(mUsingComparator, bc.mUsingComparator) &&
+                    equalTest(mCollator, bc.mCollator) &&
+                    equalTest(mParent, bc.mParent);
         } else {
             return false;
         }
@@ -441,9 +441,9 @@ public class BeanComparator<T> implements Comparator<T>, Serializable {
                 clazz = generateComparatorClass(rules);
                 cGeneratedComparatorCache.put(rules, clazz);
             } else if (c instanceof Comparator) {
-                return (Comparator)c;
+                return (Comparator) c;
             } else {
-                clazz = (Class)c;
+                clazz = (Class) c;
             }
 
             BeanComparator[] ruleParts = rules.getRuleParts();
@@ -451,7 +451,7 @@ public class BeanComparator<T> implements Comparator<T>, Serializable {
             Comparator[] usingComparators = new Comparator[ruleParts.length];
             boolean singleton = true;
 
-            for (int i=0; i<ruleParts.length; i++) {
+            for (int i = 0; i < ruleParts.length; i++) {
                 BeanComparator rp = ruleParts[i];
                 Comparator c2 = rp.mCollator;
                 if ((collators[i] = c2) != null) {
@@ -466,9 +466,9 @@ public class BeanComparator<T> implements Comparator<T>, Serializable {
 
             try {
                 Constructor ctor = clazz.getDeclaredConstructor
-                    (new Class[] {Comparator[].class, Comparator[].class});
-                c = (Comparator)ctor.newInstance
-                    (new Object[] {collators, usingComparators});
+                        (new Class[]{Comparator[].class, Comparator[].class});
+                c = (Comparator) ctor.newInstance
+                        (new Object[]{collators, usingComparators});
             } catch (NoSuchMethodException e) {
                 throw new InternalError(e.toString());
             } catch (InstantiationException e) {
@@ -487,13 +487,13 @@ public class BeanComparator<T> implements Comparator<T>, Serializable {
                 cGeneratedComparatorCache.put(rules, c);
             }
 
-            return (Comparator<T>)c;
+            return (Comparator<T>) c;
         }
     }
 
     private Class generateComparatorClass(Rules rules) {
         RuntimeClassFile cf = new RuntimeClassFile
-            (getClass().getName(), null, mBeanClass.getClassLoader());
+                (getClass().getName(), null, mBeanClass.getClassLoader());
         cf.markSynthetic();
         cf.setSourceFile(BeanComparator.class.getName());
         try {
@@ -508,13 +508,13 @@ public class BeanComparator<T> implements Comparator<T>, Serializable {
         TypeDesc comparatorType = TypeDesc.forClass(Comparator.class);
         TypeDesc comparatorArrayType = comparatorType.toArrayType();
         cf.addField(Modifiers.PRIVATE,
-                    "mCollators", comparatorArrayType).markSynthetic();
+                "mCollators", comparatorArrayType).markSynthetic();
         cf.addField(Modifiers.PRIVATE,
-                    "mUsingComparators", comparatorArrayType).markSynthetic();
+                "mUsingComparators", comparatorArrayType).markSynthetic();
 
         // Create constructor to initialize fields.
         TypeDesc[] paramTypes = {
-            comparatorArrayType, comparatorArrayType
+                comparatorArrayType, comparatorArrayType
         };
         MethodInfo ctor = cf.addConstructor(Modifiers.PUBLIC, paramTypes);
         ctor.markSynthetic();
@@ -534,9 +534,9 @@ public class BeanComparator<T> implements Comparator<T>, Serializable {
         Method compareMethod, compareToMethod;
         try {
             compareMethod = Comparator.class.getMethod
-                ("compare", new Class[] {Object.class, Object.class});
+                    ("compare", new Class[]{Object.class, Object.class});
             compareToMethod = Comparable.class.getMethod
-                ("compareTo", new Class[] {Object.class});
+                    ("compareTo", new Class[]{Object.class});
         } catch (NoSuchMethodException e) {
             throw new InternalError(e.toString());
         }
@@ -584,7 +584,7 @@ public class BeanComparator<T> implements Comparator<T>, Serializable {
 
         // Call 'using' Comparator if one is provided.
         LocalVariable result =
-            builder.createLocalVariable("result", TypeDesc.INT);
+                builder.createLocalVariable("result", TypeDesc.INT);
         if (bc.mUsingComparator != null) {
             builder.loadThis();
             builder.loadField("mUsingComparators", comparatorArrayType);
@@ -613,11 +613,11 @@ public class BeanComparator<T> implements Comparator<T>, Serializable {
         builder.storeLocal(obj2);
 
         // Generate code to perform comparisons against each property.
-        for (int i=1; i<ruleParts.length; i++) {
+        for (int i = 1; i < ruleParts.length; i++) {
             bc = ruleParts[i];
 
-            BeanProperty prop = 
-                (BeanProperty)bc.getProperties().get(bc.mOrderByName);
+            BeanProperty prop =
+                    (BeanProperty) bc.getProperties().get(bc.mOrderByName);
             Class propertyClass = prop.getType();
             TypeDesc propertyType = TypeDesc.forClass(propertyClass);
 
@@ -680,7 +680,7 @@ public class BeanComparator<T> implements Comparator<T>, Serializable {
                 // If case-sensitive is off and a collator is provided and
                 // property could be a String, apply collator.
                 if ((bc.mFlags & 0x04) == 0 && bc.mCollator != null &&
-                    propertyClass.isAssignableFrom(String.class)) {
+                        propertyClass.isAssignableFrom(String.class)) {
 
                     Label resultLabel = builder.createLabel();
 
@@ -702,8 +702,8 @@ public class BeanComparator<T> implements Comparator<T>, Serializable {
 
                         notString.setLocation();
                         generateComparableCompareTo
-                            (builder, propertyClass, compareToMethod,
-                             resultLabel, nextLabel, p1, p2);
+                                (builder, propertyClass, compareToMethod,
+                                        resultLabel, nextLabel, p1, p2);
 
                         isString.setLocation();
                     }
@@ -718,12 +718,12 @@ public class BeanComparator<T> implements Comparator<T>, Serializable {
 
                     resultLabel.setLocation();
                 } else if (propertyClass.isPrimitive()) {
-                    generatePrimitiveComparison(builder, propertyClass, p1,p2);
+                    generatePrimitiveComparison(builder, propertyClass, p1, p2);
                 } else {
                     // Assume properties are instances of Comparable.
                     generateComparableCompareTo
-                        (builder, propertyClass, compareToMethod,
-                         null, nextLabel, p1, p2);
+                            (builder, propertyClass, compareToMethod,
+                                    null, nextLabel, p1, p2);
                 }
             }
 
@@ -749,8 +749,7 @@ public class BeanComparator<T> implements Comparator<T>, Serializable {
     private static void generatePrimitiveComparison(CodeBuilder builder,
                                                     Class type,
                                                     LocalVariable a,
-                                                    LocalVariable b)
-    {
+                                                    LocalVariable b) {
         if (type == float.class) {
             // Comparison is same as for Float.compareTo(Float).
             Label done = builder.createLabel();
@@ -775,7 +774,7 @@ public class BeanComparator<T> implements Comparator<T>, Serializable {
             Method floatToIntBits;
             try {
                 floatToIntBits = Float.class.getMethod
-                    ("floatToIntBits", new Class[] {float.class});
+                        ("floatToIntBits", new Class[]{float.class});
             } catch (NoSuchMethodException e) {
                 throw new InternalError(e.toString());
             }
@@ -815,7 +814,7 @@ public class BeanComparator<T> implements Comparator<T>, Serializable {
             Method doubleToLongBits;
             try {
                 doubleToLongBits = Double.class.getMethod
-                    ("doubleToLongBits", new Class[] {double.class});
+                        ("doubleToLongBits", new Class[]{double.class});
             } catch (NoSuchMethodException e) {
                 throw new InternalError(e.toString());
             }
@@ -851,8 +850,7 @@ public class BeanComparator<T> implements Comparator<T>, Serializable {
                                                     Label goodLabel,
                                                     Label nextLabel,
                                                     LocalVariable a,
-                                                    LocalVariable b)
-    {
+                                                    LocalVariable b) {
         if (Comparable.class.isAssignableFrom(type)) {
             builder.loadLocal(a);
             builder.loadLocal(b);
@@ -880,7 +878,7 @@ public class BeanComparator<T> implements Comparator<T>, Serializable {
             builder.branch(goodLabel);
 
             builder.exceptionHandler(tryStart, tryEnd,
-                                     ClassCastException.class.getName());
+                    ClassCastException.class.getName());
             // One of the properties is not Comparable, so just go to next.
             // Discard the exception.
             builder.pop();
@@ -952,13 +950,13 @@ public class BeanComparator<T> implements Comparator<T>, Serializable {
             }
 
             BeanComparator[] ruleParts1 = getRuleParts();
-            BeanComparator[] ruleParts2 = ((Rules)obj).getRuleParts();
+            BeanComparator[] ruleParts2 = ((Rules) obj).getRuleParts();
 
             if (ruleParts1.length != ruleParts2.length) {
                 return false;
             }
 
-            for (int i=0; i<ruleParts1.length; i++) {
+            for (int i = 0; i < ruleParts1.length; i++) {
                 BeanComparator bc1 = ruleParts1[i];
                 BeanComparator bc2 = ruleParts2[i];
 
@@ -972,7 +970,7 @@ public class BeanComparator<T> implements Comparator<T>, Serializable {
                     return false;
                 }
                 if ((bc1.mUsingComparator == null) !=
-                    (bc2.mUsingComparator == null)) {
+                        (bc2.mUsingComparator == null)) {
                     return false;
                 }
                 if ((bc1.mCollator == null) != (bc2.mCollator == null)) {
@@ -1002,7 +1000,7 @@ public class BeanComparator<T> implements Comparator<T>, Serializable {
             int size = rules.size();
             BeanComparator[] bcs = new BeanComparator[size];
             // Reverse rules so that they are in forward order.
-            for (int i=0; i<size; i++) {
+            for (int i = 0; i < size; i++) {
                 bcs[size - i - 1] = rules.get(i);
             }
 

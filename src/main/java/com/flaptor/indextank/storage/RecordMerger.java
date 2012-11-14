@@ -16,27 +16,27 @@
 
 package com.flaptor.indextank.storage;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
 import com.flaptor.indextank.rpc.LogRecord;
 import com.flaptor.util.CollectionsUtil.PeekingIterator;
 import com.google.common.collect.AbstractIterator;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 public class RecordMerger {
-    
+
     public static final Comparator<LogRecord> MERGE_ORDER = new Comparator<LogRecord>() {
         @Override
         public int compare(LogRecord o1, LogRecord o2) {
             return o1.get_docid().compareTo(o2.get_docid());
         }
     };
-    
+
     public static List<LogRecord> compactAndSort(Iterator<LogRecord> source) {
         Map<String, LogRecord> target = Maps.newHashMap();
         while (source.hasNext()) {
@@ -63,7 +63,7 @@ public class RecordMerger {
         } else {
             if (source.is_set_fields()) {
                 // fields are overwritten (or first set)
-                target.set_fields(source.get_fields()); 
+                target.set_fields(source.get_fields());
             }
             if (source.is_set_variables()) {
                 if (!target.is_set_variables()) {
@@ -71,7 +71,7 @@ public class RecordMerger {
                     target.set_variables(source.get_variables());
                 } else {
                     // variables are updated
-                    target.get_variables().putAll(source.get_variables()); 
+                    target.get_variables().putAll(source.get_variables());
                 }
             }
             if (source.is_set_categories()) {
@@ -80,7 +80,7 @@ public class RecordMerger {
                     target.set_categories(source.get_categories());
                 } else {
                     // categories are updated
-                    target.get_categories().putAll(source.get_categories()); 
+                    target.get_categories().putAll(source.get_categories());
                 }
             }
         }
@@ -132,5 +132,5 @@ public class RecordMerger {
             }
         };
     }
-    
+
 }

@@ -16,19 +16,18 @@
 
 package com.flaptor.indextank.storage;
 
-import java.io.FileNotFoundException;
-import java.util.Scanner;
-
+import com.flaptor.indextank.rpc.LogBatch;
+import com.flaptor.indextank.rpc.LogRecord;
+import com.flaptor.indextank.rpc.LogWriter;
+import com.google.common.collect.ImmutableMap;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.TSocket;
 import org.apache.thrift.transport.TTransportException;
 
-import com.flaptor.indextank.rpc.LogBatch;
-import com.flaptor.indextank.rpc.LogRecord;
-import com.flaptor.indextank.rpc.LogWriter;
-import com.google.common.collect.ImmutableMap;
+import java.io.FileNotFoundException;
+import java.util.Scanner;
 
 public class LogWriterClient {
 
@@ -39,12 +38,12 @@ public class LogWriterClient {
         this.host = host;
         this.port = port;
     }
-    
+
     public void sendBatch(LogBatch batch) {
         TSocket transport = new TSocket(host, port);
         TProtocol protocol = new TBinaryProtocol(transport);
         LogWriter.Client client = new LogWriter.Client(protocol);
-        
+
         try {
             transport.open();
             client.send_batch(batch);
@@ -55,10 +54,10 @@ public class LogWriterClient {
             throw new RuntimeException(e);
         }
     }
-    
+
     public static void main(String[] args) throws FileNotFoundException {
         LogWriterClient client = new LogWriterClient("localhost", 15000);
-        
+
         Scanner in = new Scanner(System.in);
         while (true) {
             String line = in.nextLine();
@@ -77,28 +76,28 @@ public class LogWriterClient {
                 for (Pair<Long, String> pair : r) {
                     System.out.println(pair);
                 }*/
-            /*} else if (line.startsWith("?")) {
-                long t = System.currentTimeMillis();
-                LogPageToken token = new LogPageToken();
-                int total = 0;
-                while (token != null) {
-                    System.out.println(token);
-                    LogPage page = client.readPage(line.substring(1), token);
-                    int size = page.get_batch().get_records_size();
-                    if (size > 0) {
-                        LogRecord first = page.get_batch().get_records().get(0);
-                        LogRecord last = page.get_batch().get_records().get(size-1);
-                        System.out.println(String.format("> %d ---------> %d - %d --------> %s - %s", size, first.get_id(), last.get_id(), first.get_docid(), last.get_docid()));
-                    }
-                    if (page.is_set_next_page_token()) {
-                        token = page.get_next_page_token();
-                    } else {
-                        token = null;
-                    }
-                    total += size;
-                }
-                System.out.println("Total: " + total);
-                System.out.println("Execution time = " + (System.currentTimeMillis() - t) / 1000.0);*/
+                /*} else if (line.startsWith("?")) {
+       long t = System.currentTimeMillis();
+       LogPageToken token = new LogPageToken();
+       int total = 0;
+       while (token != null) {
+           System.out.println(token);
+           LogPage page = client.readPage(line.substring(1), token);
+           int size = page.get_batch().get_records_size();
+           if (size > 0) {
+               LogRecord first = page.get_batch().get_records().get(0);
+               LogRecord last = page.get_batch().get_records().get(size-1);
+               System.out.println(String.format("> %d ---------> %d - %d --------> %s - %s", size, first.get_id(), last.get_id(), first.get_docid(), last.get_docid()));
+           }
+           if (page.is_set_next_page_token()) {
+               token = page.get_next_page_token();
+           } else {
+               token = null;
+           }
+           total += size;
+       }
+       System.out.println("Total: " + total);
+       System.out.println("Execution time = " + (System.currentTimeMillis() - t) / 1000.0);*/
             } else {
                 String[] split = line.split(" ", 4);
                 long start = Long.parseLong(split[0]);
@@ -131,5 +130,5 @@ public class LogWriterClient {
             }
         }
     }
-    
+
 }

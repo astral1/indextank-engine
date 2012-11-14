@@ -37,12 +37,13 @@ import java.io.Serializable;
  * Returns all documents.
  * Matches all document from the index with exactly the same score.
  * Ignores the boost.
+ *
  * @author Flaptor Development Team
  */
 public final class MatchAllQuery extends QueryNode implements Serializable {
-    
+
     private static final long serialVersionUID = 1L;
-    
+
     @Override
     public org.apache.lucene.search.Query getLuceneQuery() {
         return new org.apache.lucene.search.MatchAllDocsQuery();
@@ -52,7 +53,7 @@ public final class MatchAllQuery extends QueryNode implements Serializable {
     public String toString() {
         return "<MatchAllQuery>";
     }
-    
+
     /**
      * All instances of this object are equal.
      */
@@ -60,7 +61,7 @@ public final class MatchAllQuery extends QueryNode implements Serializable {
     public boolean equals(final Object obj) {
         return super.equals(obj);
     }
-    
+
     /**
      * Returns a constant. @see equals()
      */
@@ -73,5 +74,5 @@ public final class MatchAllQuery extends QueryNode implements Serializable {
     public QueryNode duplicate() {
         return new MatchAllQuery();
     }
-        
+
 }

@@ -33,10 +33,9 @@ public abstract class Descriptor {
      */
     // TODO
     //public abstract String getGenericDescriptor();
+    public static Descriptor parse(String desc)
+            throws IllegalArgumentException {
 
-    public static Descriptor parse(String desc) 
-        throws IllegalArgumentException {
-        
         if (desc != null && desc.startsWith("(")) {
             return MethodDesc.forDescriptor(desc);
         } else {

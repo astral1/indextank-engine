@@ -16,9 +16,10 @@
 
 package org.cojen.classfile.attribute;
 
+import org.cojen.classfile.ConstantPool;
+
 import java.io.DataInput;
 import java.io.IOException;
-import org.cojen.classfile.ConstantPool;
 
 /**
  * The class corresponds to the RuntimeVisibleParameterAnnotations_attribute
@@ -35,11 +36,10 @@ public class RuntimeVisibleParameterAnnotationsAttr extends ParameterAnnotations
     public RuntimeVisibleParameterAnnotationsAttr(ConstantPool cp, String name) {
         super(cp, name);
     }
-    
+
     public RuntimeVisibleParameterAnnotationsAttr
-        (ConstantPool cp, String name, int length, DataInput din)
-        throws IOException
-    {
+            (ConstantPool cp, String name, int length, DataInput din)
+            throws IOException {
         super(cp, name, length, din);
     }
 }

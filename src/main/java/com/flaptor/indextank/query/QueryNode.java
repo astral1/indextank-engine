@@ -31,11 +31,11 @@ limitations under the License.
 */
 package com.flaptor.indextank.query;
 
+import com.google.common.collect.Sets;
+
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
-
-import com.google.common.collect.Sets;
 
 /**
  * Node of a query tree
@@ -44,9 +44,10 @@ public abstract class QueryNode implements Serializable {
     private static final long serialVersionUID = 1L;
     private double boost = 1d;
     private double norm = 1d;
-    
+
     /**
      * Abstract method that returns a lucene query that represents this Hounder query.
+     *
      * @return a lucene query.
      * @see org.apache.lucene.search.Query
      */
@@ -82,7 +83,7 @@ public abstract class QueryNode implements Serializable {
     }
 
     public String boostString() {
-        return boost != 1f ? "; boost: "+boost : "";
+        return boost != 1f ? "; boost: " + boost : "";
     }
 
     @Override
@@ -94,10 +95,10 @@ public abstract class QueryNode implements Serializable {
         QueryNode qn = (QueryNode) obj;
         return boost == qn.boost;
     }
-    
+
     @Override
     public int hashCode() {
-        int hash = (int)(10000*boost);
+        int hash = (int) (10000 * boost);
         hash = 17 * hash + super.hashCode();
         return hash;
     }
@@ -107,9 +108,9 @@ public abstract class QueryNode implements Serializable {
      * Cloning methods.
      */
     public abstract QueryNode duplicate();
-    
+
     public Iterable<QueryNode> getChildren() {
         return Sets.newHashSet();
     }
-    
+
 }

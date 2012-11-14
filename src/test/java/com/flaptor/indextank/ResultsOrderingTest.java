@@ -17,12 +17,6 @@
 
 package com.flaptor.indextank;
 
-import static com.flaptor.util.TestInfo.TestType.SYSTEM;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.Random;
-
 import com.flaptor.indextank.index.Document;
 import com.flaptor.indextank.index.IndexEngine;
 import com.flaptor.indextank.query.ParseException;
@@ -33,7 +27,13 @@ import com.flaptor.indextank.search.SearchResults;
 import com.flaptor.util.FileUtil;
 import com.flaptor.util.TestInfo;
 import com.google.common.collect.ImmutableMap;
+
+import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
+import java.util.Random;
+
+import static com.flaptor.util.TestInfo.TestType.SYSTEM;
 
 public class ResultsOrderingTest extends IndexTankTestCase {
 
@@ -41,16 +41,16 @@ public class ResultsOrderingTest extends IndexTankTestCase {
     private IndexEngine indexEngine;
 
     @Override
-	protected void setUp() throws Exception {
+    protected void setUp() throws Exception {
         super.setUp();
-        this.tempDir = FileUtil.createTempDir("indextank","testcase");
+        this.tempDir = FileUtil.createTempDir("indextank", "testcase");
         this.indexEngine = new IndexEngine(this.tempDir, 11234, 100, false, 5, IndexEngine.SuggestValues.DOCUMENTS, IndexEngine.StorageValues.NO, 0, null, false, "dummyCode", "TEST-environment");
-	}
-	
+    }
+
     @Override
-	protected void tearDown() throws Exception {
-        super.tearDown();        
-	}
+    protected void tearDown() throws Exception {
+        super.tearDown();
+    }
 
     private void index(int id, long t) {
         String text = "text word" + id;
@@ -58,35 +58,35 @@ public class ResultsOrderingTest extends IndexTankTestCase {
             text += " text";
         }
         Document doc = new Document(ImmutableMap.of("text", text, "timestamp", String.valueOf(t)));
-        this.indexEngine.getIndexer().add(String.valueOf(id), doc, (int)t, ImmutableMap.<Integer, Double>of());
+        this.indexEngine.getIndexer().add(String.valueOf(id), doc, (int) t, ImmutableMap.<Integer, Double>of());
     }
 
     private void checkResults(String name, DocumentSearcher searcher, Query query, int scoringFunction, String[] expectedIds) throws InterruptedException {
         //System.out.println("TESTING query: ["+query.toString()+"]");
         SearchResults srs = searcher.search(query, 0, 100, scoringFunction);
-    	int i = 0;
+        int i = 0;
         boolean equals = true;
         String actualStr = "";
-    	for (SearchResult r : srs.getResults()) {
+        for (SearchResult r : srs.getResults()) {
             equals = equals && (i < expectedIds.length) && (r.getDocId().equals(expectedIds[i]));
-            actualStr += r.getDocId()+" ";
-    		i++;
-    	}
-        assertTrue(name+": Results out of order: expected "+Arrays.toString(expectedIds)+", actual ["+actualStr.trim().replaceAll(" ",", ")+"]", equals);
+            actualStr += r.getDocId() + " ";
+            i++;
+        }
+        assertTrue(name + ": Results out of order: expected " + Arrays.toString(expectedIds) + ", actual [" + actualStr.trim().replaceAll(" ", ", ") + "]", equals);
     }
 
-    @TestInfo(testType=SYSTEM)
+    @TestInfo(testType = SYSTEM)
     public void testAgeOrder() throws IOException, ParseException, InterruptedException {
         long t = System.currentTimeMillis() / 1000;
         for (int i = 0; i < 100; i++) {
-            index(i, t+i);
+            index(i, t + i);
         }
-        
-        Query q = new Query(this.indexEngine.getParser().parseQuery("text"),null,null);
+
+        Query q = new Query(this.indexEngine.getParser().parseQuery("text"), null, null);
         SearchResults rs = this.indexEngine.getSearcher().search(q, 0, 100, 0);
-        
+
         Iterable<SearchResult> results = rs.getResults();
-        
+
         int n = 99;
         for (SearchResult r : results) {
             assertEquals("Age: Results out of order", String.valueOf(n), r.getDocId());
@@ -94,7 +94,7 @@ public class ResultsOrderingTest extends IndexTankTestCase {
         }
     }
 
-    @TestInfo(testType=SYSTEM)
+    @TestInfo(testType = SYSTEM)
     public void testRelevanceOrder() throws Exception {
         DocumentSearcher searcher = this.indexEngine.getSearcher();
         BoostingIndexer indexer = this.indexEngine.getIndexer();
@@ -102,18 +102,18 @@ public class ResultsOrderingTest extends IndexTankTestCase {
 
         Document doc = new Document(ImmutableMap.of("relevance_test", "Twinkle twinkle you better work"));
         indexer.add("1", doc, 0, ImmutableMap.<Integer, Double>of());
-        doc = new Document(ImmutableMap.of("relevance_test", "Twinkle you better work or else I'll hack you"));    	
+        doc = new Document(ImmutableMap.of("relevance_test", "Twinkle you better work or else I'll hack you"));
         indexer.add("2", doc, 1, ImmutableMap.<Integer, Double>of());
-        doc = new Document(ImmutableMap.of("relevance_test", "Twinkle you better work"));    	
+        doc = new Document(ImmutableMap.of("relevance_test", "Twinkle you better work"));
         indexer.add("3", doc, 2, ImmutableMap.<Integer, Double>of());
-        
-        Query q = new Query(this.indexEngine.getParser().parseQuery("relevance_test:twinkle"),null,null);
 
-        checkResults("Relevance", searcher, q, 1, new String[] {"1","3","2"});
+        Query q = new Query(this.indexEngine.getParser().parseQuery("relevance_test:twinkle"), null, null);
+
+        checkResults("Relevance", searcher, q, 1, new String[]{"1", "3", "2"});
     }
-    
 
-    @TestInfo(testType=SYSTEM)
+
+    @TestInfo(testType = SYSTEM)
     public void testCaretQueries() throws InterruptedException, ParseException, Exception {
         DocumentSearcher searcher = this.indexEngine.getSearcher();
         BoostingIndexer indexer = this.indexEngine.getIndexer();
@@ -136,27 +136,27 @@ public class ResultsOrderingTest extends IndexTankTestCase {
         doc = new Document(ImmutableMap.of("text", "ccc ddd"));
         indexer.add("5", doc, 0, ImmutableMap.<Integer, Double>of());
 
-        query = new Query(indexEngine.getParser().parseQuery("aaa"),null,null);
-        checkResults("Caret", searcher, query, 1, new String[] {"1","3","2","4"});
+        query = new Query(indexEngine.getParser().parseQuery("aaa"), null, null);
+        checkResults("Caret", searcher, query, 1, new String[]{"1", "3", "2", "4"});
 
-        query = new Query(indexEngine.getParser().parseQuery("aaa AND bbb"),null,null);
-        checkResults("Caret", searcher, query, 1, new String[] {"2","3","4"});
+        query = new Query(indexEngine.getParser().parseQuery("aaa AND bbb"), null, null);
+        checkResults("Caret", searcher, query, 1, new String[]{"2", "3", "4"});
 
-        query = new Query(indexEngine.getParser().parseQuery("aaa OR bbb"),null,null);
-        checkResults("Caret", searcher, query, 1, new String[] {"2","3","1","4"});
+        query = new Query(indexEngine.getParser().parseQuery("aaa OR bbb"), null, null);
+        checkResults("Caret", searcher, query, 1, new String[]{"2", "3", "1", "4"});
 
-        query = new Query(indexEngine.getParser().parseQuery("aaa^2 OR bbb"),null,null);
-        checkResults("Caret", searcher, query, 1, new String[] {"3","2","1","4"});
+        query = new Query(indexEngine.getParser().parseQuery("aaa^2 OR bbb"), null, null);
+        checkResults("Caret", searcher, query, 1, new String[]{"3", "2", "1", "4"});
 
-        query = new Query(indexEngine.getParser().parseQuery("aaa OR bbb^2"),null,null);
-        checkResults("Caret", searcher, query, 1, new String[] {"2","3","4","1"});
+        query = new Query(indexEngine.getParser().parseQuery("aaa OR bbb^2"), null, null);
+        checkResults("Caret", searcher, query, 1, new String[]{"2", "3", "4", "1"});
 
-        query = new Query(indexEngine.getParser().parseQuery("ccc OR ddd"),null,null);
-        checkResults("Caret", searcher, query, 1, new String[] {"5","4"});
+        query = new Query(indexEngine.getParser().parseQuery("ccc OR ddd"), null, null);
+        checkResults("Caret", searcher, query, 1, new String[]{"5", "4"});
 
-        query = new Query(indexEngine.getParser().parseQuery("ccc OR ddd OR eee^2"),null,null);
-        checkResults("Caret", searcher, query, 1, new String[] {"4","5"});
+        query = new Query(indexEngine.getParser().parseQuery("ccc OR ddd OR eee^2"), null, null);
+        checkResults("Caret", searcher, query, 1, new String[]{"4", "5"});
 
     }
-    
+
 }

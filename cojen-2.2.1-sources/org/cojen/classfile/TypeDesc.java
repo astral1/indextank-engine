@@ -16,22 +16,23 @@
 
 package org.cojen.classfile;
 
-import java.io.Serializable;
-import java.io.Externalizable;
-import java.io.ObjectOutput;
-import java.io.ObjectInput;
-import java.io.IOException;
-import java.io.ObjectStreamException;
-import java.lang.ref.SoftReference;
-import java.lang.reflect.Array;
-import java.util.Collections;
-import java.util.Map;
 import org.cojen.util.SoftValuedHashMap;
 import org.cojen.util.WeakCanonicalSet;
 import org.cojen.util.WeakIdentityMap;
 
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+import java.io.ObjectStreamException;
+import java.io.Serializable;
+import java.lang.ref.SoftReference;
+import java.lang.reflect.Array;
+import java.util.Collections;
+import java.util.Map;
+
 /**
- * This class is used to build field and return type descriptor strings as 
+ * This class is used to build field and return type descriptor strings as
  * defined in <i>The Java Virtual Machine Specification</i>, section 4.3.2.
  * TypeDesc instances are canonicalized and therefore "==" comparable.
  *
@@ -43,39 +44,61 @@ public abstract class TypeDesc extends Descriptor implements Serializable {
      * newarray instruction.
      */
     public final static int
-        OBJECT_CODE = 0,
-        VOID_CODE = 1,
-        BOOLEAN_CODE = 4,
-        CHAR_CODE = 5,
-        FLOAT_CODE = 6,
-        DOUBLE_CODE = 7,
-        BYTE_CODE = 8,
-        SHORT_CODE = 9,
-        INT_CODE = 10,
-        LONG_CODE = 11;
+            OBJECT_CODE = 0,
+            VOID_CODE = 1,
+            BOOLEAN_CODE = 4,
+            CHAR_CODE = 5,
+            FLOAT_CODE = 6,
+            DOUBLE_CODE = 7,
+            BYTE_CODE = 8,
+            SHORT_CODE = 9,
+            INT_CODE = 10,
+            LONG_CODE = 11;
 
-    /** Primitive type void */
+    /**
+     * Primitive type void
+     */
     public final static TypeDesc VOID;
-    /** Primitive type boolean */
+    /**
+     * Primitive type boolean
+     */
     public final static TypeDesc BOOLEAN;
-    /** Primitive type char */
+    /**
+     * Primitive type char
+     */
     public final static TypeDesc CHAR;
-    /** Primitive type byte */
+    /**
+     * Primitive type byte
+     */
     public final static TypeDesc BYTE;
-    /** Primitive type short */
+    /**
+     * Primitive type short
+     */
     public final static TypeDesc SHORT;
-    /** Primitive type int */
+    /**
+     * Primitive type int
+     */
     public final static TypeDesc INT;
-    /** Primitive type long */
+    /**
+     * Primitive type long
+     */
     public final static TypeDesc LONG;
-    /** Primitive type float */
+    /**
+     * Primitive type float
+     */
     public final static TypeDesc FLOAT;
-    /** Primitive type double */
+    /**
+     * Primitive type double
+     */
     public final static TypeDesc DOUBLE;
 
-    /** Object type java.lang.Object, provided for convenience */
+    /**
+     * Object type java.lang.Object, provided for convenience
+     */
     public final static TypeDesc OBJECT;
-    /** Object type java.lang.String, provided for convenience */
+    /**
+     * Object type java.lang.String, provided for convenience
+     */
     public final static TypeDesc STRING;
 
     // Pool of all shared instances. Ensures identity comparison works.
@@ -96,7 +119,7 @@ public abstract class TypeDesc extends Descriptor implements Serializable {
         cClassesToInstances = Collections.synchronizedMap(new WeakIdentityMap<Class, TypeDesc>());
         cNamesToInstances = Collections.synchronizedMap(new SoftValuedHashMap<String, TypeDesc>());
         cDescriptorsToInstances = Collections.synchronizedMap
-            (new SoftValuedHashMap<String, TypeDesc>());
+                (new SoftValuedHashMap<String, TypeDesc>());
 
         VOID = intern(new PrimitiveType("V", VOID_CODE));
         BOOLEAN = intern(new PrimitiveType("Z", BOOLEAN_CODE));
@@ -124,7 +147,7 @@ public abstract class TypeDesc extends Descriptor implements Serializable {
             return null;
         }
 
-        TypeDesc type = (TypeDesc)cClassesToInstances.get(clazz);
+        TypeDesc type = (TypeDesc) cClassesToInstances.get(clazz);
 
         if (type == null || type.toClass() != clazz) {
             if (clazz.isArray()) {
@@ -153,7 +176,7 @@ public abstract class TypeDesc extends Descriptor implements Serializable {
                 String name = clazz.getName();
                 type = intern(new ObjectType(generateDescriptor(name), name));
             }
-        
+
             if (type.toClass() != clazz) {
                 type = new ObjectType(type.getDescriptor(), clazz.getName());
                 ((ObjectType) type).setClass(clazz);
@@ -161,7 +184,7 @@ public abstract class TypeDesc extends Descriptor implements Serializable {
 
             synchronized (cClassesToInstances) {
                 if (cClassesToInstances.containsKey(clazz)) {
-                    type = (TypeDesc)cClassesToInstances.get(clazz);
+                    type = (TypeDesc) cClassesToInstances.get(clazz);
                 } else {
                     cClassesToInstances.put(clazz, type);
                 }
@@ -182,7 +205,7 @@ public abstract class TypeDesc extends Descriptor implements Serializable {
 
         // TODO: Support generics in name.
 
-        TypeDesc type = (TypeDesc)cNamesToInstances.get(name);
+        TypeDesc type = (TypeDesc) cNamesToInstances.get(name);
         if (type != null) {
             return type;
         }
@@ -201,59 +224,60 @@ public abstract class TypeDesc extends Descriptor implements Serializable {
         } else if (index1 >= 0) {
             throw invalidName(name);
         } else {
-            setType: {
+            setType:
+            {
                 switch (name.charAt(0)) {
-                case 'v':
-                    if (name.equals("void")) {
-                        type = VOID;
-                        break setType;
-                    }
-                    break;
-                case 'b':
-                    if (name.equals("boolean")) {
-                        type = BOOLEAN;
-                        break setType;
-                    } else if (name.equals("byte")) {
-                        type =  BYTE;
-                        break setType;
-                    }
-                    break;
-                case 'c':
-                    if (name.equals("char")) {
-                        type = CHAR;
-                        break setType;
-                    }
-                    break;
-                case 's':
-                    if (name.equals("short")) {
-                        type = SHORT;
-                        break setType;
-                    }
-                    break;
-                case 'i':
-                    if (name.equals("int")) {
-                        type = INT;
-                        break setType;
-                    }
-                    break;
-                case 'l':
-                    if (name.equals("long")) {
-                        type = LONG;
-                        break setType;
-                    }
-                    break;
-                case 'f':
-                    if (name.equals("float")) {
-                        type = FLOAT;
-                        break setType;
-                    }
-                    break;
-                case 'd':
-                    if (name.equals("double")) {
-                        type = DOUBLE;
-                        break setType;
-                    }
-                    break;
+                    case 'v':
+                        if (name.equals("void")) {
+                            type = VOID;
+                            break setType;
+                        }
+                        break;
+                    case 'b':
+                        if (name.equals("boolean")) {
+                            type = BOOLEAN;
+                            break setType;
+                        } else if (name.equals("byte")) {
+                            type = BYTE;
+                            break setType;
+                        }
+                        break;
+                    case 'c':
+                        if (name.equals("char")) {
+                            type = CHAR;
+                            break setType;
+                        }
+                        break;
+                    case 's':
+                        if (name.equals("short")) {
+                            type = SHORT;
+                            break setType;
+                        }
+                        break;
+                    case 'i':
+                        if (name.equals("int")) {
+                            type = INT;
+                            break setType;
+                        }
+                        break;
+                    case 'l':
+                        if (name.equals("long")) {
+                            type = LONG;
+                            break setType;
+                        }
+                        break;
+                    case 'f':
+                        if (name.equals("float")) {
+                            type = FLOAT;
+                            break setType;
+                        }
+                        break;
+                    case 'd':
+                        if (name.equals("double")) {
+                            type = DOUBLE;
+                            break setType;
+                        }
+                        break;
                 }
 
                 String desc = generateDescriptor(name);
@@ -279,7 +303,7 @@ public abstract class TypeDesc extends Descriptor implements Serializable {
      * section 4.3.2, Field Descriptors.
      */
     public static TypeDesc forDescriptor(final String desc) throws IllegalArgumentException {
-        TypeDesc type = (TypeDesc)cDescriptorsToInstances.get(desc);
+        TypeDesc type = (TypeDesc) cDescriptorsToInstances.get(desc);
         if (type != null) {
             return type;
         }
@@ -296,49 +320,49 @@ public abstract class TypeDesc extends Descriptor implements Serializable {
             }
 
             switch (c) {
-            case 'V':
-                type = VOID;
-                break;
-            case 'Z':
-                type = BOOLEAN;
-                break;
-            case 'C':
-                type = CHAR;
-                break;
-            case 'B':
-                type = BYTE;
-                break;
-            case 'S':
-                type = SHORT;
-                break;
-            case 'I':
-                type = INT;
-                break;
-            case 'J':
-                type = LONG;
-                break;
-            case 'F':
-                type = FLOAT;
-                break;
-            case 'D':
-                type = DOUBLE;
-                break;
-            case 'L':
-                if (dim > 0) {
-                    rootDesc = rootDesc.substring(dim);
-                    cursor = 1;
-                }
-                StringBuffer name = new StringBuffer(rootDesc.length() - 2);
-                while ((c = rootDesc.charAt(cursor++)) != ';') {
-                    if (c == '/') {
-                        c = '.';
+                case 'V':
+                    type = VOID;
+                    break;
+                case 'Z':
+                    type = BOOLEAN;
+                    break;
+                case 'C':
+                    type = CHAR;
+                    break;
+                case 'B':
+                    type = BYTE;
+                    break;
+                case 'S':
+                    type = SHORT;
+                    break;
+                case 'I':
+                    type = INT;
+                    break;
+                case 'J':
+                    type = LONG;
+                    break;
+                case 'F':
+                    type = FLOAT;
+                    break;
+                case 'D':
+                    type = DOUBLE;
+                    break;
+                case 'L':
+                    if (dim > 0) {
+                        rootDesc = rootDesc.substring(dim);
+                        cursor = 1;
                     }
-                    name.append(c);
-                }
-                type = intern(new ObjectType(rootDesc, name.toString()));
-                break;
-            default:
-                throw invalidDescriptor(desc);
+                    StringBuffer name = new StringBuffer(rootDesc.length() - 2);
+                    while ((c = rootDesc.charAt(cursor++)) != ';') {
+                        if (c == '/') {
+                            c = '.';
+                        }
+                        name.append(c);
+                    }
+                    type = intern(new ObjectType(rootDesc, name.toString()));
+                    break;
+                default:
+                    throw invalidDescriptor(desc);
             }
         } catch (NullPointerException e) {
             throw invalidDescriptor(desc);
@@ -368,7 +392,7 @@ public abstract class TypeDesc extends Descriptor implements Serializable {
         buf[0] = 'L';
         classname.getChars(0, length, buf, 1);
         int i;
-        for (i=1; i<=length; i++) {
+        for (i = 1; i <= length; i++) {
             char c = buf[i];
             if (c == '.') {
                 buf[i] = '/';
@@ -463,7 +487,7 @@ public abstract class TypeDesc extends Descriptor implements Serializable {
 
     /**
      * Returns the object peer of this primitive type. For int, the object peer
-     * is java.lang.Integer. If this type is an object type, it is simply 
+     * is java.lang.Integer. If this type is an object type, it is simply
      * returned.
      */
     public abstract TypeDesc toObjectType();
@@ -485,6 +509,7 @@ public abstract class TypeDesc extends Descriptor implements Serializable {
     /**
      * Returns this type as a class. If the class isn't found, null is
      * returned.
+     *
      * @param loader optional ClassLoader to load class from
      */
     public abstract Class toClass(ClassLoader loader);
@@ -503,7 +528,7 @@ public abstract class TypeDesc extends Descriptor implements Serializable {
             return true;
         }
         if (other instanceof TypeDesc) {
-            return ((TypeDesc)other).mDescriptor.equals(mDescriptor);
+            return ((TypeDesc) other).mDescriptor.equals(mDescriptor);
         }
         return false;
     }
@@ -516,7 +541,7 @@ public abstract class TypeDesc extends Descriptor implements Serializable {
         private transient final int mCode;
         private transient TypeDesc mArrayType;
         private transient TypeDesc mObjectType;
-        
+
         PrimitiveType(String desc, int code) {
             super(desc);
             mCode = code;
@@ -524,28 +549,28 @@ public abstract class TypeDesc extends Descriptor implements Serializable {
 
         public String getRootName() {
             switch (mCode) {
-            default:
-            case VOID_CODE:
-                return "void";
-            case BOOLEAN_CODE:
-                return "boolean";
-            case CHAR_CODE:
-                return "char";
-            case BYTE_CODE:
-                return "byte";
-            case SHORT_CODE:
-                return "short";
-            case INT_CODE:
-                return "int";
-            case LONG_CODE:
-                return "long";
-            case FLOAT_CODE:
-                return "float";
-            case DOUBLE_CODE:
-                return "double";
+                default:
+                case VOID_CODE:
+                    return "void";
+                case BOOLEAN_CODE:
+                    return "boolean";
+                case CHAR_CODE:
+                    return "char";
+                case BYTE_CODE:
+                    return "byte";
+                case SHORT_CODE:
+                    return "short";
+                case INT_CODE:
+                    return "int";
+                case LONG_CODE:
+                    return "long";
+                case FLOAT_CODE:
+                    return "float";
+                case DOUBLE_CODE:
+                    return "double";
             }
         }
-        
+
         public String getFullName() {
             return getRootName();
         }
@@ -553,31 +578,31 @@ public abstract class TypeDesc extends Descriptor implements Serializable {
         public int getTypeCode() {
             return mCode;
         }
-        
+
         public boolean isPrimitive() {
             return true;
         }
-        
+
         public boolean isDoubleWord() {
             return mCode == DOUBLE_CODE || mCode == LONG_CODE;
         }
-        
+
         public boolean isArray() {
             return false;
         }
-        
+
         public int getDimensions() {
             return 0;
         }
-        
+
         public TypeDesc getComponentType() {
             return null;
         }
-        
+
         public TypeDesc getRootComponentType() {
             return null;
         }
-        
+
         public TypeDesc toArrayType() {
             if (mArrayType == null) {
                 char[] buf = new char[2];
@@ -587,68 +612,68 @@ public abstract class TypeDesc extends Descriptor implements Serializable {
             }
             return mArrayType;
         }
-        
+
         public TypeDesc toObjectType() {
             if (mObjectType == null) {
                 switch (mCode) {
-                default:
-                case VOID_CODE:
-                    mObjectType = forClass("java.lang.Void");
-                    break;
-                case BOOLEAN_CODE:
-                    mObjectType = forClass("java.lang.Boolean");
-                    break;
-                case CHAR_CODE:
-                    mObjectType = forClass("java.lang.Character");
-                    break;
-                case BYTE_CODE:
-                    mObjectType = forClass("java.lang.Byte");
-                    break;
-                case SHORT_CODE:
-                    mObjectType = forClass("java.lang.Short");
-                    break;
-                case INT_CODE:
-                    mObjectType = forClass("java.lang.Integer");
-                    break;
-                case LONG_CODE:
-                    mObjectType = forClass("java.lang.Long");
-                    break;
-                case FLOAT_CODE:
-                    mObjectType = forClass("java.lang.Float");
-                    break;
-                case DOUBLE_CODE:
-                    mObjectType = forClass("java.lang.Double");
-                    break;
+                    default:
+                    case VOID_CODE:
+                        mObjectType = forClass("java.lang.Void");
+                        break;
+                    case BOOLEAN_CODE:
+                        mObjectType = forClass("java.lang.Boolean");
+                        break;
+                    case CHAR_CODE:
+                        mObjectType = forClass("java.lang.Character");
+                        break;
+                    case BYTE_CODE:
+                        mObjectType = forClass("java.lang.Byte");
+                        break;
+                    case SHORT_CODE:
+                        mObjectType = forClass("java.lang.Short");
+                        break;
+                    case INT_CODE:
+                        mObjectType = forClass("java.lang.Integer");
+                        break;
+                    case LONG_CODE:
+                        mObjectType = forClass("java.lang.Long");
+                        break;
+                    case FLOAT_CODE:
+                        mObjectType = forClass("java.lang.Float");
+                        break;
+                    case DOUBLE_CODE:
+                        mObjectType = forClass("java.lang.Double");
+                        break;
                 }
             }
             return mObjectType;
         }
-        
+
         public TypeDesc toPrimitiveType() {
             return this;
         }
 
         public Class toClass() {
             switch (mCode) {
-            default:
-            case VOID_CODE:
-                return void.class;
-            case BOOLEAN_CODE:
-                return boolean.class;
-            case CHAR_CODE:
-                return char.class;
-            case BYTE_CODE:
-                return byte.class;
-            case SHORT_CODE:
-                return short.class;
-            case INT_CODE:
-                return int.class;
-            case LONG_CODE:
-                return long.class;
-            case FLOAT_CODE:
-                return float.class;
-            case DOUBLE_CODE:
-                return double.class;
+                default:
+                case VOID_CODE:
+                    return void.class;
+                case BOOLEAN_CODE:
+                    return boolean.class;
+                case CHAR_CODE:
+                    return char.class;
+                case BYTE_CODE:
+                    return byte.class;
+                case SHORT_CODE:
+                    return short.class;
+                case INT_CODE:
+                    return int.class;
+                case LONG_CODE:
+                    return long.class;
+                case FLOAT_CODE:
+                    return float.class;
+                case DOUBLE_CODE:
+                    return double.class;
             }
         }
 
@@ -686,27 +711,27 @@ public abstract class TypeDesc extends Descriptor implements Serializable {
         public boolean isPrimitive() {
             return false;
         }
-        
+
         public boolean isDoubleWord() {
             return false;
         }
-        
+
         public boolean isArray() {
             return false;
         }
-        
+
         public int getDimensions() {
             return 0;
         }
-        
+
         public TypeDesc getComponentType() {
             return null;
         }
-        
+
         public TypeDesc getRootComponentType() {
             return null;
         }
-        
+
         public TypeDesc toArrayType() {
             if (mArrayType == null) {
                 int length = mDescriptor.length();
@@ -717,58 +742,58 @@ public abstract class TypeDesc extends Descriptor implements Serializable {
             }
             return mArrayType;
         }
-        
+
         public TypeDesc toObjectType() {
             return this;
         }
-        
+
         public TypeDesc toPrimitiveType() {
             if (mPrimitiveType == null) {
                 String name = mName;
                 if (name.startsWith("java.lang.") && name.length() > 10) {
                     switch (name.charAt(10)) {
-                    case 'V':
-                        if (name.equals("java.lang.Void")) {
-                            mPrimitiveType = VOID;
-                        }
-                        break;
-                    case 'B':
-                        if (name.equals("java.lang.Boolean")) {
-                            mPrimitiveType = BOOLEAN;
-                        } else if (name.equals("java.lang.Byte")) {
-                            mPrimitiveType = BYTE;
-                        }
-                        break;
-                    case 'C':
-                        if (name.equals("java.lang.Character")) {
-                            mPrimitiveType = CHAR;
-                        }
-                        break;
-                    case 'S':
-                        if (name.equals("java.lang.Short")) {
-                            mPrimitiveType = SHORT;
-                        }
-                        break;
-                    case 'I':
-                        if (name.equals("java.lang.Integer")) {
-                            mPrimitiveType = INT;
-                        }
-                        break;
-                    case 'L':
-                        if (name.equals("java.lang.Long")) {
-                            mPrimitiveType = LONG;
-                        }
-                        break;
-                    case 'F':
-                        if (name.equals("java.lang.Float")) {
-                            mPrimitiveType = FLOAT;
-                        }
-                        break;
-                    case 'D':
-                        if (name.equals("java.lang.Double")) {
-                            mPrimitiveType = DOUBLE;
-                        }
-                        break;
+                        case 'V':
+                            if (name.equals("java.lang.Void")) {
+                                mPrimitiveType = VOID;
+                            }
+                            break;
+                        case 'B':
+                            if (name.equals("java.lang.Boolean")) {
+                                mPrimitiveType = BOOLEAN;
+                            } else if (name.equals("java.lang.Byte")) {
+                                mPrimitiveType = BYTE;
+                            }
+                            break;
+                        case 'C':
+                            if (name.equals("java.lang.Character")) {
+                                mPrimitiveType = CHAR;
+                            }
+                            break;
+                        case 'S':
+                            if (name.equals("java.lang.Short")) {
+                                mPrimitiveType = SHORT;
+                            }
+                            break;
+                        case 'I':
+                            if (name.equals("java.lang.Integer")) {
+                                mPrimitiveType = INT;
+                            }
+                            break;
+                        case 'L':
+                            if (name.equals("java.lang.Long")) {
+                                mPrimitiveType = LONG;
+                            }
+                            break;
+                        case 'F':
+                            if (name.equals("java.lang.Float")) {
+                                mPrimitiveType = FLOAT;
+                            }
+                            break;
+                        case 'D':
+                            if (name.equals("java.lang.Double")) {
+                                mPrimitiveType = DOUBLE;
+                            }
+                            break;
                     }
                 }
             }
@@ -793,25 +818,25 @@ public abstract class TypeDesc extends Descriptor implements Serializable {
             TypeDesc type = toPrimitiveType();
             if (type != null) {
                 switch (type.getTypeCode()) {
-                default:
-                case VOID_CODE:
-                    return Void.class;
-                case BOOLEAN_CODE:
-                    return Boolean.class;
-                case CHAR_CODE:
-                    return Character.class;
-                case FLOAT_CODE:
-                    return Float.class;
-                case DOUBLE_CODE:
-                    return Double.class;
-                case BYTE_CODE:
-                    return Byte.class;
-                case SHORT_CODE:
-                    return Short.class;
-                case INT_CODE:
-                    return Integer.class;
-                case LONG_CODE:
-                    return Long.class;
+                    default:
+                    case VOID_CODE:
+                        return Void.class;
+                    case BOOLEAN_CODE:
+                        return Boolean.class;
+                    case CHAR_CODE:
+                        return Character.class;
+                    case FLOAT_CODE:
+                        return Float.class;
+                    case DOUBLE_CODE:
+                        return Double.class;
+                    case BYTE_CODE:
+                        return Byte.class;
+                    case SHORT_CODE:
+                        return Short.class;
+                    case INT_CODE:
+                        return Integer.class;
+                    case LONG_CODE:
+                        return Long.class;
                 }
             }
 
@@ -848,15 +873,15 @@ public abstract class TypeDesc extends Descriptor implements Serializable {
         public boolean isArray() {
             return true;
         }
-        
+
         public int getDimensions() {
             return mComponent.getDimensions() + 1;
         }
-        
+
         public TypeDesc getComponentType() {
             return mComponent;
         }
-        
+
         public TypeDesc getRootComponentType() {
             TypeDesc type = mComponent;
             while (type.isArray()) {
@@ -864,7 +889,7 @@ public abstract class TypeDesc extends Descriptor implements Serializable {
             }
             return type;
         }
-        
+
         public TypeDesc toPrimitiveType() {
             return null;
         }

@@ -16,6 +16,20 @@
 
 package com.flaptor.indextank;
 
+import com.flaptor.indextank.index.BoostedDocument;
+import com.flaptor.indextank.index.IndexEngine;
+import com.flaptor.indextank.rpc.Document;
+import com.flaptor.indextank.rpc.Indexer;
+import com.flaptor.indextank.rpc.IndexerStatus;
+import com.flaptor.indextank.storage.alternatives.IndexStorage;
+import com.flaptor.util.Execute;
+import com.flaptor.util.Pair;
+import com.google.common.collect.Maps;
+import org.apache.log4j.Logger;
+import org.apache.thrift.protocol.TBinaryProtocol;
+import org.apache.thrift.protocol.TProtocol;
+import org.apache.thrift.transport.TSocket;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -27,83 +41,70 @@ import java.io.ObjectOutputStream;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.log4j.Logger;
-import org.apache.thrift.protocol.TBinaryProtocol;
-import org.apache.thrift.protocol.TProtocol;
-import org.apache.thrift.transport.TSocket;
-
-import com.flaptor.indextank.index.BoostedDocument;
-import com.flaptor.indextank.index.IndexEngine;
-import com.flaptor.indextank.rpc.Document;
-import com.flaptor.indextank.rpc.Indexer;
-import com.flaptor.indextank.rpc.IndexerStatus;
-import com.flaptor.indextank.storage.alternatives.IndexStorage;
-import com.flaptor.util.Execute;
-import com.flaptor.util.Pair;
-import com.google.common.collect.Maps;
-
 @Deprecated
 public class IndexRecoverer extends Thread {
     private static final Logger logger = Logger.getLogger(Execute.whoAmI());
-    
-    public static enum IndexStorageValue { SIMPLEDB, CASSANDRA };
+
+    public static enum IndexStorageValue {SIMPLEDB, CASSANDRA}
+
+    ;
 
     private String indexServerHost;
     private Integer indexServerPort;
-	private String indexId;
+    private String indexId;
     private long timestamp;
-	private Indexer.Client client;
+    private Indexer.Client client;
     private boolean onlyDynamicData;
-	private final String environment;
+    private final String environment;
     private IndexEngine ie;
     private IndexStorageValue indexStorageValue;
     private String cassandraClusterHosts;
 
-	public IndexRecoverer(IndexEngine ie,
-            String indexServerHost,
-			Integer indexServerPort,
-            File baseDir,
-			String indexId,
-			String environment,
-			IndexStorageValue indexStorageValue,
-			String cassandraClusterHosts) {
+    public IndexRecoverer(IndexEngine ie,
+                          String indexServerHost,
+                          Integer indexServerPort,
+                          File baseDir,
+                          String indexId,
+                          String environment,
+                          IndexStorageValue indexStorageValue,
+                          String cassandraClusterHosts) {
         this.ie = ie;
         this.indexServerHost = indexServerHost;
         this.indexServerPort = indexServerPort;
-		this.indexId = indexId;
-		this.environment = environment;
+        this.indexId = indexId;
+        this.environment = environment;
         this.onlyDynamicData = false;
-		timestamp = readTimestamp(baseDir);
-		this.indexStorageValue = indexStorageValue;
-		this.cassandraClusterHosts = cassandraClusterHosts;
-	}
+        timestamp = readTimestamp(baseDir);
+        this.indexStorageValue = indexStorageValue;
+        this.cassandraClusterHosts = cassandraClusterHosts;
+    }
 
-	public IndexRecoverer(IndexEngine ie,
-            String indexServerHost,
-			Integer indexServerPort,
-			String indexId,
-			String environment,
-            long timestamp,
-            boolean onlyDynamicData,
-            IndexStorageValue indexStorageValue, 
-            String cassandraClusterHosts) {
+    public IndexRecoverer(IndexEngine ie,
+                          String indexServerHost,
+                          Integer indexServerPort,
+                          String indexId,
+                          String environment,
+                          long timestamp,
+                          boolean onlyDynamicData,
+                          IndexStorageValue indexStorageValue,
+                          String cassandraClusterHosts) {
         this.ie = ie;
         this.indexServerHost = indexServerHost;
         this.indexServerPort = indexServerPort;
-		this.indexId = indexId;
-		this.environment = environment;
-		this.timestamp = timestamp;
+        this.indexId = indexId;
+        this.environment = environment;
+        this.timestamp = timestamp;
         this.onlyDynamicData = onlyDynamicData;
         this.indexStorageValue = indexStorageValue;
         this.cassandraClusterHosts = cassandraClusterHosts;
-	}
+    }
 
     public void resetTimestamp() {
         timestamp = 0;
     }
 
-	@Override
-	public void run() {
+    @Override
+    public void run() {
         TSocket transport = new TSocket(indexServerHost, indexServerPort + 1);
         TProtocol protocol = new TBinaryProtocol(transport);
         client = new Indexer.Client(protocol);
@@ -118,18 +119,18 @@ public class IndexRecoverer extends Thread {
             for (Pair<String, BoostedDocument> pair : allDocuments) {
                 logger.debug("Document found!");
                 String docId = pair.first();
-                
+
                 BoostedDocument boostedDocument = pair.last();
                 Map<Integer, Double> doubleBoosts = Maps.newHashMap();
                 for (Entry<Integer, Float> entry : boostedDocument.getBoosts().entrySet()) {
                     doubleBoosts.put(entry.getKey(), Double.valueOf(entry.getValue()));
                 }
-                Map<String,String> categories = boostedDocument.getCategories();
+                Map<String, String> categories = boostedDocument.getCategories();
                 int userTimestamp;
                 try {
                     userTimestamp = Integer.parseInt(boostedDocument.getDocument().getField("timestamp"));
                 } catch (NumberFormatException e) {
-                    logger.warn("Invalid timestamp " +  boostedDocument.getDocument().getField("timestamp") + " for document " + docId + " -- SKIPPING DOCUMENT");
+                    logger.warn("Invalid timestamp " + boostedDocument.getDocument().getField("timestamp") + " for document " + docId + " -- SKIPPING DOCUMENT");
                     continue;
                 }
                 recovered++;
@@ -157,11 +158,11 @@ public class IndexRecoverer extends Thread {
             logger.info("Finished recovery. Recovered " + recovered + " documents");
             if (ie != null) ie.setStatus(IndexerStatus.ready);
         } catch (Exception ex) {
-            throw new RuntimeException("Something BAD happened: ",ex);
+            throw new RuntimeException("Something BAD happened: ", ex);
         } finally {
             Execute.close(transport);
         }
-	}
+    }
 
     public void updateSingleDymamicDatum() {
         TSocket transport = new TSocket(indexServerHost, indexServerPort + 1);
@@ -186,7 +187,7 @@ public class IndexRecoverer extends Thread {
                 for (Entry<Integer, Float> entry : doc.getBoosts().entrySet()) {
                     doubleBoosts.put(entry.getKey(), Double.valueOf(entry.getValue()));
                 }
-                Map<String,String> categories = doc.getCategories();
+                Map<String, String> categories = doc.getCategories();
 
                 client.updateBoost(docId, doubleBoosts);
                 client.updateTimestampBoost(docId, Integer.parseInt(doc.getDocument().getField("timestamp")));
@@ -194,26 +195,26 @@ public class IndexRecoverer extends Thread {
                 System.out.println("Updated boosts for document " + docId + ", boosts: " + doubleBoosts);
             }
         } catch (Exception ex) {
-            throw new RuntimeException("Something BAD happened: ",ex);
+            throw new RuntimeException("Something BAD happened: ", ex);
         } finally {
             Execute.close(transport);
         }
     }
-    
+
     private IndexStorage getStorage() {
         switch (this.indexStorageValue) {
-        default:
-            throw new RuntimeException("Unknown Index Storage " + this.indexStorageValue);
+            default:
+                throw new RuntimeException("Unknown Index Storage " + this.indexStorageValue);
         }
     }
-    
+
     public static void writeTimestamp(File dir, long timestamp) {
         ObjectOutputStream oos = null;
         try {
             oos = new ObjectOutputStream(new FileOutputStream(new File(dir, "timestamp")));
             oos.writeLong(timestamp);
         } catch (IOException e) {
-            logger.error("Writing timestamp to inde2ehWx directory",e);
+            logger.error("Writing timestamp to inde2ehWx directory", e);
         } finally {
             if (null != oos) {
                 try {
@@ -257,7 +258,7 @@ public class IndexRecoverer extends Thread {
         boolean onlyDynamicData = false;
         IndexStorageValue documentStorageValue = IndexStorageValue.SIMPLEDB;
         String cassandraClusterHosts = null;
-        
+
         try {
             host = args[0];
             port = Integer.parseInt(args[1]);
@@ -273,13 +274,15 @@ public class IndexRecoverer extends Thread {
                                 throw new IllegalArgumentException("Expecting cassandra cluster hosts");
                             }
                             documentStorageValue = IndexStorageValue.CASSANDRA;
-                            cassandraClusterHosts = args[7]; 
+                            cassandraClusterHosts = args[7];
                         }
                     }
                 }
             }
-        } catch (Exception e) { help(); }
-		IndexRecoverer indexRecoverer = new IndexRecoverer(null, host, port, indexid, environment, timestamp, onlyDynamicData, documentStorageValue, cassandraClusterHosts);
+        } catch (Exception e) {
+            help();
+        }
+        IndexRecoverer indexRecoverer = new IndexRecoverer(null, host, port, indexid, environment, timestamp, onlyDynamicData, documentStorageValue, cassandraClusterHosts);
         if (args.length > 4) {
             System.out.println("Starting recovery...");
             indexRecoverer.run(); //blocking call, this is not start()
@@ -287,6 +290,6 @@ public class IndexRecoverer extends Thread {
         } else {
             indexRecoverer.updateSingleDymamicDatum();
         }
-	}
+    }
 
 }

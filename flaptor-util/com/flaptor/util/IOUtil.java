@@ -16,6 +16,9 @@ limitations under the License.
 
 package com.flaptor.util;
 
+import com.google.common.collect.Lists;
+import org.apache.log4j.Logger;
+
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -35,12 +38,9 @@ import java.util.List;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-import org.apache.log4j.Logger;
-
-import com.google.common.collect.Lists;
 /**
  * utility class for common IO operations
- * 
+ *
  * @author Martin Massera
  */
 public class IOUtil {
@@ -48,8 +48,9 @@ public class IOUtil {
 
     /**
      * fully reads a reader
-     * @return a string with all the contents of the reader 
-     * @throws IOException 
+     *
+     * @return a string with all the contents of the reader
+     * @throws IOException
      */
     public static String readAll(Reader reader) throws IOException {
         BufferedReader br = null;
@@ -57,7 +58,7 @@ public class IOUtil {
             br = new BufferedReader(reader);
             StringBuffer buf = new StringBuffer();
             char[] buffer = new char[256];
-            while(true) {
+            while (true) {
                 int charsRead = br.read(buffer);
                 if (charsRead == -1) break;
                 buf.append(buffer, 0, charsRead);
@@ -72,28 +73,31 @@ public class IOUtil {
     /**
      * fully reads a stream
      * Warning, it does not close the passed InputStream.
-     * @return a string with all the contents of the stream 
-     * @throws IOException 
+     *
+     * @return a string with all the contents of the stream
+     * @throws IOException
      */
     public static String readAll(InputStream stream) throws IOException {
         StringBuffer buf = new StringBuffer();
         byte[] buffer = new byte[256];
-        while(true) {
+        while (true) {
             int bytesRead = stream.read(buffer);
             if (bytesRead == -1) break;
             buf.append(new String(buffer, 0, bytesRead));
         }
         return buf.toString();
     }
+
     /**
      * fully reads a stream
-     * @return a string with all the contents of the stream 
-     * @throws IOException 
+     *
+     * @return a string with all the contents of the stream
+     * @throws IOException
      */
     public static byte[] readAllBinary(InputStream stream) throws IOException {
         ByteArrayOutputStream o = new ByteArrayOutputStream();
         byte[] buffer = new byte[256];
-        while(true) {
+        while (true) {
             int bytesRead = stream.read(buffer);
             if (bytesRead == -1) break;
             o.write(buffer, 0, bytesRead);
@@ -103,6 +107,7 @@ public class IOUtil {
 
     /**
      * reads the last n bytes of a file
+     *
      * @param stream
      * @param numBytes
      * @return
@@ -115,19 +120,19 @@ public class IOUtil {
             long position = raFile.length() - numBytes;
             if (position < 0) position = 0;
             raFile.seek(position);
-            byte[] ret = new byte[(int)(raFile.length() - position)];
+            byte[] ret = new byte[(int) (raFile.length() - position)];
             raFile.read(ret);
             return ret;
         } finally {
             if (raFile != null) raFile.close();
         }
-        
+
     }
 
     public static void serialize(Object o, OutputStream os, boolean compress) throws IOException {
         GZIPOutputStream gos = null;
-    	ObjectOutputStream oos = null;
-        try {        
+        ObjectOutputStream oos = null;
+        try {
             if (compress) {
                 gos = new GZIPOutputStream(os);
                 os = gos;
@@ -146,6 +151,7 @@ public class IOUtil {
 
     /**
      * method for quick serialization of an object
+     *
      * @param o
      * @param file
      */
@@ -161,17 +167,17 @@ public class IOUtil {
             Execute.close(fos, logger);
         }
     }
-    
+
     public static byte[] serialize(Object o, boolean compress) {
         ByteArrayOutputStream out = null;
-    	try { 
-	    	out = new ByteArrayOutputStream();
-	    	serialize(o, out, compress);
-	    	out.flush();
-	    	return out.toByteArray();
-    	} catch (IOException e) { //this exception should not happen
-    		throw new RuntimeException(e);
-    	} finally {
+        try {
+            out = new ByteArrayOutputStream();
+            serialize(o, out, compress);
+            out.flush();
+            return out.toByteArray();
+        } catch (IOException e) { //this exception should not happen
+            throw new RuntimeException(e);
+        } finally {
             Execute.close(out, logger);
         }
     }
@@ -179,12 +185,13 @@ public class IOUtil {
 
     /**
      * quick deserializing from a file, to use with serialize(object, file)
+     *
      * @param file
      * @return
      * @throws IOException
      * @throws ClassNotFoundException
      */
-    public static Object deserialize(String file, boolean compressed){
+    public static Object deserialize(String file, boolean compressed) {
         FileInputStream fileInputStream = null;
         try {
             fileInputStream = new FileInputStream(file);
@@ -200,14 +207,14 @@ public class IOUtil {
     public static Object deserialize(InputStream is, boolean compressed) {
         GZIPInputStream gis = null;
         ObjectInputStream ois = null;
-    	try {
-    	    if (compressed) {
-    	        gis = new GZIPInputStream(is);
-    	        is = gis;
-    	    }
+        try {
+            if (compressed) {
+                gis = new GZIPInputStream(is);
+                is = gis;
+            }
             ois = new ObjectInputStream(is);
-    	    Object obj = ois.readObject();
-    	    return obj;
+            Object obj = ois.readObject();
+            return obj;
         } catch (Exception e) {
             throw new RuntimeException(e);
         } finally {
@@ -216,27 +223,28 @@ public class IOUtil {
         }
     }
 
-   	public static Object deserialize(byte[] bytes, boolean compressed) throws IOException, ClassNotFoundException {
-    	ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
-    	Object obj = deserialize(bis, compressed);
-    	bis.close();
-    	return obj;
+    public static Object deserialize(byte[] bytes, boolean compressed) throws IOException, ClassNotFoundException {
+        ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
+        Object obj = deserialize(bis, compressed);
+        bis.close();
+        return obj;
     }
-   	
-   	public static String getStackTrace(Throwable t) {
+
+    public static String getStackTrace(Throwable t) {
         java.io.CharArrayWriter caw = new java.io.CharArrayWriter();
-        t.printStackTrace(new java.io.PrintWriter(caw)); 
+        t.printStackTrace(new java.io.PrintWriter(caw));
         return caw.toString();
-   	}
-   	
-   	/**
-     * reads all non empty lines 
+    }
+
+    /**
+     * reads all non empty lines
+     *
      * @param toLowerCase if true makes every line lowercase
-   	 * @return a list of strings with a line per element
-   	 * @throws IOException 
-   	 */
-   	public static List<String> readLines(boolean toLowerCase, boolean trim, boolean emptyLines, Reader reader) throws IOException {
-   	    BufferedReader bufferedReader = null;
+     * @return a list of strings with a line per element
+     * @throws IOException
+     */
+    public static List<String> readLines(boolean toLowerCase, boolean trim, boolean emptyLines, Reader reader) throws IOException {
+        BufferedReader bufferedReader = null;
         try {
             List<String> ret = new ArrayList<String>();
             bufferedReader = new BufferedReader(reader);
@@ -253,27 +261,28 @@ public class IOUtil {
         } finally {
             Execute.close(bufferedReader, logger);
         }
-   	}
-   	
-   	/**
-   	 * returns an iterable (for use in fors) for iterating over the lines of a file.
-   	 * The difference with readLines is that readLines reads the entire file and this reads the stream
-   	 * when requested. Use this for very big files. 
-   	 * 
-   	 * @param toLowerCase
-   	 * @param trim
-   	 * @param emptyLines
-   	 * @param reader
-   	 * @return
-   	 * @throws IOException
-   	 */
-   	public static Iterable<String> lineIterable(final boolean toLowerCase, final boolean trim, final boolean emptyLines, final Reader reader) throws IOException {
-   	    final BufferedReader br = new BufferedReader(reader);
-   	    return new Iterable<String>() {
+    }
+
+    /**
+     * returns an iterable (for use in fors) for iterating over the lines of a file.
+     * The difference with readLines is that readLines reads the entire file and this reads the stream
+     * when requested. Use this for very big files.
+     *
+     * @param toLowerCase
+     * @param trim
+     * @param emptyLines
+     * @param reader
+     * @return
+     * @throws IOException
+     */
+    public static Iterable<String> lineIterable(final boolean toLowerCase, final boolean trim, final boolean emptyLines, final Reader reader) throws IOException {
+        final BufferedReader br = new BufferedReader(reader);
+        return new Iterable<String>() {
             String nextLine = getNextLine();
-            String getNextLine() throws IOException{
+
+            String getNextLine() throws IOException {
                 String line = null;
-                while (true){
+                while (true) {
                     line = br.readLine();
                     if (line == null) break;
                     if (trim) line = line.trim();
@@ -281,11 +290,13 @@ public class IOUtil {
                 }
                 return line;
             }
+
             public Iterator<String> iterator() {
                 return new Iterator<String>() {
                     public boolean hasNext() {
                         return nextLine != null;
                     }
+
                     public String next() {
                         String line = nextLine;
                         try {
@@ -296,18 +307,21 @@ public class IOUtil {
                             if (nextLine == null) {
                                 Execute.close(br, logger);
                             }
-                        }                            
+                        }
                         return line;
                     }
-                    public void remove() {throw new UnsupportedOperationException("remove not supported");}
+
+                    public void remove() {
+                        throw new UnsupportedOperationException("remove not supported");
+                    }
                 };
             }
-   	    };
-   	}
-   	
-   	public static void main(String[] args) throws IOException, ClassNotFoundException {
-        
-   	    byte[] bytes = IOUtil.serialize(Lists.newArrayList(1,2,3,4,5), true);
-   	    System.out.println(IOUtil.deserialize(bytes, true));
+        };
+    }
+
+    public static void main(String[] args) throws IOException, ClassNotFoundException {
+
+        byte[] bytes = IOUtil.serialize(Lists.newArrayList(1, 2, 3, 4, 5), true);
+        System.out.println(IOUtil.deserialize(bytes, true));
     }
 }

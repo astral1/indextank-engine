@@ -31,10 +31,10 @@ limitations under the License.
 */
 package com.flaptor.indextank.query;
 
-import java.io.Serializable;
-
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
+
+import java.io.Serializable;
 
 /**
  * @author Flaptor Development Team
@@ -50,22 +50,22 @@ public final class OrQuery extends BinaryQuery implements Serializable {
     public org.apache.lucene.search.Query getLuceneQuery() {
         BooleanQuery bq = new BooleanQuery();
         if (leftQuery instanceof OrQuery) {
-        	for (BooleanClause bc : ((BooleanQuery)leftQuery.getLuceneQuery()).getClauses()) {
-        		bq.add(bc);
-        	}
+            for (BooleanClause bc : ((BooleanQuery) leftQuery.getLuceneQuery()).getClauses()) {
+                bq.add(bc);
+            }
         } else {
-        	bq.add(leftQuery.getLuceneQuery(), BooleanClause.Occur.SHOULD);
+            bq.add(leftQuery.getLuceneQuery(), BooleanClause.Occur.SHOULD);
         }
         if (rightQuery instanceof OrQuery) {
-        	for (BooleanClause bc : ((BooleanQuery)rightQuery.getLuceneQuery()).getClauses()) {
-        		bq.add(bc);
-        	}        	
+            for (BooleanClause bc : ((BooleanQuery) rightQuery.getLuceneQuery()).getClauses()) {
+                bq.add(bc);
+            }
         } else {
-        	bq.add(rightQuery.getLuceneQuery(), BooleanClause.Occur.SHOULD);
+            bq.add(rightQuery.getLuceneQuery(), BooleanClause.Occur.SHOULD);
         }
         return bq;
     }
-    
+
     @Override
     public String toString() {
         return "( " + leftQuery.toString() + " ) OR ( " + rightQuery.toString() + " )" + boostString();

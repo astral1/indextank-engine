@@ -16,14 +16,15 @@
 
 package org.cojen.classfile.attribute;
 
-import java.io.DataInput;
-import java.io.IOException;
 import org.cojen.classfile.Attribute;
 import org.cojen.classfile.ConstantPool;
 
+import java.io.DataInput;
+import java.io.IOException;
+
 /**
  * This class defines the Deprecated attribute introduced in JDK1.1.
- * 
+ *
  * @author Brian S O'Neill
  */
 public class DeprecatedAttr extends Attribute {
@@ -37,8 +38,7 @@ public class DeprecatedAttr extends Attribute {
     }
 
     public DeprecatedAttr(ConstantPool cp, String name, int length, DataInput din)
-        throws IOException
-    {
+            throws IOException {
         super(cp, name);
         if (length > 0) {
             din.skipBytes(length);

@@ -5,398 +5,404 @@
  */
 package com.flaptor.indextank.rpc;
 
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.EnumMap;
-import java.util.Set;
-import java.util.HashSet;
-import java.util.EnumSet;
+import org.apache.thrift.TBase;
+import org.apache.thrift.TBaseHelper;
+import org.apache.thrift.TException;
+import org.apache.thrift.TFieldIdEnum;
+import org.apache.thrift.TFieldRequirementType;
+import org.apache.thrift.meta_data.FieldMetaData;
+import org.apache.thrift.meta_data.StructMetaData;
+import org.apache.thrift.protocol.TField;
+import org.apache.thrift.protocol.TProtocol;
+import org.apache.thrift.protocol.TProtocolUtil;
+import org.apache.thrift.protocol.TStruct;
+import org.apache.thrift.protocol.TType;
+
 import java.util.Collections;
-import java.util.BitSet;
-import java.nio.ByteBuffer;
-import java.util.Arrays;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.EnumMap;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Map;
 
-import org.apache.thrift.*;
-import org.apache.thrift.async.*;
-import org.apache.thrift.meta_data.*;
-import org.apache.thrift.transport.*;
-import org.apache.thrift.protocol.*;
+@SuppressWarnings("all")
+public class LogPage implements TBase<LogPage, LogPage._Fields>, java.io.Serializable, Cloneable {
+    private static final TStruct STRUCT_DESC = new TStruct("LogPage");
 
-@SuppressWarnings("all") public class LogPage implements TBase<LogPage, LogPage._Fields>, java.io.Serializable, Cloneable {
-  private static final TStruct STRUCT_DESC = new TStruct("LogPage");
+    private static final TField BATCH_FIELD_DESC = new TField("batch", TType.STRUCT, (short) 1);
+    private static final TField NEXT_PAGE_TOKEN_FIELD_DESC = new TField("next_page_token", TType.STRUCT, (short) 2);
 
-  private static final TField BATCH_FIELD_DESC = new TField("batch", TType.STRUCT, (short)1);
-  private static final TField NEXT_PAGE_TOKEN_FIELD_DESC = new TField("next_page_token", TType.STRUCT, (short)2);
+    private LogBatch batch;
+    private LogPageToken next_page_token;
 
-  private LogBatch batch;
-  private LogPageToken next_page_token;
+    /**
+     * The set of fields this struct contains, along with convenience methods for finding and manipulating them.
+     */
+    public enum _Fields implements TFieldIdEnum {
+        BATCH((short) 1, "batch"),
+        NEXT_PAGE_TOKEN((short) 2, "next_page_token");
 
-  /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
-  public enum _Fields implements TFieldIdEnum {
-    BATCH((short)1, "batch"),
-    NEXT_PAGE_TOKEN((short)2, "next_page_token");
+        private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
-    private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+        static {
+            for (_Fields field : EnumSet.allOf(_Fields.class)) {
+                byName.put(field.getFieldName(), field);
+            }
+        }
+
+        /**
+         * Find the _Fields constant that matches fieldId, or null if its not found.
+         */
+        public static _Fields findByThriftId(int fieldId) {
+            switch (fieldId) {
+                case 1: // BATCH
+                    return BATCH;
+                case 2: // NEXT_PAGE_TOKEN
+                    return NEXT_PAGE_TOKEN;
+                default:
+                    return null;
+            }
+        }
+
+        /**
+         * Find the _Fields constant that matches fieldId, throwing an exception
+         * if it is not found.
+         */
+        public static _Fields findByThriftIdOrThrow(int fieldId) {
+            _Fields fields = findByThriftId(fieldId);
+            if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+            return fields;
+        }
+
+        /**
+         * Find the _Fields constant that matches name, or null if its not found.
+         */
+        public static _Fields findByName(String name) {
+            return byName.get(name);
+        }
+
+        private final short _thriftId;
+        private final String _fieldName;
+
+        _Fields(short thriftId, String fieldName) {
+            _thriftId = thriftId;
+            _fieldName = fieldName;
+        }
+
+        public short getThriftFieldId() {
+            return _thriftId;
+        }
+
+        public String getFieldName() {
+            return _fieldName;
+        }
+    }
+
+    // isset id assignments
+
+    public static final Map<_Fields, FieldMetaData> metaDataMap;
 
     static {
-      for (_Fields field : EnumSet.allOf(_Fields.class)) {
-        byName.put(field.getFieldName(), field);
-      }
+        Map<_Fields, FieldMetaData> tmpMap = new EnumMap<_Fields, FieldMetaData>(_Fields.class);
+        tmpMap.put(_Fields.BATCH, new FieldMetaData("batch", TFieldRequirementType.DEFAULT,
+                new StructMetaData(TType.STRUCT, LogBatch.class)));
+        tmpMap.put(_Fields.NEXT_PAGE_TOKEN, new FieldMetaData("next_page_token", TFieldRequirementType.OPTIONAL,
+                new StructMetaData(TType.STRUCT, LogPageToken.class)));
+        metaDataMap = Collections.unmodifiableMap(tmpMap);
+        FieldMetaData.addStructMetaDataMap(LogPage.class, metaDataMap);
+    }
+
+    public LogPage() {
+    }
+
+    public LogPage(
+            LogBatch batch) {
+        this();
+        this.batch = batch;
     }
 
     /**
-     * Find the _Fields constant that matches fieldId, or null if its not found.
+     * Performs a deep copy on <i>other</i>.
      */
-    public static _Fields findByThriftId(int fieldId) {
-      switch(fieldId) {
-        case 1: // BATCH
-          return BATCH;
-        case 2: // NEXT_PAGE_TOKEN
-          return NEXT_PAGE_TOKEN;
-        default:
-          return null;
-      }
+    public LogPage(LogPage other) {
+        if (other.is_set_batch()) {
+            this.batch = new LogBatch(other.batch);
+        }
+        if (other.is_set_next_page_token()) {
+            this.next_page_token = new LogPageToken(other.next_page_token);
+        }
+    }
+
+    public LogPage deepCopy() {
+        return new LogPage(this);
+    }
+
+    @Override
+    public void clear() {
+        this.batch = null;
+        this.next_page_token = null;
+    }
+
+    public LogBatch get_batch() {
+        return this.batch;
+    }
+
+    public LogPage set_batch(LogBatch batch) {
+        this.batch = batch;
+        return this;
+    }
+
+    public void unset_batch() {
+        this.batch = null;
     }
 
     /**
-     * Find the _Fields constant that matches fieldId, throwing an exception
-     * if it is not found.
+     * Returns true if field batch is set (has been asigned a value) and false otherwise
      */
-    public static _Fields findByThriftIdOrThrow(int fieldId) {
-      _Fields fields = findByThriftId(fieldId);
-      if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
-      return fields;
+    public boolean is_set_batch() {
+        return this.batch != null;
+    }
+
+    public void set_batch_isSet(boolean value) {
+        if (!value) {
+            this.batch = null;
+        }
+    }
+
+    public LogPageToken get_next_page_token() {
+        return this.next_page_token;
+    }
+
+    public LogPage set_next_page_token(LogPageToken next_page_token) {
+        this.next_page_token = next_page_token;
+        return this;
+    }
+
+    public void unset_next_page_token() {
+        this.next_page_token = null;
     }
 
     /**
-     * Find the _Fields constant that matches name, or null if its not found.
+     * Returns true if field next_page_token is set (has been asigned a value) and false otherwise
      */
-    public static _Fields findByName(String name) {
-      return byName.get(name);
+    public boolean is_set_next_page_token() {
+        return this.next_page_token != null;
     }
 
-    private final short _thriftId;
-    private final String _fieldName;
-
-    _Fields(short thriftId, String fieldName) {
-      _thriftId = thriftId;
-      _fieldName = fieldName;
+    public void set_next_page_token_isSet(boolean value) {
+        if (!value) {
+            this.next_page_token = null;
+        }
     }
 
-    public short getThriftFieldId() {
-      return _thriftId;
+    public void setFieldValue(_Fields field, Object value) {
+        switch (field) {
+            case BATCH:
+                if (value == null) {
+                    unset_batch();
+                } else {
+                    set_batch((LogBatch) value);
+                }
+                break;
+
+            case NEXT_PAGE_TOKEN:
+                if (value == null) {
+                    unset_next_page_token();
+                } else {
+                    set_next_page_token((LogPageToken) value);
+                }
+                break;
+
+        }
     }
 
-    public String getFieldName() {
-      return _fieldName;
-    }
-  }
+    public Object getFieldValue(_Fields field) {
+        switch (field) {
+            case BATCH:
+                return get_batch();
 
-  // isset id assignments
+            case NEXT_PAGE_TOKEN:
+                return get_next_page_token();
 
-  public static final Map<_Fields, FieldMetaData> metaDataMap;
-  static {
-    Map<_Fields, FieldMetaData> tmpMap = new EnumMap<_Fields, FieldMetaData>(_Fields.class);
-    tmpMap.put(_Fields.BATCH, new FieldMetaData("batch", TFieldRequirementType.DEFAULT, 
-        new StructMetaData(TType.STRUCT, LogBatch.class)));
-    tmpMap.put(_Fields.NEXT_PAGE_TOKEN, new FieldMetaData("next_page_token", TFieldRequirementType.OPTIONAL, 
-        new StructMetaData(TType.STRUCT, LogPageToken.class)));
-    metaDataMap = Collections.unmodifiableMap(tmpMap);
-    FieldMetaData.addStructMetaDataMap(LogPage.class, metaDataMap);
-  }
-
-  public LogPage() {
-  }
-
-  public LogPage(
-    LogBatch batch)
-  {
-    this();
-    this.batch = batch;
-  }
-
-  /**
-   * Performs a deep copy on <i>other</i>.
-   */
-  public LogPage(LogPage other) {
-    if (other.is_set_batch()) {
-      this.batch = new LogBatch(other.batch);
-    }
-    if (other.is_set_next_page_token()) {
-      this.next_page_token = new LogPageToken(other.next_page_token);
-    }
-  }
-
-  public LogPage deepCopy() {
-    return new LogPage(this);
-  }
-
-  @Override
-  public void clear() {
-    this.batch = null;
-    this.next_page_token = null;
-  }
-
-  public LogBatch get_batch() {
-    return this.batch;
-  }
-
-  public LogPage set_batch(LogBatch batch) {
-    this.batch = batch;
-    return this;
-  }
-
-  public void unset_batch() {
-    this.batch = null;
-  }
-
-  /** Returns true if field batch is set (has been asigned a value) and false otherwise */
-  public boolean is_set_batch() {
-    return this.batch != null;
-  }
-
-  public void set_batch_isSet(boolean value) {
-    if (!value) {
-      this.batch = null;
-    }
-  }
-
-  public LogPageToken get_next_page_token() {
-    return this.next_page_token;
-  }
-
-  public LogPage set_next_page_token(LogPageToken next_page_token) {
-    this.next_page_token = next_page_token;
-    return this;
-  }
-
-  public void unset_next_page_token() {
-    this.next_page_token = null;
-  }
-
-  /** Returns true if field next_page_token is set (has been asigned a value) and false otherwise */
-  public boolean is_set_next_page_token() {
-    return this.next_page_token != null;
-  }
-
-  public void set_next_page_token_isSet(boolean value) {
-    if (!value) {
-      this.next_page_token = null;
-    }
-  }
-
-  public void setFieldValue(_Fields field, Object value) {
-    switch (field) {
-    case BATCH:
-      if (value == null) {
-        unset_batch();
-      } else {
-        set_batch((LogBatch)value);
-      }
-      break;
-
-    case NEXT_PAGE_TOKEN:
-      if (value == null) {
-        unset_next_page_token();
-      } else {
-        set_next_page_token((LogPageToken)value);
-      }
-      break;
-
-    }
-  }
-
-  public Object getFieldValue(_Fields field) {
-    switch (field) {
-    case BATCH:
-      return get_batch();
-
-    case NEXT_PAGE_TOKEN:
-      return get_next_page_token();
-
-    }
-    throw new IllegalStateException();
-  }
-
-  /** Returns true if field corresponding to fieldID is set (has been asigned a value) and false otherwise */
-  public boolean isSet(_Fields field) {
-    if (field == null) {
-      throw new IllegalArgumentException();
+        }
+        throw new IllegalStateException();
     }
 
-    switch (field) {
-    case BATCH:
-      return is_set_batch();
-    case NEXT_PAGE_TOKEN:
-      return is_set_next_page_token();
+    /**
+     * Returns true if field corresponding to fieldID is set (has been asigned a value) and false otherwise
+     */
+    public boolean isSet(_Fields field) {
+        if (field == null) {
+            throw new IllegalArgumentException();
+        }
+
+        switch (field) {
+            case BATCH:
+                return is_set_batch();
+            case NEXT_PAGE_TOKEN:
+                return is_set_next_page_token();
+        }
+        throw new IllegalStateException();
     }
-    throw new IllegalStateException();
-  }
 
-  @Override
-  public boolean equals(Object that) {
-    if (that == null)
-      return false;
-    if (that instanceof LogPage)
-      return this.equals((LogPage)that);
-    return false;
-  }
-
-  public boolean equals(LogPage that) {
-    if (that == null)
-      return false;
-
-    boolean this_present_batch = true && this.is_set_batch();
-    boolean that_present_batch = true && that.is_set_batch();
-    if (this_present_batch || that_present_batch) {
-      if (!(this_present_batch && that_present_batch))
-        return false;
-      if (!this.batch.equals(that.batch))
+    @Override
+    public boolean equals(Object that) {
+        if (that == null)
+            return false;
+        if (that instanceof LogPage)
+            return this.equals((LogPage) that);
         return false;
     }
 
-    boolean this_present_next_page_token = true && this.is_set_next_page_token();
-    boolean that_present_next_page_token = true && that.is_set_next_page_token();
-    if (this_present_next_page_token || that_present_next_page_token) {
-      if (!(this_present_next_page_token && that_present_next_page_token))
-        return false;
-      if (!this.next_page_token.equals(that.next_page_token))
-        return false;
+    public boolean equals(LogPage that) {
+        if (that == null)
+            return false;
+
+        boolean this_present_batch = true && this.is_set_batch();
+        boolean that_present_batch = true && that.is_set_batch();
+        if (this_present_batch || that_present_batch) {
+            if (!(this_present_batch && that_present_batch))
+                return false;
+            if (!this.batch.equals(that.batch))
+                return false;
+        }
+
+        boolean this_present_next_page_token = true && this.is_set_next_page_token();
+        boolean that_present_next_page_token = true && that.is_set_next_page_token();
+        if (this_present_next_page_token || that_present_next_page_token) {
+            if (!(this_present_next_page_token && that_present_next_page_token))
+                return false;
+            if (!this.next_page_token.equals(that.next_page_token))
+                return false;
+        }
+
+        return true;
     }
 
-    return true;
-  }
-
-  @Override
-  public int hashCode() {
-    return 0;
-  }
-
-  public int compareTo(LogPage other) {
-    if (!getClass().equals(other.getClass())) {
-      return getClass().getName().compareTo(other.getClass().getName());
+    @Override
+    public int hashCode() {
+        return 0;
     }
 
-    int lastComparison = 0;
-    LogPage typedOther = (LogPage)other;
+    public int compareTo(LogPage other) {
+        if (!getClass().equals(other.getClass())) {
+            return getClass().getName().compareTo(other.getClass().getName());
+        }
 
-    lastComparison = Boolean.valueOf(is_set_batch()).compareTo(typedOther.is_set_batch());
-    if (lastComparison != 0) {
-      return lastComparison;
-    }
-    if (is_set_batch()) {
-      lastComparison = TBaseHelper.compareTo(this.batch, typedOther.batch);
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-    }
-    lastComparison = Boolean.valueOf(is_set_next_page_token()).compareTo(typedOther.is_set_next_page_token());
-    if (lastComparison != 0) {
-      return lastComparison;
-    }
-    if (is_set_next_page_token()) {
-      lastComparison = TBaseHelper.compareTo(this.next_page_token, typedOther.next_page_token);
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-    }
-    return 0;
-  }
+        int lastComparison = 0;
+        LogPage typedOther = (LogPage) other;
 
-  public _Fields fieldForId(int fieldId) {
-    return _Fields.findByThriftId(fieldId);
-  }
-
-  public void read(TProtocol iprot) throws TException {
-    TField field;
-    iprot.readStructBegin();
-    while (true)
-    {
-      field = iprot.readFieldBegin();
-      if (field.type == TType.STOP) { 
-        break;
-      }
-      switch (field.id) {
-        case 1: // BATCH
-          if (field.type == TType.STRUCT) {
-            this.batch = new LogBatch();
-            this.batch.read(iprot);
-          } else { 
-            TProtocolUtil.skip(iprot, field.type);
-          }
-          break;
-        case 2: // NEXT_PAGE_TOKEN
-          if (field.type == TType.STRUCT) {
-            this.next_page_token = new LogPageToken();
-            this.next_page_token.read(iprot);
-          } else { 
-            TProtocolUtil.skip(iprot, field.type);
-          }
-          break;
-        default:
-          TProtocolUtil.skip(iprot, field.type);
-      }
-      iprot.readFieldEnd();
+        lastComparison = Boolean.valueOf(is_set_batch()).compareTo(typedOther.is_set_batch());
+        if (lastComparison != 0) {
+            return lastComparison;
+        }
+        if (is_set_batch()) {
+            lastComparison = TBaseHelper.compareTo(this.batch, typedOther.batch);
+            if (lastComparison != 0) {
+                return lastComparison;
+            }
+        }
+        lastComparison = Boolean.valueOf(is_set_next_page_token()).compareTo(typedOther.is_set_next_page_token());
+        if (lastComparison != 0) {
+            return lastComparison;
+        }
+        if (is_set_next_page_token()) {
+            lastComparison = TBaseHelper.compareTo(this.next_page_token, typedOther.next_page_token);
+            if (lastComparison != 0) {
+                return lastComparison;
+            }
+        }
+        return 0;
     }
-    iprot.readStructEnd();
 
-    // check for required fields of primitive type, which can't be checked in the validate method
-    validate();
-  }
-
-  public void write(TProtocol oprot) throws TException {
-    validate();
-
-    oprot.writeStructBegin(STRUCT_DESC);
-    if (this.batch != null) {
-      oprot.writeFieldBegin(BATCH_FIELD_DESC);
-      this.batch.write(oprot);
-      oprot.writeFieldEnd();
+    public _Fields fieldForId(int fieldId) {
+        return _Fields.findByThriftId(fieldId);
     }
-    if (this.next_page_token != null) {
-      if (is_set_next_page_token()) {
-        oprot.writeFieldBegin(NEXT_PAGE_TOKEN_FIELD_DESC);
-        this.next_page_token.write(oprot);
-        oprot.writeFieldEnd();
-      }
-    }
-    oprot.writeFieldStop();
-    oprot.writeStructEnd();
-  }
 
-  @Override
-  public String toString() {
-    StringBuilder sb = new StringBuilder("LogPage(");
-    boolean first = true;
+    public void read(TProtocol iprot) throws TException {
+        TField field;
+        iprot.readStructBegin();
+        while (true) {
+            field = iprot.readFieldBegin();
+            if (field.type == TType.STOP) {
+                break;
+            }
+            switch (field.id) {
+                case 1: // BATCH
+                    if (field.type == TType.STRUCT) {
+                        this.batch = new LogBatch();
+                        this.batch.read(iprot);
+                    } else {
+                        TProtocolUtil.skip(iprot, field.type);
+                    }
+                    break;
+                case 2: // NEXT_PAGE_TOKEN
+                    if (field.type == TType.STRUCT) {
+                        this.next_page_token = new LogPageToken();
+                        this.next_page_token.read(iprot);
+                    } else {
+                        TProtocolUtil.skip(iprot, field.type);
+                    }
+                    break;
+                default:
+                    TProtocolUtil.skip(iprot, field.type);
+            }
+            iprot.readFieldEnd();
+        }
+        iprot.readStructEnd();
 
-    sb.append("batch:");
-    if (this.batch == null) {
-      sb.append("null");
-    } else {
-      sb.append(this.batch);
+        // check for required fields of primitive type, which can't be checked in the validate method
+        validate();
     }
-    first = false;
-    if (is_set_next_page_token()) {
-      if (!first) sb.append(", ");
-      sb.append("next_page_token:");
-      if (this.next_page_token == null) {
-        sb.append("null");
-      } else {
-        sb.append(this.next_page_token);
-      }
-      first = false;
-    }
-    sb.append(")");
-    return sb.toString();
-  }
 
-  public void validate() throws TException {
-    // check for required fields
-  }
+    public void write(TProtocol oprot) throws TException {
+        validate();
+
+        oprot.writeStructBegin(STRUCT_DESC);
+        if (this.batch != null) {
+            oprot.writeFieldBegin(BATCH_FIELD_DESC);
+            this.batch.write(oprot);
+            oprot.writeFieldEnd();
+        }
+        if (this.next_page_token != null) {
+            if (is_set_next_page_token()) {
+                oprot.writeFieldBegin(NEXT_PAGE_TOKEN_FIELD_DESC);
+                this.next_page_token.write(oprot);
+                oprot.writeFieldEnd();
+            }
+        }
+        oprot.writeFieldStop();
+        oprot.writeStructEnd();
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder("LogPage(");
+        boolean first = true;
+
+        sb.append("batch:");
+        if (this.batch == null) {
+            sb.append("null");
+        } else {
+            sb.append(this.batch);
+        }
+        first = false;
+        if (is_set_next_page_token()) {
+            if (!first) sb.append(", ");
+            sb.append("next_page_token:");
+            if (this.next_page_token == null) {
+                sb.append("null");
+            } else {
+                sb.append(this.next_page_token);
+            }
+            first = false;
+        }
+        sb.append(")");
+        return sb.toString();
+    }
+
+    public void validate() throws TException {
+        // check for required fields
+    }
 
 }
 

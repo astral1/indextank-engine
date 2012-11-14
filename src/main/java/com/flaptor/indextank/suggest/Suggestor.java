@@ -16,12 +16,12 @@
 
 package com.flaptor.indextank.suggest;
 
+import com.flaptor.indextank.index.Document;
+import com.flaptor.indextank.query.Query;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-
-import com.flaptor.indextank.index.Document;
-import com.flaptor.indextank.query.Query;
 
 /**
  * Query suggestor/autocompleter/"did you mean?" interface.
@@ -33,6 +33,7 @@ public interface Suggestor {
      * Can be used by the suggestor implementation to generate statistics
      * about performed queries in order to use them to make suggestions in
      * the future.
+     *
      * @query the query performed by the user.
      * @matches the number of matching document this query has.
      */
@@ -50,7 +51,8 @@ public interface Suggestor {
      * Main autocomplete method.
      * This method is called by the user's frontend
      * while the user is typing in order to get a List of queries to suggest.
-     * @param field 
+     *
+     * @param field
      */
     public List<String> complete(String partialQuery, String field);
 

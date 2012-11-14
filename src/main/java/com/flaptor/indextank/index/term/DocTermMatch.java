@@ -28,50 +28,50 @@ public final class DocTermMatch {
         this.positionsLength = positionsLength;
         this.normalization = normalization;
     }
-    
+
     public int getRawId() {
         return rawId;
     }
-    
+
     public int[] getPositions() {
         return positions;
     }
-    
+
     public int getPositionsLength() {
         return positionsLength;
     }
-    
+
     public double getNormalization() {
         return normalization;
     }
 
-	public double getTermScore() {
-	    return (Math.sqrt(positionsLength) * getNormalization());
-	}
-	
-	public double getSquareTermScore() {
-	    return positionsLength * getNormalization() * getNormalization();
-	}
-	
-	public void setRawId(int rawId) {
+    public double getTermScore() {
+        return (Math.sqrt(positionsLength) * getNormalization());
+    }
+
+    public double getSquareTermScore() {
+        return positionsLength * getNormalization() * getNormalization();
+    }
+
+    public void setRawId(int rawId) {
         this.rawId = rawId;
     }
-	
-	public void setPositions(int[] positions) {
+
+    public void setPositions(int[] positions) {
         this.positions = positions;
     }
-	
-	public void setPositionsLength(int positionsLength) {
+
+    public void setPositionsLength(int positionsLength) {
         this.positionsLength = positionsLength;
     }
-	
-	public void setNormalization(double normalization) {
+
+    public void setNormalization(double normalization) {
         this.normalization = normalization;
     }
-	
-	@Override
-	public String toString() {
-	    return "DTM:" + rawId;
-	}
+
+    @Override
+    public String toString() {
+        return "DTM:" + rawId;
+    }
 
 }

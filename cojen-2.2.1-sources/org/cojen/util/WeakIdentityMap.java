@@ -19,7 +19,6 @@ package org.cojen.util;
 import java.lang.ref.Reference;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
-
 import java.util.AbstractCollection;
 import java.util.AbstractMap;
 import java.util.AbstractSet;
@@ -35,12 +34,12 @@ import java.util.Set;
  * WeakIdentityMap is like WeakHashMap, except it uses a key's identity
  * hashcode and equals methods. WeakIdentityMap is not thread-safe and must be
  * wrapped with Collections.synchronizedMap to be made thread-safe.
- * <p>
+ * <p/>
  * The documentation for WeakHashMap states that it is intended primarily for
  * use with key objects whose equals methods test for object identity using the
  * == operator. Because WeakIdentityMap strictly follows this behavior, it is
  * better suited for this purpose.
- * <p>
+ * <p/>
  * Note: Weakly referenced entries may be automatically removed during
  * either accessor or mutator operations, possibly causing a concurrent
  * modification to be detected. Therefore, even if multiple threads are only
@@ -94,12 +93,12 @@ public class WeakIdentityMap<K, V> extends AbstractMap<K, V> implements Map<K, V
         Iterator it = m.entrySet().iterator();
         boolean hasNext = it.hasNext();
         while (hasNext) {
-            Map.Entry entry = (Map.Entry)it.next();
+            Map.Entry entry = (Map.Entry) it.next();
             Object key = entry.getKey();
             Object value = entry.getValue();
             buf.append(key == m ? "(this Map)" : key)
-               .append('=')
-               .append(value == m ? "(this Map)" : value);
+                    .append('=')
+                    .append(value == m ? "(this Map)" : value);
 
             hasNext = it.hasNext();
             if (hasNext) {
@@ -133,7 +132,7 @@ public class WeakIdentityMap<K, V> extends AbstractMap<K, V> implements Map<K, V
         }
         this.loadFactor = loadFactor;
         this.table = new Entry[initialCapacity];
-        this.threshold = (int)(initialCapacity * loadFactor);
+        this.threshold = (int) (initialCapacity * loadFactor);
         this.queue = new ReferenceQueue();
     }
 
@@ -164,7 +163,7 @@ public class WeakIdentityMap<K, V> extends AbstractMap<K, V> implements Map<K, V
         Entry[] tab = this.table;
 
         if (value == null) {
-            for (int i = tab.length ; i-- > 0 ;) {
+            for (int i = tab.length; i-- > 0; ) {
                 for (Entry e = tab[i], prev = null; e != null; e = e.next) {
                     if (e.get() == null) {
                         // Clean up after a cleared Reference.
@@ -183,7 +182,7 @@ public class WeakIdentityMap<K, V> extends AbstractMap<K, V> implements Map<K, V
                 }
             }
         } else {
-            for (int i = tab.length ; i-- > 0 ;) {
+            for (int i = tab.length; i-- > 0; ) {
                 for (Entry e = tab[i], prev = null; e != null; e = e.next) {
                     if (e.get() == null) {
                         // Clean up after a cleared Reference.
@@ -307,11 +306,11 @@ public class WeakIdentityMap<K, V> extends AbstractMap<K, V> implements Map<K, V
         Entry[] newMap = new Entry[newCapacity];
 
         this.modCount++;
-        this.threshold = (int)(newCapacity * this.loadFactor);
+        this.threshold = (int) (newCapacity * this.loadFactor);
         this.table = newMap;
 
-        for (int i = oldCapacity ; i-- > 0 ;) {
-            for (Entry old = oldMap[i] ; old != null ; ) {
+        for (int i = oldCapacity; i-- > 0; ) {
+            for (Entry old = oldMap[i]; old != null; ) {
                 Entry e = old;
                 old = old.next;
 
@@ -435,20 +434,19 @@ public class WeakIdentityMap<K, V> extends AbstractMap<K, V> implements Map<K, V
     }
 
     public Object clone() {
-        try { 
-            WeakIdentityMap t = (WeakIdentityMap)super.clone();
+        try {
+            WeakIdentityMap t = (WeakIdentityMap) super.clone();
             t.table = new Entry[this.table.length];
-            for (int i = this.table.length ; i-- > 0 ; ) {
-                t.table[i] = (this.table[i] != null) 
-                    ? (Entry)this.table[i].copy(this.queue) : null;
+            for (int i = this.table.length; i-- > 0; ) {
+                t.table[i] = (this.table[i] != null)
+                        ? (Entry) this.table[i].copy(this.queue) : null;
             }
             t.keySet = null;
             t.entrySet = null;
             t.values = null;
             t.modCount = 0;
             return t;
-        }
-        catch (CloneNotSupportedException e) { 
+        } catch (CloneNotSupportedException e) {
             // this shouldn't happen, since we are Cloneable
             throw new InternalError();
         }
@@ -460,18 +458,23 @@ public class WeakIdentityMap<K, V> extends AbstractMap<K, V> implements Map<K, V
                 public Iterator iterator() {
                     return createHashIterator(KEYS);
                 }
+
                 public int size() {
                     return WeakIdentityMap.this.count;
                 }
+
                 public boolean contains(Object o) {
                     return containsKey(o);
                 }
+
                 public boolean remove(Object o) {
                     return o == null ? false : WeakIdentityMap.this.remove(o) == o;
                 }
+
                 public void clear() {
                     WeakIdentityMap.this.clear();
                 }
+
                 public String toString() {
                     return WeakIdentityMap.this.toString(this);
                 }
@@ -481,20 +484,24 @@ public class WeakIdentityMap<K, V> extends AbstractMap<K, V> implements Map<K, V
     }
 
     public Collection<V> values() {
-        if (this.values==null) {
+        if (this.values == null) {
             this.values = new AbstractCollection<V>() {
                 public Iterator<V> iterator() {
                     return createHashIterator(VALUES);
                 }
+
                 public int size() {
                     return WeakIdentityMap.this.count;
                 }
+
                 public boolean contains(Object o) {
                     return containsValue(o);
                 }
+
                 public void clear() {
                     WeakIdentityMap.this.clear();
                 }
+
                 public String toString() {
                     return WeakIdentityMap.this.toString(this);
                 }
@@ -504,7 +511,7 @@ public class WeakIdentityMap<K, V> extends AbstractMap<K, V> implements Map<K, V
     }
 
     public Set<Map.Entry<K, V>> entrySet() {
-        if (this.entrySet==null) {
+        if (this.entrySet == null) {
             this.entrySet = new AbstractSet<Map.Entry<K, V>>() {
                 public Iterator<Map.Entry<K, V>> iterator() {
                     return createHashIterator(ENTRIES);
@@ -514,7 +521,7 @@ public class WeakIdentityMap<K, V> extends AbstractMap<K, V> implements Map<K, V
                     if (!(o instanceof Map.Entry)) {
                         return false;
                     }
-                    Map.Entry entry = (Map.Entry)o;
+                    Map.Entry entry = (Map.Entry) o;
                     Object key = entry.getKey();
 
                     Entry[] tab = WeakIdentityMap.this.table;
@@ -523,7 +530,7 @@ public class WeakIdentityMap<K, V> extends AbstractMap<K, V> implements Map<K, V
 
                     for (Entry e = tab[index], prev = null; e != null; e = e.next) {
                         Object entryKey = e.get();
-                        
+
                         if (entryKey == null) {
                             // Clean up after a cleared Reference.
                             WeakIdentityMap.this.modCount++;
@@ -547,7 +554,7 @@ public class WeakIdentityMap<K, V> extends AbstractMap<K, V> implements Map<K, V
                     if (!(o instanceof Map.Entry)) {
                         return false;
                     }
-                    Map.Entry entry = (Map.Entry)o;
+                    Map.Entry entry = (Map.Entry) o;
                     Object key = entry.getKey();
                     Entry[] tab = WeakIdentityMap.this.table;
                     int hash = System.identityHashCode(key);
@@ -600,7 +607,7 @@ public class WeakIdentityMap<K, V> extends AbstractMap<K, V> implements Map<K, V
 
     /**
      * Gets the map as a String.
-     * 
+     *
      * @return a string version of the map
      */
     public String toString() {
@@ -654,7 +661,7 @@ public class WeakIdentityMap<K, V> extends AbstractMap<K, V> implements Map<K, V
             if (!(obj instanceof Map.Entry)) {
                 return false;
             }
-            return equals((Map.Entry)obj);
+            return equals((Map.Entry) obj);
         }
 
         boolean equals(Map.Entry<K, V> e) {
@@ -665,7 +672,7 @@ public class WeakIdentityMap<K, V> extends AbstractMap<K, V> implements Map<K, V
                 thisKey = null;
             }
             return (thisKey == e.getKey()) &&
-                (this.value == null ? e.getValue() == null : this.value.equals(e.getValue()));
+                    (this.value == null ? e.getValue() == null : this.value.equals(e.getValue()));
         }
 
         public int hashCode() {
@@ -678,7 +685,7 @@ public class WeakIdentityMap<K, V> extends AbstractMap<K, V> implements Map<K, V
 
         protected Object copy(ReferenceQueue queue) {
             return new Entry(this.hash, get(), queue, this.value,
-                             (this.next == null ? null : (Entry)this.next.copy(queue)));
+                    (this.next == null ? null : (Entry) this.next.copy(queue)));
         }
     }
 
@@ -715,12 +722,10 @@ public class WeakIdentityMap<K, V> extends AbstractMap<K, V> implements Map<K, V
                     // Clean up after a cleared Reference.
                     remove(this.entry);
                     this.entry = this.entry.next;
-                }
-                else {
+                } else {
                     if (this.index <= 0) {
                         return false;
-                    }
-                    else {
+                    } else {
                         this.entry = this.table[--this.index];
                     }
                 }
@@ -742,7 +747,7 @@ public class WeakIdentityMap<K, V> extends AbstractMap<K, V> implements Map<K, V
             this.entry = this.entry.next;
 
             return this.type == KEYS ? this.last.getKey() :
-                (this.type == VALUES ? this.last.getValue() : this.last);
+                    (this.type == VALUES ? this.last.getValue() : this.last);
         }
 
         public void remove() {

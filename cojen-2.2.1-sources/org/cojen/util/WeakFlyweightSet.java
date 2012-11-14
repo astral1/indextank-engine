@@ -17,8 +17,8 @@
 package org.cojen.util;
 
 /**
- * @deprecated use WeakCanonicalSet instead
  * @author Brian S O'Neill
+ * @deprecated use WeakCanonicalSet instead
  */
 public class WeakFlyweightSet<T> extends WeakCanonicalSet<T> {
 }

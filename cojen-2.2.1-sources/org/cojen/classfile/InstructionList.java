@@ -16,6 +16,8 @@
 
 package org.cojen.classfile;
 
+import org.cojen.classfile.constant.ConstantClassInfo;
+
 import java.util.AbstractCollection;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -28,12 +30,10 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-import org.cojen.classfile.constant.ConstantClassInfo;
-
 /**
  * The InstructionList class is used by the CodeBuilder to perform lower-level
  * bookkeeping operations and flow analysis.
- * 
+ *
  * @author Brian S O'Neill
  * @see CodeBuilder
  */
@@ -48,7 +48,7 @@ class InstructionList implements CodeBuffer {
     boolean mResolved = false;
 
     private List<ExceptionHandler<LabelInstruction>> mExceptionHandlers =
-        new ArrayList<ExceptionHandler<LabelInstruction>>(4);
+            new ArrayList<ExceptionHandler<LabelInstruction>>(4);
     private List<LocalVariable> mLocalVariables = new ArrayList<LocalVariable>();
     private int mNextFixedVariableNumber;
 
@@ -139,7 +139,7 @@ class InstructionList implements CodeBuffer {
      */
     public LocalVariable createLocalParameter(String name, TypeDesc type) {
         LocalVariable var = new LocalVariableImpl
-            (mLocalVariables.size(), name, type, mNextFixedVariableNumber);
+                (mLocalVariables.size(), name, type, mNextFixedVariableNumber);
         mLocalVariables.add(var);
         mNextFixedVariableNumber += type.isDoubleWord() ? 2 : 1;
         return var;
@@ -183,7 +183,7 @@ class InstructionList implements CodeBuffer {
             start.markBranchTarget();
             Instruction instr = start;
             Instruction end = handler.getEndLocation();
-            for ( ; instr != null && instr != end; instr = instr.mNext) {
+            for (; instr != null && instr != end; instr = instr.mNext) {
                 instr.addExceptionHandler(handler);
             }
         }
@@ -198,19 +198,19 @@ class InstructionList implements CodeBuffer {
             int size = mLocalVariables.size();
             BitList[] liveIn = new BitList[size];
             BitList[] liveOut = new BitList[size];
-            for (int v=0; v<size; v++) {
+            for (int v = 0; v < size; v++) {
                 liveIn[v] = new BitList(instrCount);
                 liveOut[v] = new BitList(instrCount);
             }
-            
+
             livenessAnalysis(liveIn, liveOut);
-            
+
             // Register number -> list of variables that use that register.
             List<List<LocalVariable>> registerUsers = new ArrayList<List<LocalVariable>>();
-            
+
             // First fill up list with variables that have a fixed number.
-            for (int v=0; v<size; v++) {
-                LocalVariableImpl var = (LocalVariableImpl)mLocalVariables.get(v);
+            for (int v = 0; v < size; v++) {
+                LocalVariableImpl var = (LocalVariableImpl) mLocalVariables.get(v);
                 if (var.isFixedNumber()) {
                     addRegisterUser(registerUsers, var);
                     // Ensure that max locals is large enough to hold parameters.
@@ -223,10 +223,10 @@ class InstructionList implements CodeBuffer {
                     }
                 }
             }
-            
+
             // Merge bit lists together.
             BitList[] live = liveIn;
-            for (int v=0; v<size; v++) {
+            for (int v = 0; v < size; v++) {
                 live[v].or(liveOut[v]);
                 if (live[v].isAllClear()) {
                     // Variable isn't needed.
@@ -239,7 +239,7 @@ class InstructionList implements CodeBuffer {
                 List<Instruction> instrList = new ArrayList<Instruction>(instrCount);
                 instrList.addAll(getInstructions());
 
-                for (int v=0; v<size; v++) {
+                for (int v = 0; v < size; v++) {
                     BitList list = live[v];
                     if (list == null) {
                         continue;
@@ -270,7 +270,7 @@ class InstructionList implements CodeBuffer {
                         }
                     } while (end < instrCount);
 
-                    LocalVariableImpl var = (LocalVariableImpl)mLocalVariables.get(v);
+                    LocalVariableImpl var = (LocalVariableImpl) mLocalVariables.get(v);
 
                     if (firstRange == null) {
                         var.setLocationRangeSet(null);
@@ -282,11 +282,11 @@ class InstructionList implements CodeBuffer {
                 }
             }
 
-            for (int v=0; v<size; v++) {
+            for (int v = 0; v < size; v++) {
                 if (live[v] == null) {
                     continue;
                 }
-                LocalVariableImpl var = (LocalVariableImpl)mLocalVariables.get(v);
+                LocalVariableImpl var = (LocalVariableImpl) mLocalVariables.get(v);
                 if (var.isFixedNumber()) {
                     continue;
                 }
@@ -306,7 +306,7 @@ class InstructionList implements CodeBuffer {
                 var.setNumber(r);
                 addRegisterUser(registerUsers, var);
             }
-            
+
             mMaxLocals = Math.max(mMaxLocals, registerUsers.size());
         } // end liveness analysis
 
@@ -314,7 +314,7 @@ class InstructionList implements CodeBuffer {
         {
             // Start the flow analysis at the first instruction.
             Map<LabelInstruction, Integer> subAdjustMap =
-                new HashMap<LabelInstruction, Integer>(11);
+                    new HashMap<LabelInstruction, Integer>(11);
             stackResolve(0, mFirst, subAdjustMap);
 
             // Continue flow analysis into exception handler entry points.
@@ -324,25 +324,25 @@ class InstructionList implements CodeBuffer {
                 stackResolve(1, enter, subAdjustMap);
             }
         }
-            
+
         // Okay, build up the byte code and set real instruction locations.
         // Multiple passes may be required because instructions may adjust
         // their size as locations are set. Changing size affects the
         // locations of other instructions, so that is why additional passes
         // are required.
-            
+
         boolean passAgain;
         do {
             passAgain = false;
-            
+
             mByteCodes = new byte[instrCount * 2]; // estimate
             mBufferLength = 0;
-            
+
             for (Instruction instr = mFirst; instr != null; instr = instr.mNext) {
                 if (!instr.isResolved()) {
                     passAgain = true;
                 }
-                
+
                 if (instr instanceof Label) {
                     if (instr.mLocation != mBufferLength) {
                         if (instr.mLocation >= 0) {
@@ -355,7 +355,7 @@ class InstructionList implements CodeBuffer {
                     }
                 } else {
                     instr.mLocation = mBufferLength;
-                    
+
                     byte[] bytes = instr.getBytes();
                     if (bytes != null) {
                         if (passAgain) {
@@ -370,7 +370,7 @@ class InstructionList implements CodeBuffer {
                 }
             }
         } while (passAgain); // do {} while ();
-        
+
         if (mBufferLength != mByteCodes.length) {
             byte[] newBytes = new byte[mBufferLength];
             System.arraycopy(mByteCodes, 0, newBytes, 0, mBufferLength);
@@ -419,7 +419,7 @@ class InstructionList implements CodeBuffer {
                 int defIndex = -1;
 
                 if (instr instanceof LocalOperandInstruction) {
-                    LocalOperandInstruction loi = (LocalOperandInstruction)instr;
+                    LocalOperandInstruction loi = (LocalOperandInstruction) instr;
                     LocalVariableImpl var = loi.getLocalVariable();
                     int varIndex = var.getIndex();
 
@@ -435,12 +435,12 @@ class InstructionList implements CodeBuffer {
                                 stores = new ArrayList<StoreLocalInstruction>();
                                 localStores[varIndex] = stores;
                             }
-                            stores.add((StoreLocalInstruction)loi);
+                            stores.add((StoreLocalInstruction) loi);
                         }
                     }
                 }
 
-                for (int v=liveIn.length; --v>=0; ) {
+                for (int v = liveIn.length; --v >= 0; ) {
                     boolean setLiveIn, setLiveOut;
 
                     if (useIndex == v || (v != defIndex && liveOut[v].get(n))) {
@@ -461,7 +461,7 @@ class InstructionList implements CodeBuffer {
 
                     LabelInstruction[] targets = instr.getBranchTargets();
                     if (targets != null) {
-                        for (int i=0; i<targets.length; i++) {
+                        for (int i = 0; i < targets.length; i++) {
                             if (liveIn[v].get(targets[i].getLocation())) {
                                 setLiveOut = true;
                                 passAgain |= liveOut[v].set(n);
@@ -470,7 +470,7 @@ class InstructionList implements CodeBuffer {
                     }
 
                     Collection<ExceptionHandler<LabelInstruction>> handlers =
-                        instr.getExceptionHandlers();
+                            instr.getExceptionHandlers();
                     if (handlers != null) {
                         for (ExceptionHandler<LabelInstruction> handler : handlers) {
                             Instruction catchInstr = handler.getCatchLocation();
@@ -492,10 +492,10 @@ class InstructionList implements CodeBuffer {
         } while (passAgain); // do {} while ();
 
         // See which local store instructions should discard their results.
-        for (int v=localStores.length; --v>=0; ) {
+        for (int v = localStores.length; --v >= 0; ) {
             List<StoreLocalInstruction> stores = localStores[v];
             if (stores != null) {
-                for (int i=stores.size(); --i>=0; ) {
+                for (int i = stores.size(); --i >= 0; ) {
                     StoreLocalInstruction instr = stores.get(i);
                     if (!liveOut[v].get(instr.getLocation())) {
                         instr.discardResult();
@@ -516,7 +516,7 @@ class InstructionList implements CodeBuffer {
         }
     }
 
-    private List<LocalVariable> getRegisterUsers(List<List<LocalVariable>> registerUsers,int num) {
+    private List<LocalVariable> getRegisterUsers(List<List<LocalVariable>> registerUsers, int num) {
         while (registerUsers.size() <= num) {
             registerUsers.add(new ArrayList<LocalVariable>());
         }
@@ -525,17 +525,17 @@ class InstructionList implements CodeBuffer {
 
     /**
      * @param registerUsers
-     * @param r index into registerUsers
+     * @param r             index into registerUsers
      * @return index into registerUsers which is available, which may be equal
-     * to r or equal to the size of registerUsers
+     *         to r or equal to the size of registerUsers
      */
     private int findAvailableRegister(List<List<LocalVariable>> registerUsers,
                                       int r, BitList[] live, int v) {
         registerScan:
-        for (; r<registerUsers.size(); r++) {
+        for (; r < registerUsers.size(); r++) {
             List users = getRegisterUsers(registerUsers, r);
-            for (int i=0; i<users.size(); i++) {
-                int v2 = ((LocalVariableImpl)users.get(i)).getIndex();
+            for (int i = 0; i < users.size(); i++) {
+                int v2 = ((LocalVariableImpl) users.get(i)).getIndex();
                 if (live[v].intersects(live[v2])) {
                     continue registerScan;
                 }
@@ -546,14 +546,14 @@ class InstructionList implements CodeBuffer {
     }
 
     /**
-     * @param stackDepth initial operand stack depth
-     * @param instr flow analysis start instruction
+     * @param stackDepth   initial operand stack depth
+     * @param instr        flow analysis start instruction
      * @param subAdjustMap cache of stack adjustments for subroutine blocks;
-     * key is first instruction of subroutine (jsr target)
+     *                     key is first instruction of subroutine (jsr target)
      * @return updated stack depth, which may increment or decrement
      */
-    private int stackResolve(int stackDepth, 
-                             Instruction instr, 
+    private int stackResolve(int stackDepth,
+                             Instruction instr,
                              Map<LabelInstruction, Integer> subAdjustMap) {
         while (instr != null) {
             // Set the stack depth, marking this instruction as being visited.
@@ -586,7 +586,7 @@ class InstructionList implements CodeBuffer {
             LabelInstruction[] targets = instr.getBranchTargets();
 
             if (targets != null) {
-                for (int i=0; i<targets.length; i++) {
+                for (int i = 0; i < targets.length; i++) {
                     LabelInstruction target = targets[i];
                     target.markBranchTarget();
 
@@ -700,7 +700,7 @@ class InstructionList implements CodeBuffer {
     /////////////////////////////////////////////////////////////////////////
 
     /**
-     * An Instruction is an element in an InstructionList, and represents a 
+     * An Instruction is an element in an InstructionList, and represents a
      * Java byte code instruction.
      */
     public abstract class Instruction implements Location {
@@ -989,7 +989,7 @@ class InstructionList implements CodeBuffer {
                 byte[] bytes = getBytes();
                 boolean wide = false;
                 if (bytes != null) {
-                    for (int i=0; i<bytes.length; i++) {
+                    for (int i = 0; i < bytes.length; i++) {
                         if (i > 0) {
                             buf.append(',');
                         }
@@ -1044,9 +1044,9 @@ class InstructionList implements CodeBuffer {
 
         /**
          * @return -1 when not resolved yet
-         */ 
+         */
         public int getLocation() throws IllegalStateException {
-            int loc; 
+            int loc;
             if ((loc = mLocation) < 0) {
                 if (mPrev == null && mNext == null) {
                     throw new IllegalStateException("Label location is not set");
@@ -1105,16 +1105,16 @@ class InstructionList implements CodeBuffer {
         public boolean isFlowThrough() {
             if (mBytes != null && mBytes.length > 0) {
                 switch (mBytes[0]) {
-                case Opcode.GOTO:
-                case Opcode.GOTO_W:
-                case Opcode.IRETURN:
-                case Opcode.LRETURN:
-                case Opcode.FRETURN:
-                case Opcode.DRETURN:
-                case Opcode.ARETURN:
-                case Opcode.RETURN:
-                case Opcode.ATHROW:
-                    return false;
+                    case Opcode.GOTO:
+                    case Opcode.GOTO_W:
+                    case Opcode.IRETURN:
+                    case Opcode.LRETURN:
+                    case Opcode.FRETURN:
+                    case Opcode.DRETURN:
+                    case Opcode.ARETURN:
+                    case Opcode.RETURN:
+                    case Opcode.ATHROW:
+                        return false;
                 }
             }
 
@@ -1135,7 +1135,7 @@ class InstructionList implements CodeBuffer {
     public class SimpleInstruction extends CodeInstruction {
         /**
          * @param pushed type of argument pushed to operand stack after
-         * instruction executes; pass TypeDesc.VOID if nothing
+         *               instruction executes; pass TypeDesc.VOID if nothing
          */
         public SimpleInstruction(int stackAdjust, TypeDesc pushed, byte[] bytes) {
             super(stackAdjust, bytes);
@@ -1169,8 +1169,8 @@ class InstructionList implements CodeBuffer {
                 throw new IllegalStateException("Constant pool index not resolved");
             }
 
-            mBytes[1] = (byte)(index >> 8);
-            mBytes[2] = (byte)index;
+            mBytes[1] = (byte) (index >> 8);
+            mBytes[2] = (byte) index;
 
             return mBytes;
         }
@@ -1186,7 +1186,7 @@ class InstructionList implements CodeBuffer {
      */
     public class NewObjectInstruction extends ConstantOperandInstruction {
         public NewObjectInstruction(ConstantClassInfo newType) {
-            super(1, TypeDesc.OBJECT, new byte[] {Opcode.NEW, 0, 0}, newType);
+            super(1, TypeDesc.OBJECT, new byte[]{Opcode.NEW, 0, 0}, newType);
         }
 
         @Override
@@ -1202,9 +1202,9 @@ class InstructionList implements CodeBuffer {
         public InvokeInstruction(byte opcode,
                                  ConstantInfo method, TypeDesc ret, TypeDesc[] params) {
             super(calcInvokeAdjust(opcode, ret, params),
-                  ret,
-                  createInvokeBytes(opcode, params),
-                  method);
+                    ret,
+                    createInvokeBytes(opcode, params),
+                    method);
         }
 
         @Override
@@ -1217,16 +1217,16 @@ class InstructionList implements CodeBuffer {
         int stackAdjust = returnSize(ret) - argSize(params);
 
         switch (opcode) {
-        case Opcode.INVOKESTATIC:
-            break;
-        case Opcode.INVOKEVIRTUAL:
-        case Opcode.INVOKEINTERFACE:
-        case Opcode.INVOKESPECIAL:
-            // Consume "this".
-            stackAdjust -= 1;
-            break;
-        default:
-            throw new IllegalArgumentException("Not an invoke operation: " + opcode);
+            case Opcode.INVOKESTATIC:
+                break;
+            case Opcode.INVOKEVIRTUAL:
+            case Opcode.INVOKEINTERFACE:
+            case Opcode.INVOKESPECIAL:
+                // Consume "this".
+                stackAdjust -= 1;
+                break;
+            default:
+                throw new IllegalArgumentException("Not an invoke operation: " + opcode);
         }
 
         return stackAdjust;
@@ -1236,7 +1236,7 @@ class InstructionList implements CodeBuffer {
         byte[] bytes;
         if (opcode == Opcode.INVOKEINTERFACE) {
             bytes = new byte[5];
-            bytes[3] = (byte)(1 + argSize(params));
+            bytes[3] = (byte) (1 + argSize(params));
         } else {
             bytes = new byte[3];
         }
@@ -1257,7 +1257,7 @@ class InstructionList implements CodeBuffer {
     private static int argSize(TypeDesc[] params) {
         int size = 0;
         if (params != null) {
-            for (int i=0; i<params.length; i++) {
+            for (int i = 0; i < params.length; i++) {
                 size += returnSize(params[i]);
             }
         }
@@ -1283,7 +1283,7 @@ class InstructionList implements CodeBuffer {
 
         /**
          * @param pushed type of argument pushed to operand stack after
-         * instruction executes
+         *               instruction executes
          */
         public LoadConstantInstruction(int stackAdjust,
                                        TypeDesc pushed,
@@ -1293,7 +1293,7 @@ class InstructionList implements CodeBuffer {
 
         /**
          * @param pushed type of argument pushed to operand stack after
-         * instruction executes
+         *               instruction executes
          */
         public LoadConstantInstruction(int stackAdjust,
                                        TypeDesc pushed,
@@ -1321,19 +1321,19 @@ class InstructionList implements CodeBuffer {
             if (mWideOnly) {
                 byte[] bytes = new byte[3];
                 bytes[0] = Opcode.LDC2_W;
-                bytes[1] = (byte)(index >> 8);
-                bytes[2] = (byte)index;
+                bytes[1] = (byte) (index >> 8);
+                bytes[2] = (byte) index;
                 return bytes;
             } else if (index <= 255) {
                 byte[] bytes = new byte[2];
                 bytes[0] = Opcode.LDC;
-                bytes[1] = (byte)index;
+                bytes[1] = (byte) index;
                 return bytes;
             } else {
                 byte[] bytes = new byte[3];
                 bytes[0] = Opcode.LDC_W;
-                bytes[1] = (byte)(index >> 8);
-                bytes[2] = (byte)index;
+                bytes[1] = (byte) (index >> 8);
+                bytes[2] = (byte) index;
                 return bytes;
             }
         }
@@ -1345,7 +1345,7 @@ class InstructionList implements CodeBuffer {
     }
 
     /**
-     * Defines a branch instruction, like a goto, jsr or any conditional 
+     * Defines a branch instruction, like a goto, jsr or any conditional
      * branch.
      */
     public class BranchInstruction extends CodeInstruction {
@@ -1365,45 +1365,45 @@ class InstructionList implements CodeBuffer {
             mTarget = target;
 
             switch (opcode) {
-            case Opcode.JSR_W:
-                mIsSub = true;
-                // Flow through to next case.
-            case Opcode.GOTO_W:
-                mBytes = new byte[5];
-                mBytes[0] = opcode;
-                break;
-            case Opcode.JSR:
-                mIsSub = true;
-                // Flow through to next case.
-            case Opcode.GOTO:
-            case Opcode.IF_ACMPEQ:
-            case Opcode.IF_ACMPNE:
-            case Opcode.IF_ICMPEQ:
-            case Opcode.IF_ICMPNE:
-            case Opcode.IF_ICMPLT:
-            case Opcode.IF_ICMPGE:
-            case Opcode.IF_ICMPGT:
-            case Opcode.IF_ICMPLE:
-            case Opcode.IFEQ:
-            case Opcode.IFNE:
-            case Opcode.IFLT:
-            case Opcode.IFGE:
-            case Opcode.IFGT:
-            case Opcode.IFLE:
-            case Opcode.IFNONNULL:
-            case Opcode.IFNULL:
-                mBytes = new byte[3];
-                mBytes[0] = opcode;
-                break;
-            default:
-                throw new IllegalArgumentException
-                    ("Opcode not a branch instruction: " + 
-                     Opcode.getMnemonic(opcode));
+                case Opcode.JSR_W:
+                    mIsSub = true;
+                    // Flow through to next case.
+                case Opcode.GOTO_W:
+                    mBytes = new byte[5];
+                    mBytes[0] = opcode;
+                    break;
+                case Opcode.JSR:
+                    mIsSub = true;
+                    // Flow through to next case.
+                case Opcode.GOTO:
+                case Opcode.IF_ACMPEQ:
+                case Opcode.IF_ACMPNE:
+                case Opcode.IF_ICMPEQ:
+                case Opcode.IF_ICMPNE:
+                case Opcode.IF_ICMPLT:
+                case Opcode.IF_ICMPGE:
+                case Opcode.IF_ICMPGT:
+                case Opcode.IF_ICMPLE:
+                case Opcode.IFEQ:
+                case Opcode.IFNE:
+                case Opcode.IFLT:
+                case Opcode.IFGE:
+                case Opcode.IFGT:
+                case Opcode.IFLE:
+                case Opcode.IFNONNULL:
+                case Opcode.IFNULL:
+                    mBytes = new byte[3];
+                    mBytes[0] = opcode;
+                    break;
+                default:
+                    throw new IllegalArgumentException
+                            ("Opcode not a branch instruction: " +
+                                    Opcode.getMnemonic(opcode));
             }
         }
 
         public LabelInstruction[] getBranchTargets() {
-            return new LabelInstruction[] {mTarget};
+            return new LabelInstruction[]{mTarget};
         }
 
         public boolean isSubroutineCall() {
@@ -1420,13 +1420,13 @@ class InstructionList implements CodeBuffer {
             byte opcode = mBytes[0];
 
             if (opcode == Opcode.GOTO_W || opcode == Opcode.JSR_W) {
-                mBytes[1] = (byte)(offset >> 24);
-                mBytes[2] = (byte)(offset >> 16);
-                mBytes[3] = (byte)(offset >> 8);
-                mBytes[4] = (byte)(offset >> 0);
+                mBytes[1] = (byte) (offset >> 24);
+                mBytes[2] = (byte) (offset >> 16);
+                mBytes[3] = (byte) (offset >> 8);
+                mBytes[4] = (byte) (offset >> 0);
             } else if (-32768 <= offset && offset <= 32767) {
-                mBytes[1] = (byte)(offset >> 8);
-                mBytes[2] = (byte)(offset >> 0);
+                mBytes[1] = (byte) (offset >> 8);
+                mBytes[2] = (byte) (offset >> 0);
             } else if (opcode == Opcode.GOTO || opcode == Opcode.JSR) {
                 mBytes = new byte[5];
                 if (opcode == Opcode.GOTO) {
@@ -1434,10 +1434,10 @@ class InstructionList implements CodeBuffer {
                 } else {
                     mBytes[0] = Opcode.JSR_W;
                 }
-                mBytes[1] = (byte)(offset >> 24);
-                mBytes[2] = (byte)(offset >> 16);
-                mBytes[3] = (byte)(offset >> 8);
-                mBytes[4] = (byte)(offset >> 0);
+                mBytes[1] = (byte) (offset >> 24);
+                mBytes[2] = (byte) (offset >> 16);
+                mBytes[3] = (byte) (offset >> 8);
+                mBytes[4] = (byte) (offset >> 0);
             } else {
                 // The if branch requires a 32 bit offset.
 
@@ -1460,8 +1460,8 @@ class InstructionList implements CodeBuffer {
 
                 mBytes[0] = opcode;
                 // Specify offset to jump to shortHop.
-                mBytes[1] = (byte)0;
-                mBytes[2] = (byte)(3 + 5); // 3: if statement size; 5: goto_w size
+                mBytes[1] = (byte) 0;
+                mBytes[2] = (byte) (3 + 5); // 3: if statement size; 5: goto_w size
 
                 // insert goto_w instruction after this one.
                 insert(new BranchInstruction(0, false, Opcode.GOTO_W, mTarget));
@@ -1485,7 +1485,7 @@ class InstructionList implements CodeBuffer {
 
         public LocalOperandInstruction(int stackAdjust, LocalVariable local) {
             super(stackAdjust);
-            mLocal = (LocalVariableImpl)local;
+            mLocal = (LocalVariableImpl) local;
         }
 
         @Override
@@ -1533,139 +1533,139 @@ class InstructionList implements CodeBuffer {
 
             int typeCode = mLocal.getType().getTypeCode();
 
-            switch(varNum) {
-            case 0:
-                switch (typeCode) {
+            switch (varNum) {
+                case 0:
+                    switch (typeCode) {
+                        default:
+                            opcode = Opcode.ALOAD_0;
+                            break;
+                        case TypeDesc.LONG_CODE:
+                            opcode = Opcode.LLOAD_0;
+                            break;
+                        case TypeDesc.FLOAT_CODE:
+                            opcode = Opcode.FLOAD_0;
+                            break;
+                        case TypeDesc.DOUBLE_CODE:
+                            opcode = Opcode.DLOAD_0;
+                            break;
+                        case TypeDesc.INT_CODE:
+                        case TypeDesc.BOOLEAN_CODE:
+                        case TypeDesc.BYTE_CODE:
+                        case TypeDesc.CHAR_CODE:
+                        case TypeDesc.SHORT_CODE:
+                            opcode = Opcode.ILOAD_0;
+                            break;
+                    }
+                    break;
+                case 1:
+                    switch (typeCode) {
+                        default:
+                            opcode = Opcode.ALOAD_1;
+                            break;
+                        case TypeDesc.LONG_CODE:
+                            opcode = Opcode.LLOAD_1;
+                            break;
+                        case TypeDesc.FLOAT_CODE:
+                            opcode = Opcode.FLOAD_1;
+                            break;
+                        case TypeDesc.DOUBLE_CODE:
+                            opcode = Opcode.DLOAD_1;
+                            break;
+                        case TypeDesc.INT_CODE:
+                        case TypeDesc.BOOLEAN_CODE:
+                        case TypeDesc.BYTE_CODE:
+                        case TypeDesc.CHAR_CODE:
+                        case TypeDesc.SHORT_CODE:
+                            opcode = Opcode.ILOAD_1;
+                            break;
+                    }
+                    break;
+                case 2:
+                    switch (typeCode) {
+                        default:
+                            opcode = Opcode.ALOAD_2;
+                            break;
+                        case TypeDesc.LONG_CODE:
+                            opcode = Opcode.LLOAD_2;
+                            break;
+                        case TypeDesc.FLOAT_CODE:
+                            opcode = Opcode.FLOAD_2;
+                            break;
+                        case TypeDesc.DOUBLE_CODE:
+                            opcode = Opcode.DLOAD_2;
+                            break;
+                        case TypeDesc.INT_CODE:
+                        case TypeDesc.BOOLEAN_CODE:
+                        case TypeDesc.BYTE_CODE:
+                        case TypeDesc.CHAR_CODE:
+                        case TypeDesc.SHORT_CODE:
+                            opcode = Opcode.ILOAD_2;
+                            break;
+                    }
+                    break;
+                case 3:
+                    switch (typeCode) {
+                        default:
+                            opcode = Opcode.ALOAD_3;
+                            break;
+                        case TypeDesc.LONG_CODE:
+                            opcode = Opcode.LLOAD_3;
+                            break;
+                        case TypeDesc.FLOAT_CODE:
+                            opcode = Opcode.FLOAD_3;
+                            break;
+                        case TypeDesc.DOUBLE_CODE:
+                            opcode = Opcode.DLOAD_3;
+                            break;
+                        case TypeDesc.INT_CODE:
+                        case TypeDesc.BOOLEAN_CODE:
+                        case TypeDesc.BYTE_CODE:
+                        case TypeDesc.CHAR_CODE:
+                        case TypeDesc.SHORT_CODE:
+                            opcode = Opcode.ILOAD_3;
+                            break;
+                    }
+                    break;
                 default:
-                    opcode = Opcode.ALOAD_0;
-                    break;
-                case TypeDesc.LONG_CODE:
-                    opcode = Opcode.LLOAD_0;
-                    break;
-                case TypeDesc.FLOAT_CODE:
-                    opcode = Opcode.FLOAD_0;
-                    break;
-                case TypeDesc.DOUBLE_CODE:
-                    opcode = Opcode.DLOAD_0;
-                    break;
-                case TypeDesc.INT_CODE:
-                case TypeDesc.BOOLEAN_CODE:
-                case TypeDesc.BYTE_CODE:
-                case TypeDesc.CHAR_CODE:
-                case TypeDesc.SHORT_CODE:
-                    opcode = Opcode.ILOAD_0;
-                    break;
-                }
-                break;
-            case 1:
-                switch (typeCode) {
-                default:
-                    opcode = Opcode.ALOAD_1;
-                    break;
-                case TypeDesc.LONG_CODE:
-                    opcode = Opcode.LLOAD_1;
-                    break;
-                case TypeDesc.FLOAT_CODE:
-                    opcode = Opcode.FLOAD_1;
-                    break;
-                case TypeDesc.DOUBLE_CODE:
-                    opcode = Opcode.DLOAD_1;
-                    break;
-                case TypeDesc.INT_CODE:
-                case TypeDesc.BOOLEAN_CODE:
-                case TypeDesc.BYTE_CODE:
-                case TypeDesc.CHAR_CODE:
-                case TypeDesc.SHORT_CODE:
-                    opcode = Opcode.ILOAD_1;
-                    break;
-                }
-                break;
-            case 2:
-                switch (typeCode) {
-                default:
-                    opcode = Opcode.ALOAD_2;
-                    break;
-                case TypeDesc.LONG_CODE:
-                    opcode = Opcode.LLOAD_2;
-                    break;
-                case TypeDesc.FLOAT_CODE:
-                    opcode = Opcode.FLOAD_2;
-                    break;
-                case TypeDesc.DOUBLE_CODE:
-                    opcode = Opcode.DLOAD_2;
-                    break;
-                case TypeDesc.INT_CODE:
-                case TypeDesc.BOOLEAN_CODE:
-                case TypeDesc.BYTE_CODE:
-                case TypeDesc.CHAR_CODE:
-                case TypeDesc.SHORT_CODE:
-                    opcode = Opcode.ILOAD_2;
-                    break;
-                }
-                break;
-            case 3:
-                switch (typeCode) {
-                default:
-                    opcode = Opcode.ALOAD_3;
-                    break;
-                case TypeDesc.LONG_CODE:
-                    opcode = Opcode.LLOAD_3;
-                    break;
-                case TypeDesc.FLOAT_CODE:
-                    opcode = Opcode.FLOAD_3;
-                    break;
-                case TypeDesc.DOUBLE_CODE:
-                    opcode = Opcode.DLOAD_3;
-                    break;
-                case TypeDesc.INT_CODE:
-                case TypeDesc.BOOLEAN_CODE:
-                case TypeDesc.BYTE_CODE:
-                case TypeDesc.CHAR_CODE:
-                case TypeDesc.SHORT_CODE:
-                    opcode = Opcode.ILOAD_3;
-                    break;
-                }
-                break;
-            default:
-                writeIndex = true;
+                    writeIndex = true;
 
-                switch (typeCode) {
-                default:
-                    opcode = Opcode.ALOAD;
+                    switch (typeCode) {
+                        default:
+                            opcode = Opcode.ALOAD;
+                            break;
+                        case TypeDesc.LONG_CODE:
+                            opcode = Opcode.LLOAD;
+                            break;
+                        case TypeDesc.FLOAT_CODE:
+                            opcode = Opcode.FLOAD;
+                            break;
+                        case TypeDesc.DOUBLE_CODE:
+                            opcode = Opcode.DLOAD;
+                            break;
+                        case TypeDesc.INT_CODE:
+                        case TypeDesc.BOOLEAN_CODE:
+                        case TypeDesc.BYTE_CODE:
+                        case TypeDesc.CHAR_CODE:
+                        case TypeDesc.SHORT_CODE:
+                            opcode = Opcode.ILOAD;
+                            break;
+                    }
                     break;
-                case TypeDesc.LONG_CODE:
-                    opcode = Opcode.LLOAD;
-                    break;
-                case TypeDesc.FLOAT_CODE:
-                    opcode = Opcode.FLOAD;
-                    break;
-                case TypeDesc.DOUBLE_CODE:
-                    opcode = Opcode.DLOAD;
-                    break;
-                case TypeDesc.INT_CODE:
-                case TypeDesc.BOOLEAN_CODE:
-                case TypeDesc.BYTE_CODE:
-                case TypeDesc.CHAR_CODE:
-                case TypeDesc.SHORT_CODE:
-                    opcode = Opcode.ILOAD;
-                    break;
-                }
-                break;
             }
 
             if (!writeIndex) {
-                mBytes = new byte[] { opcode };
+                mBytes = new byte[]{opcode};
             } else {
                 if (varNum <= 255) {
-                    mBytes = new byte[] { opcode, (byte)varNum };
+                    mBytes = new byte[]{opcode, (byte) varNum};
                 } else {
-                    mBytes = new byte[] 
-                    {
-                        Opcode.WIDE,
-                        opcode,
-                        (byte)(varNum >> 8),
-                        (byte)varNum
-                    };
+                    mBytes = new byte[]
+                            {
+                                    Opcode.WIDE,
+                                    opcode,
+                                    (byte) (varNum >> 8),
+                                    (byte) varNum
+                            };
                 }
             }
 
@@ -1682,7 +1682,7 @@ class InstructionList implements CodeBuffer {
     }
 
     /**
-     * Defines an instruction that stores a value from the stack into a local 
+     * Defines an instruction that stores a value from the stack into a local
      * variable.
      */
     public class StoreLocalInstruction extends LocalOperandInstruction {
@@ -1702,7 +1702,7 @@ class InstructionList implements CodeBuffer {
             if (mDiscardResult) {
                 // Liveness analysis discovered that the results of this store
                 // are not needed so just pop if off the stack.
-                return new byte[] { mLocal.isDoubleWord() ? Opcode.POP2 : Opcode.POP };
+                return new byte[]{mLocal.isDoubleWord() ? Opcode.POP2 : Opcode.POP};
             }
 
             int varNum = getVariableNumber();
@@ -1712,139 +1712,139 @@ class InstructionList implements CodeBuffer {
 
             int typeCode = mLocal.getType().getTypeCode();
 
-            switch(varNum) {
-            case 0:
-                switch (typeCode) {
+            switch (varNum) {
+                case 0:
+                    switch (typeCode) {
+                        default:
+                            opcode = Opcode.ASTORE_0;
+                            break;
+                        case TypeDesc.LONG_CODE:
+                            opcode = Opcode.LSTORE_0;
+                            break;
+                        case TypeDesc.FLOAT_CODE:
+                            opcode = Opcode.FSTORE_0;
+                            break;
+                        case TypeDesc.DOUBLE_CODE:
+                            opcode = Opcode.DSTORE_0;
+                            break;
+                        case TypeDesc.INT_CODE:
+                        case TypeDesc.BOOLEAN_CODE:
+                        case TypeDesc.BYTE_CODE:
+                        case TypeDesc.CHAR_CODE:
+                        case TypeDesc.SHORT_CODE:
+                            opcode = Opcode.ISTORE_0;
+                            break;
+                    }
+                    break;
+                case 1:
+                    switch (typeCode) {
+                        default:
+                            opcode = Opcode.ASTORE_1;
+                            break;
+                        case TypeDesc.LONG_CODE:
+                            opcode = Opcode.LSTORE_1;
+                            break;
+                        case TypeDesc.FLOAT_CODE:
+                            opcode = Opcode.FSTORE_1;
+                            break;
+                        case TypeDesc.DOUBLE_CODE:
+                            opcode = Opcode.DSTORE_1;
+                            break;
+                        case TypeDesc.INT_CODE:
+                        case TypeDesc.BOOLEAN_CODE:
+                        case TypeDesc.BYTE_CODE:
+                        case TypeDesc.CHAR_CODE:
+                        case TypeDesc.SHORT_CODE:
+                            opcode = Opcode.ISTORE_1;
+                            break;
+                    }
+                    break;
+                case 2:
+                    switch (typeCode) {
+                        default:
+                            opcode = Opcode.ASTORE_2;
+                            break;
+                        case TypeDesc.LONG_CODE:
+                            opcode = Opcode.LSTORE_2;
+                            break;
+                        case TypeDesc.FLOAT_CODE:
+                            opcode = Opcode.FSTORE_2;
+                            break;
+                        case TypeDesc.DOUBLE_CODE:
+                            opcode = Opcode.DSTORE_2;
+                            break;
+                        case TypeDesc.INT_CODE:
+                        case TypeDesc.BOOLEAN_CODE:
+                        case TypeDesc.BYTE_CODE:
+                        case TypeDesc.CHAR_CODE:
+                        case TypeDesc.SHORT_CODE:
+                            opcode = Opcode.ISTORE_2;
+                            break;
+                    }
+                    break;
+                case 3:
+                    switch (typeCode) {
+                        default:
+                            opcode = Opcode.ASTORE_3;
+                            break;
+                        case TypeDesc.LONG_CODE:
+                            opcode = Opcode.LSTORE_3;
+                            break;
+                        case TypeDesc.FLOAT_CODE:
+                            opcode = Opcode.FSTORE_3;
+                            break;
+                        case TypeDesc.DOUBLE_CODE:
+                            opcode = Opcode.DSTORE_3;
+                            break;
+                        case TypeDesc.INT_CODE:
+                        case TypeDesc.BOOLEAN_CODE:
+                        case TypeDesc.BYTE_CODE:
+                        case TypeDesc.CHAR_CODE:
+                        case TypeDesc.SHORT_CODE:
+                            opcode = Opcode.ISTORE_3;
+                            break;
+                    }
+                    break;
                 default:
-                    opcode = Opcode.ASTORE_0;
-                    break;
-                case TypeDesc.LONG_CODE:
-                    opcode = Opcode.LSTORE_0;
-                    break;
-                case TypeDesc.FLOAT_CODE:
-                    opcode = Opcode.FSTORE_0;
-                    break;
-                case TypeDesc.DOUBLE_CODE:
-                    opcode = Opcode.DSTORE_0;
-                    break;
-                case TypeDesc.INT_CODE:
-                case TypeDesc.BOOLEAN_CODE:
-                case TypeDesc.BYTE_CODE:
-                case TypeDesc.CHAR_CODE:
-                case TypeDesc.SHORT_CODE:
-                    opcode = Opcode.ISTORE_0;
-                    break;
-                }
-                break;
-            case 1:
-                switch (typeCode) {
-                default:
-                    opcode = Opcode.ASTORE_1;
-                    break;
-                case TypeDesc.LONG_CODE:
-                    opcode = Opcode.LSTORE_1;
-                    break;
-                case TypeDesc.FLOAT_CODE:
-                    opcode = Opcode.FSTORE_1;
-                    break;
-                case TypeDesc.DOUBLE_CODE:
-                    opcode = Opcode.DSTORE_1;
-                    break;
-                case TypeDesc.INT_CODE:
-                case TypeDesc.BOOLEAN_CODE:
-                case TypeDesc.BYTE_CODE:
-                case TypeDesc.CHAR_CODE:
-                case TypeDesc.SHORT_CODE:
-                    opcode = Opcode.ISTORE_1;
-                    break;
-                }
-                break;
-            case 2:
-                switch (typeCode) {
-                default:
-                    opcode = Opcode.ASTORE_2;
-                    break;
-                case TypeDesc.LONG_CODE:
-                    opcode = Opcode.LSTORE_2;
-                    break;
-                case TypeDesc.FLOAT_CODE:
-                    opcode = Opcode.FSTORE_2;
-                    break;
-                case TypeDesc.DOUBLE_CODE:
-                    opcode = Opcode.DSTORE_2;
-                    break;
-                case TypeDesc.INT_CODE:
-                case TypeDesc.BOOLEAN_CODE:
-                case TypeDesc.BYTE_CODE:
-                case TypeDesc.CHAR_CODE:
-                case TypeDesc.SHORT_CODE:
-                    opcode = Opcode.ISTORE_2;
-                    break;
-                }
-                break;
-            case 3:
-                switch (typeCode) {
-                default:
-                    opcode = Opcode.ASTORE_3;
-                    break;
-                case TypeDesc.LONG_CODE:
-                    opcode = Opcode.LSTORE_3;
-                    break;
-                case TypeDesc.FLOAT_CODE:
-                    opcode = Opcode.FSTORE_3;
-                    break;
-                case TypeDesc.DOUBLE_CODE:
-                    opcode = Opcode.DSTORE_3;
-                    break;
-                case TypeDesc.INT_CODE:
-                case TypeDesc.BOOLEAN_CODE:
-                case TypeDesc.BYTE_CODE:
-                case TypeDesc.CHAR_CODE:
-                case TypeDesc.SHORT_CODE:
-                    opcode = Opcode.ISTORE_3;
-                    break;
-                }
-                break;
-            default:
-                writeIndex = true;
+                    writeIndex = true;
 
-                switch (typeCode) {
-                default:
-                    opcode = Opcode.ASTORE;
+                    switch (typeCode) {
+                        default:
+                            opcode = Opcode.ASTORE;
+                            break;
+                        case TypeDesc.LONG_CODE:
+                            opcode = Opcode.LSTORE;
+                            break;
+                        case TypeDesc.FLOAT_CODE:
+                            opcode = Opcode.FSTORE;
+                            break;
+                        case TypeDesc.DOUBLE_CODE:
+                            opcode = Opcode.DSTORE;
+                            break;
+                        case TypeDesc.INT_CODE:
+                        case TypeDesc.BOOLEAN_CODE:
+                        case TypeDesc.BYTE_CODE:
+                        case TypeDesc.CHAR_CODE:
+                        case TypeDesc.SHORT_CODE:
+                            opcode = Opcode.ISTORE;
+                            break;
+                    }
                     break;
-                case TypeDesc.LONG_CODE:
-                    opcode = Opcode.LSTORE;
-                    break;
-                case TypeDesc.FLOAT_CODE:
-                    opcode = Opcode.FSTORE;
-                    break;
-                case TypeDesc.DOUBLE_CODE:
-                    opcode = Opcode.DSTORE;
-                    break;
-                case TypeDesc.INT_CODE:
-                case TypeDesc.BOOLEAN_CODE:
-                case TypeDesc.BYTE_CODE:
-                case TypeDesc.CHAR_CODE:
-                case TypeDesc.SHORT_CODE:
-                    opcode = Opcode.ISTORE;
-                    break;
-                }
-                break;
             }
 
             if (!writeIndex) {
-                mBytes = new byte[] { opcode };
+                mBytes = new byte[]{opcode};
             } else {
                 if (varNum <= 255) {
-                    mBytes = new byte[] { opcode, (byte)varNum };
+                    mBytes = new byte[]{opcode, (byte) varNum};
                 } else {
-                    mBytes = new byte[] 
-                    {
-                        Opcode.WIDE,
-                        opcode,
-                        (byte)(varNum >> 8),
-                        (byte)varNum
-                    };
+                    mBytes = new byte[]
+                            {
+                                    Opcode.WIDE,
+                                    opcode,
+                                    (byte) (varNum >> 8),
+                                    (byte) varNum
+                            };
                 }
             }
 
@@ -1870,7 +1870,7 @@ class InstructionList implements CodeBuffer {
     }
 
     /**
-     * Defines a ret instruction for returning from a jsr call. 
+     * Defines a ret instruction for returning from a jsr call.
      */
     public class RetInstruction extends LocalOperandInstruction {
         // Note: This instruction does not provide any branch targets. The
@@ -1884,7 +1884,7 @@ class InstructionList implements CodeBuffer {
 
         public RetInstruction(LocalVariable local) {
             super(0, local);
-            ((LocalVariableImpl)local).setFixedNumber(mNextFixedVariableNumber++);
+            ((LocalVariableImpl) local).setFixedNumber(mNextFixedVariableNumber++);
         }
 
         @Override
@@ -1897,15 +1897,15 @@ class InstructionList implements CodeBuffer {
             int varNum = getVariableNumber();
 
             if (varNum <= 255) {
-                mBytes = new byte[] { Opcode.RET, (byte)varNum };
+                mBytes = new byte[]{Opcode.RET, (byte) varNum};
             } else {
-                mBytes = new byte[] 
-                { 
-                    Opcode.WIDE, 
-                    Opcode.RET, 
-                    (byte)(varNum >> 8),
-                    (byte)varNum
-                };
+                mBytes = new byte[]
+                        {
+                                Opcode.WIDE,
+                                Opcode.RET,
+                                (byte) (varNum >> 8),
+                                (byte) varNum
+                        };
             }
 
             return mBytes;
@@ -1942,19 +1942,19 @@ class InstructionList implements CodeBuffer {
             int varNum = getVariableNumber();
 
             if ((-128 <= mAmount && mAmount <= 127) && varNum <= 255) {
-                mBytes = new byte[] {
-                    Opcode.IINC, 
-                    (byte)varNum, 
-                    (byte)mAmount 
+                mBytes = new byte[]{
+                        Opcode.IINC,
+                        (byte) varNum,
+                        (byte) mAmount
                 };
             } else {
-                mBytes = new byte[] {
-                    Opcode.WIDE,
-                    Opcode.IINC,
-                    (byte)(varNum >> 8),
-                    (byte)varNum,
-                    (byte)(mAmount >> 8),
-                    (byte)mAmount
+                mBytes = new byte[]{
+                        Opcode.WIDE,
+                        Opcode.IINC,
+                        (byte) (varNum >> 8),
+                        (byte) varNum,
+                        (byte) (mAmount >> 8),
+                        (byte) mAmount
                 };
             }
 
@@ -1971,8 +1971,8 @@ class InstructionList implements CodeBuffer {
     }
 
     /**
-     * Defines a switch instruction. The choice of which actual switch 
-     * implementation to use (table or lookup switch) is determined 
+     * Defines a switch instruction. The choice of which actual switch
+     * implementation to use (table or lookup switch) is determined
      * automatically based on which generates to the smallest amount of bytes.
      */
     public class SwitchInstruction extends CodeInstruction {
@@ -1987,36 +1987,35 @@ class InstructionList implements CodeBuffer {
 
         public SwitchInstruction(int[] casesParam,
                                  Location[] locationsParam,
-                                 Location defaultLocation)
-        {
+                                 Location defaultLocation) {
             // A SwitchInstruction always adjusts the stack by -1 because it 
             // pops the switch key off the stack.
             super(-1);
 
             if (casesParam.length != locationsParam.length) {
                 throw new IllegalArgumentException
-                    ("Switch cases and locations sizes differ: " + 
-                     casesParam.length + ", " + locationsParam.length);
+                        ("Switch cases and locations sizes differ: " +
+                                casesParam.length + ", " + locationsParam.length);
             }
 
             mCases = new int[casesParam.length];
             System.arraycopy(casesParam, 0, mCases, 0, casesParam.length);
 
             LabelInstruction[] locations = new LabelInstruction[locationsParam.length];
-            for (int i=0; i<locations.length; i++) {
+            for (int i = 0; i < locations.length; i++) {
                 LabelInstruction location;
                 try {
-                    location = (LabelInstruction)locationsParam[i];
+                    location = (LabelInstruction) locationsParam[i];
                 } catch (ClassCastException e) {
                     throw new IllegalArgumentException
-                        ("Switch location is not a label instruction");
+                            ("Switch location is not a label instruction");
                 }
                 locations[i] = location;
             }
             mLocations = locations;
 
             try {
-                mDefaultLocation = (LabelInstruction)defaultLocation;
+                mDefaultLocation = (LabelInstruction) defaultLocation;
             } catch (ClassCastException e) {
                 throw new IllegalArgumentException("Default location is not a label instruction");
             }
@@ -2026,7 +2025,7 @@ class InstructionList implements CodeBuffer {
 
             // Check for duplicate cases.
             int lastCase = 0;
-            for (int i=0; i<mCases.length; i++) {
+            for (int i = 0; i < mCases.length; i++) {
                 if (i > 0 && mCases[i] == lastCase) {
                     throw new IllegalArgumentException("Duplicate switch cases: " + lastCase);
                 }
@@ -2046,7 +2045,7 @@ class InstructionList implements CodeBuffer {
             } else {
                 mOpcode = Opcode.LOOKUPSWITCH;
             }
-        }   
+        }
 
         public LabelInstruction[] getBranchTargets() {
             LabelInstruction[] targets = new LabelInstruction[mLocations.length + 1];
@@ -2083,59 +2082,59 @@ class InstructionList implements CodeBuffer {
             int cursor = pad + 1;
 
             int defaultOffset = mDefaultLocation.getLocation() - mLocation;
-            mBytes[cursor++] = (byte)(defaultOffset >> 24);
-            mBytes[cursor++] = (byte)(defaultOffset >> 16);
-            mBytes[cursor++] = (byte)(defaultOffset >> 8);
-            mBytes[cursor++] = (byte)(defaultOffset >> 0);
+            mBytes[cursor++] = (byte) (defaultOffset >> 24);
+            mBytes[cursor++] = (byte) (defaultOffset >> 16);
+            mBytes[cursor++] = (byte) (defaultOffset >> 8);
+            mBytes[cursor++] = (byte) (defaultOffset >> 0);
 
             if (mOpcode == Opcode.TABLESWITCH) {
-                mBytes[cursor++] = (byte)(mSmallest >> 24);
-                mBytes[cursor++] = (byte)(mSmallest >> 16);
-                mBytes[cursor++] = (byte)(mSmallest >> 8);
-                mBytes[cursor++] = (byte)(mSmallest >> 0);
+                mBytes[cursor++] = (byte) (mSmallest >> 24);
+                mBytes[cursor++] = (byte) (mSmallest >> 16);
+                mBytes[cursor++] = (byte) (mSmallest >> 8);
+                mBytes[cursor++] = (byte) (mSmallest >> 0);
 
-                mBytes[cursor++] = (byte)(mLargest >> 24);
-                mBytes[cursor++] = (byte)(mLargest >> 16);
-                mBytes[cursor++] = (byte)(mLargest >> 8);
-                mBytes[cursor++] = (byte)(mLargest >> 0);
+                mBytes[cursor++] = (byte) (mLargest >> 24);
+                mBytes[cursor++] = (byte) (mLargest >> 16);
+                mBytes[cursor++] = (byte) (mLargest >> 8);
+                mBytes[cursor++] = (byte) (mLargest >> 0);
 
                 int index = 0;
                 for (int case_ = mSmallest; case_ <= mLargest; case_++) {
                     if (case_ == mCases[index]) {
-                        int offset = 
-                            mLocations[index].getLocation() - mLocation;
-                        mBytes[cursor++] = (byte)(offset >> 24);
-                        mBytes[cursor++] = (byte)(offset >> 16);
-                        mBytes[cursor++] = (byte)(offset >> 8);
-                        mBytes[cursor++] = (byte)(offset >> 0);
+                        int offset =
+                                mLocations[index].getLocation() - mLocation;
+                        mBytes[cursor++] = (byte) (offset >> 24);
+                        mBytes[cursor++] = (byte) (offset >> 16);
+                        mBytes[cursor++] = (byte) (offset >> 8);
+                        mBytes[cursor++] = (byte) (offset >> 0);
 
                         index++;
                     } else {
-                        mBytes[cursor++] = (byte)(defaultOffset >> 24);
-                        mBytes[cursor++] = (byte)(defaultOffset >> 16);
-                        mBytes[cursor++] = (byte)(defaultOffset >> 8);
-                        mBytes[cursor++] = (byte)(defaultOffset >> 0);
+                        mBytes[cursor++] = (byte) (defaultOffset >> 24);
+                        mBytes[cursor++] = (byte) (defaultOffset >> 16);
+                        mBytes[cursor++] = (byte) (defaultOffset >> 8);
+                        mBytes[cursor++] = (byte) (defaultOffset >> 0);
                     }
                 }
             } else {
-                mBytes[cursor++] = (byte)(mCases.length >> 24);
-                mBytes[cursor++] = (byte)(mCases.length >> 16);
-                mBytes[cursor++] = (byte)(mCases.length >> 8);
-                mBytes[cursor++] = (byte)(mCases.length >> 0);
+                mBytes[cursor++] = (byte) (mCases.length >> 24);
+                mBytes[cursor++] = (byte) (mCases.length >> 16);
+                mBytes[cursor++] = (byte) (mCases.length >> 8);
+                mBytes[cursor++] = (byte) (mCases.length >> 0);
 
                 for (int index = 0; index < mCases.length; index++) {
                     int case_ = mCases[index];
 
-                    mBytes[cursor++] = (byte)(case_ >> 24);
-                    mBytes[cursor++] = (byte)(case_ >> 16);
-                    mBytes[cursor++] = (byte)(case_ >> 8);
-                    mBytes[cursor++] = (byte)(case_ >> 0);
+                    mBytes[cursor++] = (byte) (case_ >> 24);
+                    mBytes[cursor++] = (byte) (case_ >> 16);
+                    mBytes[cursor++] = (byte) (case_ >> 8);
+                    mBytes[cursor++] = (byte) (case_ >> 0);
 
                     int offset = mLocations[index].getLocation() - mLocation;
-                    mBytes[cursor++] = (byte)(offset >> 24);
-                    mBytes[cursor++] = (byte)(offset >> 16);
-                    mBytes[cursor++] = (byte)(offset >> 8);
-                    mBytes[cursor++] = (byte)(offset >> 0);
+                    mBytes[cursor++] = (byte) (offset >> 24);
+                    mBytes[cursor++] = (byte) (offset >> 16);
+                    mBytes[cursor++] = (byte) (offset >> 8);
+                    mBytes[cursor++] = (byte) (offset >> 0);
                 }
             }
 
@@ -2145,7 +2144,7 @@ class InstructionList implements CodeBuffer {
         @Override
         public boolean isResolved() {
             if (mDefaultLocation.getLocation() >= 0) {
-                for (int i=0; i<mLocations.length; i++) {
+                for (int i = 0; i < mLocations.length; i++) {
                     if (mLocations[i].getLocation() < 0) {
                         break;
                     }
@@ -2173,7 +2172,7 @@ class InstructionList implements CodeBuffer {
             }
 
             swap(left, last);
-            sort(left, last-1);
+            sort(left, last - 1);
             sort(last + 1, right);
         }
 
@@ -2193,7 +2192,7 @@ class InstructionList implements CodeBuffer {
      */
     public class StackOperationInstruction extends CodeInstruction {
         public StackOperationInstruction(byte opcode) {
-            super(calcStackOperationAdjust(opcode), new byte[] {opcode});
+            super(calcStackOperationAdjust(opcode), new byte[]{opcode});
         }
 
         @Override
@@ -2204,26 +2203,26 @@ class InstructionList implements CodeBuffer {
 
     static int calcStackOperationAdjust(byte opcode) {
         switch (opcode) {
-        case Opcode.DUP:
-            return 1;
-        case Opcode.DUP_X1:
-            return 1;
-        case Opcode.DUP_X2:
-            return 1;
-        case Opcode.DUP2:
-            return 2;
-        case Opcode.DUP2_X1:
-            return 2;
-        case Opcode.DUP2_X2:
-            return 2;
-        case Opcode.POP:
-            return -1;
-        case Opcode.POP2:
-            return -2;
-        case Opcode.SWAP:
-            return 0;
-        default:
-            throw new IllegalArgumentException("Not a stack operation: " + opcode);
+            case Opcode.DUP:
+                return 1;
+            case Opcode.DUP_X1:
+                return 1;
+            case Opcode.DUP_X2:
+                return 1;
+            case Opcode.DUP2:
+                return 2;
+            case Opcode.DUP2_X1:
+                return 2;
+            case Opcode.DUP2_X2:
+                return 2;
+            case Opcode.POP:
+                return -1;
+            case Opcode.POP2:
+                return -2;
+            case Opcode.SWAP:
+                return 0;
+            default:
+                throw new IllegalArgumentException("Not a stack operation: " + opcode);
         }
     }
 }

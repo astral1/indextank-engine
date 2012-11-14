@@ -16,12 +16,11 @@
 
 package com.flaptor.indextank.api.util;
 
+import com.ghosthack.turismo.servlet.Servlet;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
-
-import com.ghosthack.turismo.servlet.Servlet;
 
 public class JettyHelper {
 
@@ -34,7 +33,7 @@ public class JettyHelper {
         handler.addServlet(holder, mapping);
         server(port, handler);
     }
-    
+
     public static void server(int port, Handler handler) throws Exception {
         Server server = new Server(port);
         server.setHandler(handler);

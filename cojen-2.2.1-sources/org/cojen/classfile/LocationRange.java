@@ -17,7 +17,6 @@
 package org.cojen.classfile;
 
 /**
- *
  * @author Brian S O'Neill
  */
 public interface LocationRange<L extends Location> {

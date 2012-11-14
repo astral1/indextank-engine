@@ -19,7 +19,6 @@ package org.cojen.util;
 import java.lang.ref.Reference;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
-
 import java.util.AbstractSet;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -28,7 +27,7 @@ import java.util.NoSuchElementException;
  * A thread-safe Set that manages canonical objects: sharable objects that are
  * typically immutable. Call the {@link #put put} method for supplying the
  * WeakCanonicalSet with candidate canonical instances.
- * <p>
+ * <p/>
  * Objects that do not customize the hashCode and equals methods don't make
  * sense to be canonicalized because each instance will be considered unique.
  * The object returned from the {@link #put put} method will always be the same
@@ -48,7 +47,7 @@ public class WeakCanonicalSet<T> extends AbstractSet<T> {
         final float loadFactor = 0.75f;
         this.loadFactor = loadFactor;
         this.table = new Entry[initialCapacity];
-        this.threshold = (int)(initialCapacity * loadFactor);
+        this.threshold = (int) (initialCapacity * loadFactor);
         this.queue = new ReferenceQueue<T>();
     }
 
@@ -106,8 +105,8 @@ public class WeakCanonicalSet<T> extends AbstractSet<T> {
                 }
                 this.count--;
             } else if (e.hash == hash &&
-                       obj.getClass() == iobj.getClass() &&
-                       equals(obj, iobj)) {
+                    obj.getClass() == iobj.getClass() &&
+                    equals(obj, iobj)) {
                 // Found canonical instance.
                 return (U) iobj;
             } else {
@@ -156,8 +155,8 @@ public class WeakCanonicalSet<T> extends AbstractSet<T> {
                 }
                 this.count--;
             } else if (e.hash == hash &&
-                     obj.getClass() == iobj.getClass() &&
-                     equals(obj, iobj)) {
+                    obj.getClass() == iobj.getClass() &&
+                    equals(obj, iobj)) {
                 // Found canonical instance.
                 return true;
             } else {
@@ -187,7 +186,7 @@ public class WeakCanonicalSet<T> extends AbstractSet<T> {
         int newCapacity = oldCapacity * 2 + 1;
         Entry<T>[] newTab = new Entry[newCapacity];
 
-        this.threshold = (int)(newCapacity * this.loadFactor);
+        this.threshold = (int) (newCapacity * this.loadFactor);
         this.table = newTab;
 
         for (int i = oldCapacity; i-- > 0; ) {

@@ -16,154 +16,142 @@
 
 package com.flaptor.indextank.index.storage;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.EOFException;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.OutputStream;
-import java.io.UTFDataFormatException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Scanner;
-import java.util.concurrent.ConcurrentMap;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
-
-import org.apache.log4j.Logger;
-
 import com.flaptor.indextank.index.Document;
-import com.flaptor.indextank.storage.alternatives.DocumentStorage;
 import com.flaptor.util.Execute;
 import com.flaptor.util.FileUtil;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.MapMaker;
 import com.google.common.collect.Maps;
+import org.apache.log4j.Logger;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Scanner;
+import java.util.concurrent.ConcurrentMap;
 
 
 /**
  * @author santip
  * @author dbuthay
- *
  */
 public class InMemoryStorage extends DocumentBinaryStorage {
-  private static final Logger logger = Logger.getLogger(Execute.whoAmI());
-  private static final String MAIN_FILE_NAME = "InMemoryStorage";
+    private static final Logger logger = Logger.getLogger(Execute.whoAmI());
+    private static final String MAIN_FILE_NAME = "InMemoryStorage";
 
-  private final File backupDir;
-  private ConcurrentMap<String, byte[]> compressedMap = new MapMaker().makeMap();
+    private final File backupDir;
+    private ConcurrentMap<String, byte[]> compressedMap = new MapMaker().makeMap();
 
-  @SuppressWarnings("unchecked")
-  public InMemoryStorage(File backupDir, boolean load) throws IOException {
-    Preconditions.checkNotNull(backupDir);
-    checkDirArgument(backupDir);
-    this.backupDir = backupDir;
-    File f = new File(this.backupDir, MAIN_FILE_NAME);
-    if (load && f.exists()) {
-      ObjectInputStream is = null;
-      try {
-        is = new ObjectInputStream(new BufferedInputStream(new FileInputStream(f)));
-        try {
-          compressedMap = (ConcurrentMap<String, byte[]>) is.readObject();
-        } catch (ClassNotFoundException e) {
-          throw new IllegalStateException(e);
+    @SuppressWarnings("unchecked")
+    public InMemoryStorage(File backupDir, boolean load) throws IOException {
+        Preconditions.checkNotNull(backupDir);
+        checkDirArgument(backupDir);
+        this.backupDir = backupDir;
+        File f = new File(this.backupDir, MAIN_FILE_NAME);
+        if (load && f.exists()) {
+            ObjectInputStream is = null;
+            try {
+                is = new ObjectInputStream(new BufferedInputStream(new FileInputStream(f)));
+                try {
+                    compressedMap = (ConcurrentMap<String, byte[]>) is.readObject();
+                } catch (ClassNotFoundException e) {
+                    throw new IllegalStateException(e);
+                }
+                logger.info("State loaded.");
+            } finally {
+                Execute.close(is);
+            }
+        } else if (load) {
+            logger.warn("Starting a new(empty) InMemoryStorage. Load was requested but no file was found.");
+        } else {
+            logger.info("Starting a new(empty) InMemoryStorage.");
         }
-        logger.info("State loaded.");
-      } finally {
-        Execute.close(is);
-      }
-    } else if (load) {
-      logger.warn("Starting a new(empty) InMemoryStorage. Load was requested but no file was found.");
-    } else {
-      logger.info("Starting a new(empty) InMemoryStorage.");
     }
-  }
 
-  /**
-   * @throws IllegalArgumentException
-   */
-  private static void checkDirArgument(File backupDir) {
-    Preconditions.checkNotNull(backupDir);
-    if (!backupDir.canRead()) {
-      String s = "Don't have read permission over the backup directory(" + backupDir.getAbsolutePath() + ").";
-      logger.error(s);
-      throw new IllegalArgumentException(s);
+    /**
+     * @throws IllegalArgumentException
+     */
+    private static void checkDirArgument(File backupDir) {
+        Preconditions.checkNotNull(backupDir);
+        if (!backupDir.canRead()) {
+            String s = "Don't have read permission over the backup directory(" + backupDir.getAbsolutePath() + ").";
+            logger.error(s);
+            throw new IllegalArgumentException(s);
+        }
+        if (!backupDir.canWrite()) {
+            String s = "Don't have write permission over the backup directory(" + backupDir.getAbsolutePath() + ").";
+            logger.error(s);
+            throw new IllegalArgumentException(s);
+        }
     }
-    if (!backupDir.canWrite()) {
-      String s = "Don't have write permission over the backup directory(" + backupDir.getAbsolutePath() + ").";
-      logger.error(s);
-      throw new IllegalArgumentException(s);
+
+    public void dump() throws IOException {
+        syncToDisk();
     }
-  }
 
-  public void dump() throws IOException {
-    syncToDisk();
-  }
-
-  /**
-   * Serializes this instance content to disk.
-   * Blocking method.
-   */
-  private synchronized void syncToDisk() throws IOException {
-    logger.info("Starting dump to disk.");
-    File f = new File(backupDir, MAIN_FILE_NAME);
-    ObjectOutputStream os = null;
-    try {
-      os = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(f)));
-      os.writeObject(compressedMap);
-      os.flush();
-      logger.info("Dump to disk completed.");
-    } finally {
-      Execute.close(os);
+    /**
+     * Serializes this instance content to disk.
+     * Blocking method.
+     */
+    private synchronized void syncToDisk() throws IOException {
+        logger.info("Starting dump to disk.");
+        File f = new File(backupDir, MAIN_FILE_NAME);
+        ObjectOutputStream os = null;
+        try {
+            os = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(f)));
+            os.writeObject(compressedMap);
+            os.flush();
+            logger.info("Dump to disk completed.");
+        } finally {
+            Execute.close(os);
+        }
     }
-  }
 
-    
-	@Override
-	protected byte[] getBinaryDoc(String docId) {
-		return compressedMap.get(docId);
-	}
 
-	@Override
-	public void saveBinaryDoc(String docId, byte[] bytes) {
-		compressedMap.put(docId, bytes);
-	}
+    @Override
+    protected byte[] getBinaryDoc(String docId) {
+        return compressedMap.get(docId);
+    }
 
-	@Override
-	public void deleteBinaryDoc(String docId) {
-		compressedMap.remove(docId);
-	}
+    @Override
+    public void saveBinaryDoc(String docId, byte[] bytes) {
+        compressedMap.put(docId, bytes);
+    }
 
-	/**
-	 * Allows testing changes to the compression method, it first
-	 * validates the correctness of the implementation and then
-	 * lists the compression value and ratio for several document
-	 * sizes.
-	 * 
-	 * First argument should be the text to use for texting, it will
-	 * be clipped to different sizes for ratio testing.
-	 */
-	public static void main(String[] args) throws IOException {
+    @Override
+    public void deleteBinaryDoc(String docId) {
+        compressedMap.remove(docId);
+    }
+
+    /**
+     * Allows testing changes to the compression method, it first
+     * validates the correctness of the implementation and then
+     * lists the compression value and ratio for several document
+     * sizes.
+     * <p/>
+     * First argument should be the text to use for texting, it will
+     * be clipped to different sizes for ratio testing.
+     */
+    public static void main(String[] args) throws IOException {
         //testCorrectness(args);
-	    //testCompressionRatio(args);
-	    InMemoryStorage ims = new InMemoryStorage(new File(args[0]), true);
-	    
+        //testCompressionRatio(args);
+        InMemoryStorage ims = new InMemoryStorage(new File(args[0]), true);
+
         Scanner in = new Scanner(System.in);
-        
+
         while (in.hasNextLine()) {
             Document document = ims.getDocument(in.nextLine());
             System.out.println(document);
         }
 
-	}
+    }
 
     private static void testCorrectness(String[] args) throws IOException {
         InMemoryStorage storage = new InMemoryStorage(FileUtil.createTempDir("testInMemoryStorage", ".tmp"), false);
@@ -192,5 +180,5 @@ public class InMemoryStorage extends DocumentBinaryStorage {
         stats.put("in_memory_storage_count", String.valueOf(compressedMap.size()));
         return stats;
     }
-    
+
 }

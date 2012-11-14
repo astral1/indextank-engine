@@ -16,20 +16,8 @@
 
 package org.cojen.classfile;
 
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import org.cojen.util.IntHashMap;
 import org.cojen.classfile.attribute.Annotation;
 import org.cojen.classfile.attribute.CodeAttr;
-import org.cojen.classfile.attribute.LocalVariableTableAttr;
 import org.cojen.classfile.attribute.SignatureAttr;
 import org.cojen.classfile.attribute.StackMapTableAttr;
 import org.cojen.classfile.constant.ConstantClassInfo;
@@ -43,6 +31,16 @@ import org.cojen.classfile.constant.ConstantMethodInfo;
 import org.cojen.classfile.constant.ConstantNameAndTypeInfo;
 import org.cojen.classfile.constant.ConstantStringInfo;
 import org.cojen.classfile.constant.ConstantUTFInfo;
+import org.cojen.util.IntHashMap;
+
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Disassembles a ClassFile into a pseudo Java assembly language format.
@@ -79,7 +77,7 @@ class AssemblyStylePrinter implements DisassemblyTool.Printer {
         mOut = out;
 
         if (indent.length() == 0 || mClassFile.getSourceFile() != null ||
-            mClassFile.isDeprecated() || mClassFile.isSynthetic()) {
+                mClassFile.isDeprecated() || mClassFile.isSynthetic()) {
 
             println(indent, "/**");
 
@@ -176,7 +174,7 @@ class AssemblyStylePrinter implements DisassemblyTool.Printer {
             println(" {");
         } else {
             println();
-            for (int i=0; i<interfaces.length; i++) {
+            for (int i = 0; i < interfaces.length; i++) {
                 if (i == 0) {
                     print(innerIndent, "implements ");
                 } else {
@@ -195,19 +193,19 @@ class AssemblyStylePrinter implements DisassemblyTool.Printer {
         MethodInfo init = mClassFile.getInitializer();
 
         Object[] members = new Object[fields.length + methods.length +
-                                     ctors.length + ((init == null) ? 0 : 1)];
+                ctors.length + ((init == null) ? 0 : 1)];
 
         int m = 0;
 
-        for (int i=0; i<fields.length; i++) {
+        for (int i = 0; i < fields.length; i++) {
             members[m++] = fields[i];
         }
 
-        for (int i=0; i<methods.length; i++) {
+        for (int i = 0; i < methods.length; i++) {
             members[m++] = methods[i];
         }
 
-        for (int i=0; i<ctors.length; i++) {
+        for (int i = 0; i < ctors.length; i++) {
             members[m++] = ctors[i];
         }
 
@@ -217,14 +215,14 @@ class AssemblyStylePrinter implements DisassemblyTool.Printer {
 
         sortMembers(members);
 
-        for (int i=0; i<members.length; i++) {
+        for (int i = 0; i < members.length; i++) {
             if (i > 0) {
                 println();
             }
             if (members[i] instanceof FieldInfo) {
-                disassemble(innerIndent, (FieldInfo)members[i]);
+                disassemble(innerIndent, (FieldInfo) members[i]);
             } else {
-                disassemble(innerIndent, (MethodInfo)members[i]);
+                disassemble(innerIndent, (MethodInfo) members[i]);
             }
         }
 
@@ -235,7 +233,7 @@ class AssemblyStylePrinter implements DisassemblyTool.Printer {
 
         ClassFile[] innerClasses = mClassFile.getInnerClasses();
 
-        for (int i=0; i<innerClasses.length; i++) {
+        for (int i = 0; i < innerClasses.length; i++) {
             if (i > 0 || members.length > 0) {
                 println();
             }
@@ -305,11 +303,11 @@ class AssemblyStylePrinter implements DisassemblyTool.Printer {
         MethodDesc md = method.getMethodDescriptor();
 
         if ("<clinit>".equals(method.getName()) &&
-            md.getReturnType() == TypeDesc.VOID &&
-            md.getParameterCount() == 0 &&
-            (method.getModifiers().isStatic()) &&
-            (!method.getModifiers().isAbstract()) &&
-            method.getExceptions().length == 0) {
+                md.getReturnType() == TypeDesc.VOID &&
+                md.getParameterCount() == 0 &&
+                (method.getModifiers().isStatic()) &&
+                (!method.getModifiers().isAbstract()) &&
+                method.getExceptions().length == 0) {
 
             // Static initializer.
             print("static");
@@ -335,7 +333,7 @@ class AssemblyStylePrinter implements DisassemblyTool.Printer {
             }
         } else {
             println();
-            for (int i=0; i<exceptions.length; i++) {
+            for (int i = 0; i < exceptions.length; i++) {
                 if (i == 0) {
                     print(indent + "    ", "throws ");
                 } else {
@@ -372,16 +370,16 @@ class AssemblyStylePrinter implements DisassemblyTool.Printer {
     private void disassemble(ConstantInfo constant, boolean showClassLiteral) {
         if (constant instanceof ConstantStringInfo) {
             print("\"");
-            String value = ((ConstantStringInfo)constant).getValue();
+            String value = ((ConstantStringInfo) constant).getValue();
             print(CodeAssemblerPrinter.escape(value));
             print("\"");
         } else if (constant instanceof ConstantIntegerInfo) {
-            print(String.valueOf(((ConstantIntegerInfo)constant).getValue()));
+            print(String.valueOf(((ConstantIntegerInfo) constant).getValue()));
         } else if (constant instanceof ConstantLongInfo) {
-            print(String.valueOf(((ConstantLongInfo)constant).getValue()));
+            print(String.valueOf(((ConstantLongInfo) constant).getValue()));
             print("L");
         } else if (constant instanceof ConstantFloatInfo) {
-            float value = ((ConstantFloatInfo)constant).getValue();
+            float value = ((ConstantFloatInfo) constant).getValue();
             if (value != value) {
                 print("0.0f/0.0f");
             } else if (value == Float.NEGATIVE_INFINITY) {
@@ -393,7 +391,7 @@ class AssemblyStylePrinter implements DisassemblyTool.Printer {
                 print("f");
             }
         } else if (constant instanceof ConstantDoubleInfo) {
-            double value = ((ConstantDoubleInfo)constant).getValue();
+            double value = ((ConstantDoubleInfo) constant).getValue();
             if (value != value) {
                 print("0.0d/0.0d");
             } else if (value == Float.NEGATIVE_INFINITY) {
@@ -405,14 +403,14 @@ class AssemblyStylePrinter implements DisassemblyTool.Printer {
                 print("d");
             }
         } else if (constant instanceof ConstantClassInfo) {
-            ConstantClassInfo cci = (ConstantClassInfo)constant;
+            ConstantClassInfo cci = (ConstantClassInfo) constant;
             disassemble(cci.getType());
             if (showClassLiteral) {
                 print(".class");
             }
         } else if (constant instanceof ConstantUTFInfo) {
             print("\"");
-            String value = ((ConstantUTFInfo)constant).getValue();
+            String value = ((ConstantUTFInfo) constant).getValue();
             print(CodeAssemblerPrinter.escape(value));
             print("\"");
         } else {
@@ -434,7 +432,7 @@ class AssemblyStylePrinter implements DisassemblyTool.Printer {
     }
 
     private void disassemble(String indent, Annotation[] annotations) {
-        for (int i=0; i<annotations.length; i++) {
+        for (int i = 0; i < annotations.length; i++) {
             print(indent);
             disassemble(indent, annotations[i]);
             println();
@@ -455,13 +453,13 @@ class AssemblyStylePrinter implements DisassemblyTool.Printer {
             if (ordinal++ > 0) {
                 print(", ");
             }
-            Map.Entry entry = (Map.Entry)it.next();
-            String name = (String)entry.getKey();
+            Map.Entry entry = (Map.Entry) it.next();
+            String name = (String) entry.getKey();
             if (!"value".equals(name)) {
                 print(name);
                 print("=");
             }
-            disassemble(indent, (Annotation.MemberValue)entry.getValue());
+            disassemble(indent, (Annotation.MemberValue) entry.getValue());
         }
         print(")");
     }
@@ -469,88 +467,88 @@ class AssemblyStylePrinter implements DisassemblyTool.Printer {
     private void disassemble(String indent, Annotation.MemberValue mv) {
         Object value = mv.getValue();
         switch (mv.getTag()) {
-        default:
-            print("?");
-            break;
-        case Annotation.MEMBER_TAG_BOOLEAN:
-            ConstantIntegerInfo ci = (ConstantIntegerInfo)value;
-            print(ci.getValue() == 0 ? "false" : "true");
-            break;
-        case Annotation.MEMBER_TAG_BYTE:
-        case Annotation.MEMBER_TAG_SHORT:
-        case Annotation.MEMBER_TAG_INT:
-        case Annotation.MEMBER_TAG_LONG:
-        case Annotation.MEMBER_TAG_FLOAT:
-        case Annotation.MEMBER_TAG_DOUBLE:
-        case Annotation.MEMBER_TAG_STRING:
-        case Annotation.MEMBER_TAG_CLASS:
-            disassemble((ConstantInfo)value, true);
-            break;
-        case Annotation.MEMBER_TAG_CHAR: {
-            print("'");
-            char c = (char) ((ConstantIntegerInfo)value).getValue();
-            print(CodeAssemblerPrinter.escape(String.valueOf(c), true));
-            print("'");
-            break;
-        }
-        case Annotation.MEMBER_TAG_ENUM:
-            Annotation.EnumConstValue ecv = (Annotation.EnumConstValue)value;
-            print(TypeDesc.forDescriptor(ecv.getTypeName().getValue()).getFullName());
-            print(".");
-            print(ecv.getConstName().getValue());
-            break;
-        case Annotation.MEMBER_TAG_ANNOTATION:
-            disassemble(indent, (Annotation)value);
-            break;
-        case Annotation.MEMBER_TAG_ARRAY:
-            Annotation.MemberValue[] mvs = (Annotation.MemberValue[])value;
-
-            String originalIndent = indent;
-            boolean multiLine = false;
-            if (mvs.length > 0) {
-                if (mvs.length > 4 ||
-                    (mvs.length > 1 && mvs[0].getTag() == Annotation.MEMBER_TAG_ENUM) ||
-                    mvs[0].getTag() == Annotation.MEMBER_TAG_ARRAY ||
-                    mvs[0].getTag() == Annotation.MEMBER_TAG_ANNOTATION) {
-
-                    multiLine = true;
-                    indent = indent + "    ";
-                }
+            default:
+                print("?");
+                break;
+            case Annotation.MEMBER_TAG_BOOLEAN:
+                ConstantIntegerInfo ci = (ConstantIntegerInfo) value;
+                print(ci.getValue() == 0 ? "false" : "true");
+                break;
+            case Annotation.MEMBER_TAG_BYTE:
+            case Annotation.MEMBER_TAG_SHORT:
+            case Annotation.MEMBER_TAG_INT:
+            case Annotation.MEMBER_TAG_LONG:
+            case Annotation.MEMBER_TAG_FLOAT:
+            case Annotation.MEMBER_TAG_DOUBLE:
+            case Annotation.MEMBER_TAG_STRING:
+            case Annotation.MEMBER_TAG_CLASS:
+                disassemble((ConstantInfo) value, true);
+                break;
+            case Annotation.MEMBER_TAG_CHAR: {
+                print("'");
+                char c = (char) ((ConstantIntegerInfo) value).getValue();
+                print(CodeAssemblerPrinter.escape(String.valueOf(c), true));
+                print("'");
+                break;
             }
+            case Annotation.MEMBER_TAG_ENUM:
+                Annotation.EnumConstValue ecv = (Annotation.EnumConstValue) value;
+                print(TypeDesc.forDescriptor(ecv.getTypeName().getValue()).getFullName());
+                print(".");
+                print(ecv.getConstName().getValue());
+                break;
+            case Annotation.MEMBER_TAG_ANNOTATION:
+                disassemble(indent, (Annotation) value);
+                break;
+            case Annotation.MEMBER_TAG_ARRAY:
+                Annotation.MemberValue[] mvs = (Annotation.MemberValue[]) value;
 
-            if (multiLine || mvs.length != 1) {
-                print("{");
-                if (multiLine) {
-                    println();
-                }
-            }
-            
-            for (int j=0; j<mvs.length; j++) {
-                if (multiLine) {
-                    print(indent);
-                }
-                disassemble(indent, mvs[j]);
-                if (j + 1 < mvs.length) {
-                    print(",");
-                    if (!multiLine) {
-                        print(" ");
+                String originalIndent = indent;
+                boolean multiLine = false;
+                if (mvs.length > 0) {
+                    if (mvs.length > 4 ||
+                            (mvs.length > 1 && mvs[0].getTag() == Annotation.MEMBER_TAG_ENUM) ||
+                            mvs[0].getTag() == Annotation.MEMBER_TAG_ARRAY ||
+                            mvs[0].getTag() == Annotation.MEMBER_TAG_ANNOTATION) {
+
+                        multiLine = true;
+                        indent = indent + "    ";
                     }
                 }
-                if (multiLine) {
-                    println();
-                }
-            }
-            
-            indent = originalIndent;
 
-            if (multiLine || mvs.length != 1) {
-                if (multiLine) {
-                    print(indent);
+                if (multiLine || mvs.length != 1) {
+                    print("{");
+                    if (multiLine) {
+                        println();
+                    }
                 }
-                print("}");
-            }
-            
-            break;
+
+                for (int j = 0; j < mvs.length; j++) {
+                    if (multiLine) {
+                        print(indent);
+                    }
+                    disassemble(indent, mvs[j]);
+                    if (j + 1 < mvs.length) {
+                        print(",");
+                        if (!multiLine) {
+                            print(" ");
+                        }
+                    }
+                    if (multiLine) {
+                        println();
+                    }
+                }
+
+                indent = originalIndent;
+
+                if (multiLine || mvs.length != 1) {
+                    if (multiLine) {
+                        print(indent);
+                    }
+                    print("}");
+                }
+
+                break;
         }
     }
 
@@ -577,10 +575,10 @@ class AssemblyStylePrinter implements DisassemblyTool.Printer {
                 if (this == other) {
                     return 0;
                 }
-                
+
                 int loca = getLocation();
                 int locb = other.getLocation();
-                
+
                 if (loca < locb) {
                     return -1;
                 } else if (loca > locb) {
@@ -623,178 +621,198 @@ class AssemblyStylePrinter implements DisassemblyTool.Printer {
             }
 
             print(indent, mnemonic);
-            
+
             switch (opcode) {
-                
-            default:
-                break;
+
+                default:
+                    break;
 
                 // Opcodes with no operands...
 
-            case Opcode.NOP:
-            case Opcode.BREAKPOINT:
-            case Opcode.ACONST_NULL:
-            case Opcode.ICONST_M1:
-            case Opcode.ICONST_0:
-            case Opcode.ICONST_1:
-            case Opcode.ICONST_2:
-            case Opcode.ICONST_3:
-            case Opcode.ICONST_4:
-            case Opcode.ICONST_5:
-            case Opcode.LCONST_0:
-            case Opcode.LCONST_1:
-            case Opcode.FCONST_0:
-            case Opcode.FCONST_1:
-            case Opcode.FCONST_2:
-            case Opcode.DCONST_0:
-            case Opcode.DCONST_1:
-            case Opcode.POP:
-            case Opcode.POP2:
-            case Opcode.DUP:
-            case Opcode.DUP_X1:
-            case Opcode.DUP_X2:
-            case Opcode.DUP2:
-            case Opcode.DUP2_X1:
-            case Opcode.DUP2_X2:
-            case Opcode.SWAP:
-            case Opcode.IADD:  case Opcode.LADD: 
-            case Opcode.FADD:  case Opcode.DADD:
-            case Opcode.ISUB:  case Opcode.LSUB:
-            case Opcode.FSUB:  case Opcode.DSUB:
-            case Opcode.IMUL:  case Opcode.LMUL:
-            case Opcode.FMUL:  case Opcode.DMUL:
-            case Opcode.IDIV:  case Opcode.LDIV:
-            case Opcode.FDIV:  case Opcode.DDIV:
-            case Opcode.IREM:  case Opcode.LREM:
-            case Opcode.FREM:  case Opcode.DREM:
-            case Opcode.INEG:  case Opcode.LNEG:
-            case Opcode.FNEG:  case Opcode.DNEG:
-            case Opcode.ISHL:  case Opcode.LSHL:
-            case Opcode.ISHR:  case Opcode.LSHR:
-            case Opcode.IUSHR: case Opcode.LUSHR:
-            case Opcode.IAND:  case Opcode.LAND:
-            case Opcode.IOR:   case Opcode.LOR:
-            case Opcode.IXOR:  case Opcode.LXOR:
-            case Opcode.FCMPL: case Opcode.DCMPL:
-            case Opcode.FCMPG: case Opcode.DCMPG:
-            case Opcode.LCMP: 
-            case Opcode.I2L:
-            case Opcode.I2F:
-            case Opcode.I2D:
-            case Opcode.L2I:
-            case Opcode.L2F:
-            case Opcode.L2D:
-            case Opcode.F2I:
-            case Opcode.F2L:
-            case Opcode.F2D:
-            case Opcode.D2I:
-            case Opcode.D2L:
-            case Opcode.D2F:
-            case Opcode.I2B:
-            case Opcode.I2C:
-            case Opcode.I2S:
-            case Opcode.IRETURN:
-            case Opcode.LRETURN:
-            case Opcode.FRETURN:
-            case Opcode.DRETURN:
-            case Opcode.ARETURN:
-            case Opcode.RETURN:
-            case Opcode.IALOAD:
-            case Opcode.LALOAD:
-            case Opcode.FALOAD:
-            case Opcode.DALOAD:
-            case Opcode.AALOAD:
-            case Opcode.BALOAD:
-            case Opcode.CALOAD:
-            case Opcode.SALOAD:
-            case Opcode.IASTORE:
-            case Opcode.LASTORE:
-            case Opcode.FASTORE:
-            case Opcode.DASTORE:
-            case Opcode.AASTORE:
-            case Opcode.BASTORE:
-            case Opcode.CASTORE:
-            case Opcode.SASTORE:
-            case Opcode.ARRAYLENGTH:
-            case Opcode.ATHROW:
-            case Opcode.MONITORENTER:
-            case Opcode.MONITOREXIT:
-                println();
-                continue;
+                case Opcode.NOP:
+                case Opcode.BREAKPOINT:
+                case Opcode.ACONST_NULL:
+                case Opcode.ICONST_M1:
+                case Opcode.ICONST_0:
+                case Opcode.ICONST_1:
+                case Opcode.ICONST_2:
+                case Opcode.ICONST_3:
+                case Opcode.ICONST_4:
+                case Opcode.ICONST_5:
+                case Opcode.LCONST_0:
+                case Opcode.LCONST_1:
+                case Opcode.FCONST_0:
+                case Opcode.FCONST_1:
+                case Opcode.FCONST_2:
+                case Opcode.DCONST_0:
+                case Opcode.DCONST_1:
+                case Opcode.POP:
+                case Opcode.POP2:
+                case Opcode.DUP:
+                case Opcode.DUP_X1:
+                case Opcode.DUP_X2:
+                case Opcode.DUP2:
+                case Opcode.DUP2_X1:
+                case Opcode.DUP2_X2:
+                case Opcode.SWAP:
+                case Opcode.IADD:
+                case Opcode.LADD:
+                case Opcode.FADD:
+                case Opcode.DADD:
+                case Opcode.ISUB:
+                case Opcode.LSUB:
+                case Opcode.FSUB:
+                case Opcode.DSUB:
+                case Opcode.IMUL:
+                case Opcode.LMUL:
+                case Opcode.FMUL:
+                case Opcode.DMUL:
+                case Opcode.IDIV:
+                case Opcode.LDIV:
+                case Opcode.FDIV:
+                case Opcode.DDIV:
+                case Opcode.IREM:
+                case Opcode.LREM:
+                case Opcode.FREM:
+                case Opcode.DREM:
+                case Opcode.INEG:
+                case Opcode.LNEG:
+                case Opcode.FNEG:
+                case Opcode.DNEG:
+                case Opcode.ISHL:
+                case Opcode.LSHL:
+                case Opcode.ISHR:
+                case Opcode.LSHR:
+                case Opcode.IUSHR:
+                case Opcode.LUSHR:
+                case Opcode.IAND:
+                case Opcode.LAND:
+                case Opcode.IOR:
+                case Opcode.LOR:
+                case Opcode.IXOR:
+                case Opcode.LXOR:
+                case Opcode.FCMPL:
+                case Opcode.DCMPL:
+                case Opcode.FCMPG:
+                case Opcode.DCMPG:
+                case Opcode.LCMP:
+                case Opcode.I2L:
+                case Opcode.I2F:
+                case Opcode.I2D:
+                case Opcode.L2I:
+                case Opcode.L2F:
+                case Opcode.L2D:
+                case Opcode.F2I:
+                case Opcode.F2L:
+                case Opcode.F2D:
+                case Opcode.D2I:
+                case Opcode.D2L:
+                case Opcode.D2F:
+                case Opcode.I2B:
+                case Opcode.I2C:
+                case Opcode.I2S:
+                case Opcode.IRETURN:
+                case Opcode.LRETURN:
+                case Opcode.FRETURN:
+                case Opcode.DRETURN:
+                case Opcode.ARETURN:
+                case Opcode.RETURN:
+                case Opcode.IALOAD:
+                case Opcode.LALOAD:
+                case Opcode.FALOAD:
+                case Opcode.DALOAD:
+                case Opcode.AALOAD:
+                case Opcode.BALOAD:
+                case Opcode.CALOAD:
+                case Opcode.SALOAD:
+                case Opcode.IASTORE:
+                case Opcode.LASTORE:
+                case Opcode.FASTORE:
+                case Opcode.DASTORE:
+                case Opcode.AASTORE:
+                case Opcode.BASTORE:
+                case Opcode.CASTORE:
+                case Opcode.SASTORE:
+                case Opcode.ARRAYLENGTH:
+                case Opcode.ATHROW:
+                case Opcode.MONITORENTER:
+                case Opcode.MONITOREXIT:
+                    println();
+                    continue;
 
-            case Opcode.ILOAD_0:
-            case Opcode.LLOAD_0:
-            case Opcode.FLOAD_0:
-            case Opcode.DLOAD_0:
-            case Opcode.ALOAD_0:
-                disassemble(code.getLocalVariable(mAddress, 0));
-                println();
-                continue;
+                case Opcode.ILOAD_0:
+                case Opcode.LLOAD_0:
+                case Opcode.FLOAD_0:
+                case Opcode.DLOAD_0:
+                case Opcode.ALOAD_0:
+                    disassemble(code.getLocalVariable(mAddress, 0));
+                    println();
+                    continue;
 
-            case Opcode.ISTORE_0:
-            case Opcode.LSTORE_0:
-            case Opcode.FSTORE_0:
-            case Opcode.DSTORE_0:
-            case Opcode.ASTORE_0:
-                disassemble(code.getLocalVariable(mAddress + 1, 0));
-                println();
-                continue;
+                case Opcode.ISTORE_0:
+                case Opcode.LSTORE_0:
+                case Opcode.FSTORE_0:
+                case Opcode.DSTORE_0:
+                case Opcode.ASTORE_0:
+                    disassemble(code.getLocalVariable(mAddress + 1, 0));
+                    println();
+                    continue;
 
-            case Opcode.ILOAD_1:
-            case Opcode.LLOAD_1:
-            case Opcode.FLOAD_1:
-            case Opcode.DLOAD_1:
-            case Opcode.ALOAD_1:
-                disassemble(code.getLocalVariable(mAddress, 1));
-                println();
-                continue;
+                case Opcode.ILOAD_1:
+                case Opcode.LLOAD_1:
+                case Opcode.FLOAD_1:
+                case Opcode.DLOAD_1:
+                case Opcode.ALOAD_1:
+                    disassemble(code.getLocalVariable(mAddress, 1));
+                    println();
+                    continue;
 
-            case Opcode.ISTORE_1:
-            case Opcode.LSTORE_1:
-            case Opcode.FSTORE_1:
-            case Opcode.DSTORE_1:
-            case Opcode.ASTORE_1:
-                disassemble(code.getLocalVariable(mAddress + 1, 1));
-                println();
-                continue;
+                case Opcode.ISTORE_1:
+                case Opcode.LSTORE_1:
+                case Opcode.FSTORE_1:
+                case Opcode.DSTORE_1:
+                case Opcode.ASTORE_1:
+                    disassemble(code.getLocalVariable(mAddress + 1, 1));
+                    println();
+                    continue;
 
-            case Opcode.ILOAD_2:
-            case Opcode.LLOAD_2:
-            case Opcode.FLOAD_2:
-            case Opcode.DLOAD_2:
-            case Opcode.ALOAD_2:
-                disassemble(code.getLocalVariable(mAddress, 2));
-                println();
-                continue;
+                case Opcode.ILOAD_2:
+                case Opcode.LLOAD_2:
+                case Opcode.FLOAD_2:
+                case Opcode.DLOAD_2:
+                case Opcode.ALOAD_2:
+                    disassemble(code.getLocalVariable(mAddress, 2));
+                    println();
+                    continue;
 
-            case Opcode.ISTORE_2:
-            case Opcode.LSTORE_2:
-            case Opcode.FSTORE_2:
-            case Opcode.DSTORE_2:
-            case Opcode.ASTORE_2:
-                disassemble(code.getLocalVariable(mAddress + 1, 2));
-                println();
-                continue;
+                case Opcode.ISTORE_2:
+                case Opcode.LSTORE_2:
+                case Opcode.FSTORE_2:
+                case Opcode.DSTORE_2:
+                case Opcode.ASTORE_2:
+                    disassemble(code.getLocalVariable(mAddress + 1, 2));
+                    println();
+                    continue;
 
-            case Opcode.ILOAD_3:
-            case Opcode.LLOAD_3:
-            case Opcode.FLOAD_3:
-            case Opcode.DLOAD_3:
-            case Opcode.ALOAD_3:
-                disassemble(code.getLocalVariable(mAddress, 3));
-                println();
-                continue;
+                case Opcode.ILOAD_3:
+                case Opcode.LLOAD_3:
+                case Opcode.FLOAD_3:
+                case Opcode.DLOAD_3:
+                case Opcode.ALOAD_3:
+                    disassemble(code.getLocalVariable(mAddress, 3));
+                    println();
+                    continue;
 
-            case Opcode.ISTORE_3:
-            case Opcode.LSTORE_3:
-            case Opcode.FSTORE_3:
-            case Opcode.DSTORE_3:
-            case Opcode.ASTORE_3:
-                disassemble(code.getLocalVariable(mAddress + 1, 3));
-                println();
-                continue;
+                case Opcode.ISTORE_3:
+                case Opcode.LSTORE_3:
+                case Opcode.FSTORE_3:
+                case Opcode.DSTORE_3:
+                case Opcode.ASTORE_3:
+                    disassemble(code.getLocalVariable(mAddress + 1, 3));
+                    println();
+                    continue;
 
-                // End opcodes with no operands.
+                    // End opcodes with no operands.
             }
 
             // Space to separate operands.
@@ -804,333 +822,338 @@ class AssemblyStylePrinter implements DisassemblyTool.Printer {
             ConstantInfo constant;
 
             switch (opcode) {
-            default:
-                break;
+                default:
+                    break;
 
                 // Opcodes that load a constant from the constant pool...
-                
-            case Opcode.LDC:
-            case Opcode.LDC_W:
-            case Opcode.LDC2_W:
-                switch (opcode) {
+
                 case Opcode.LDC:
-                    index = readUnsignedByte();
-                    break;
                 case Opcode.LDC_W:
                 case Opcode.LDC2_W:
-                    index = readUnsignedShort();
+                    switch (opcode) {
+                        case Opcode.LDC:
+                            index = readUnsignedByte();
+                            break;
+                        case Opcode.LDC_W:
+                        case Opcode.LDC2_W:
+                            index = readUnsignedShort();
+                            break;
+                        default:
+                            index = 0;
+                            break;
+                    }
+
+                    disassemble(getConstant(index), true);
                     break;
-                default:
-                    index = 0;
-                    break;
-                }
 
-                disassemble(getConstant(index), true);
-                break;
-
-            case Opcode.NEW:
-            case Opcode.ANEWARRAY:
-            case Opcode.CHECKCAST:
-            case Opcode.INSTANCEOF:
-                constant = getConstant(readUnsignedShort());
-                if (constant instanceof ConstantClassInfo) {
-                    disassemble(constant);
-                } else {
-                    print(constant);
-                }
-                break;
-            case Opcode.MULTIANEWARRAY:
-                constant = getConstant(readUnsignedShort());
-                int dims = readUnsignedByte();
-                if (constant instanceof ConstantClassInfo) {
-                    disassemble(constant);
-                } else {
-                    print(constant);
-                }
-                print(" ");
-                print(String.valueOf(dims));
-                break;
-
-            case Opcode.GETSTATIC:
-            case Opcode.PUTSTATIC:
-            case Opcode.GETFIELD:
-            case Opcode.PUTFIELD:
-                constant = getConstant(readUnsignedShort());
-                if (constant instanceof ConstantFieldInfo) {
-                    ConstantFieldInfo field = (ConstantFieldInfo)constant;
-                    Descriptor type = field.getNameAndType().getType();
-                    if (type instanceof TypeDesc) {
-                        disassemble((TypeDesc)type);
+                case Opcode.NEW:
+                case Opcode.ANEWARRAY:
+                case Opcode.CHECKCAST:
+                case Opcode.INSTANCEOF:
+                    constant = getConstant(readUnsignedShort());
+                    if (constant instanceof ConstantClassInfo) {
+                        disassemble(constant);
                     } else {
-                        print(type);
+                        print(constant);
+                    }
+                    break;
+                case Opcode.MULTIANEWARRAY:
+                    constant = getConstant(readUnsignedShort());
+                    int dims = readUnsignedByte();
+                    if (constant instanceof ConstantClassInfo) {
+                        disassemble(constant);
+                    } else {
+                        print(constant);
                     }
                     print(" ");
-                    print(field.getParentClass().getType().getFullName());
-                    print(".");
-                    print(field.getNameAndType().getName());
-                } else {
-                    print(constant);
-                }
-                break;
-
-            case Opcode.INVOKEVIRTUAL:
-            case Opcode.INVOKESPECIAL:
-            case Opcode.INVOKESTATIC:
-            case Opcode.INVOKEINTERFACE:
-            case Opcode.INVOKEDYNAMIC:
-                constant = getConstant(readUnsignedShort());
-
-                String className;
-                ConstantNameAndTypeInfo nameAndType;
-
-                if (opcode == Opcode.INVOKEINTERFACE) {
-                    // Read and ignore nargs and padding byte.
-                    readShort();
-                    if (!(constant instanceof ConstantInterfaceMethodInfo)) {
-                        print(constant);
-                        break;
-                    }
-                    ConstantInterfaceMethodInfo method = 
-                        (ConstantInterfaceMethodInfo)constant;
-                    className =
-                        method.getParentClass().getType().getFullName();
-                    nameAndType = method.getNameAndType();
-                } else if (opcode == Opcode.INVOKEDYNAMIC) {
-                    // Read and ignore extra bytes.
-                    readShort();
-                    className = null;
-                    nameAndType = (ConstantNameAndTypeInfo)constant;
-                } else {
-                    if (!(constant instanceof ConstantMethodInfo)) {
-                        print(constant);
-                        break;
-                    }
-                    ConstantMethodInfo method = (ConstantMethodInfo)constant;
-                    className =
-                        method.getParentClass().getType().getFullName();
-                    nameAndType = method.getNameAndType();
-                }
-
-                Descriptor type = nameAndType.getType();
-                if (!(type instanceof MethodDesc)) {
-                    print(type);
+                    print(String.valueOf(dims));
                     break;
-                }
-                disassemble(((MethodDesc)type).getReturnType());
-                print(" ");
-                if (className != null) {
-                    print(className);
-                    print(".");
-                }
-                print(nameAndType.getName());
 
-                print("(");
-                TypeDesc[] params = ((MethodDesc)type).getParameterTypes();
-                for (int i=0; i<params.length; i++) {
-                    if (i > 0) {
-                        print(", ");
+                case Opcode.GETSTATIC:
+                case Opcode.PUTSTATIC:
+                case Opcode.GETFIELD:
+                case Opcode.PUTFIELD:
+                    constant = getConstant(readUnsignedShort());
+                    if (constant instanceof ConstantFieldInfo) {
+                        ConstantFieldInfo field = (ConstantFieldInfo) constant;
+                        Descriptor type = field.getNameAndType().getType();
+                        if (type instanceof TypeDesc) {
+                            disassemble((TypeDesc) type);
+                        } else {
+                            print(type);
+                        }
+                        print(" ");
+                        print(field.getParentClass().getType().getFullName());
+                        print(".");
+                        print(field.getNameAndType().getName());
+                    } else {
+                        print(constant);
                     }
-                    disassemble(params[i]);
-                }
-                print(")");
-                break;
+                    break;
+
+                case Opcode.INVOKEVIRTUAL:
+                case Opcode.INVOKESPECIAL:
+                case Opcode.INVOKESTATIC:
+                case Opcode.INVOKEINTERFACE:
+                case Opcode.INVOKEDYNAMIC:
+                    constant = getConstant(readUnsignedShort());
+
+                    String className;
+                    ConstantNameAndTypeInfo nameAndType;
+
+                    if (opcode == Opcode.INVOKEINTERFACE) {
+                        // Read and ignore nargs and padding byte.
+                        readShort();
+                        if (!(constant instanceof ConstantInterfaceMethodInfo)) {
+                            print(constant);
+                            break;
+                        }
+                        ConstantInterfaceMethodInfo method =
+                                (ConstantInterfaceMethodInfo) constant;
+                        className =
+                                method.getParentClass().getType().getFullName();
+                        nameAndType = method.getNameAndType();
+                    } else if (opcode == Opcode.INVOKEDYNAMIC) {
+                        // Read and ignore extra bytes.
+                        readShort();
+                        className = null;
+                        nameAndType = (ConstantNameAndTypeInfo) constant;
+                    } else {
+                        if (!(constant instanceof ConstantMethodInfo)) {
+                            print(constant);
+                            break;
+                        }
+                        ConstantMethodInfo method = (ConstantMethodInfo) constant;
+                        className =
+                                method.getParentClass().getType().getFullName();
+                        nameAndType = method.getNameAndType();
+                    }
+
+                    Descriptor type = nameAndType.getType();
+                    if (!(type instanceof MethodDesc)) {
+                        print(type);
+                        break;
+                    }
+                    disassemble(((MethodDesc) type).getReturnType());
+                    print(" ");
+                    if (className != null) {
+                        print(className);
+                        print(".");
+                    }
+                    print(nameAndType.getName());
+
+                    print("(");
+                    TypeDesc[] params = ((MethodDesc) type).getParameterTypes();
+                    for (int i = 0; i < params.length; i++) {
+                        if (i > 0) {
+                            print(", ");
+                        }
+                        disassemble(params[i]);
+                    }
+                    print(")");
+                    break;
 
                 // End opcodes that load a constant from the constant pool.
 
                 // Opcodes that load or store local variables...
 
-            case Opcode.ILOAD:
-            case Opcode.LLOAD:
-            case Opcode.FLOAD:
-            case Opcode.DLOAD:
-            case Opcode.ALOAD:
-            case Opcode.RET:
-                int varNum = readUnsignedByte();
-                print(String.valueOf(varNum));
-                disassemble(code.getLocalVariable(mAddress, varNum));
-                break;
-            case Opcode.ISTORE:
-            case Opcode.LSTORE:
-            case Opcode.FSTORE:
-            case Opcode.DSTORE:
-            case Opcode.ASTORE:
-                varNum = readUnsignedByte();
-                print(String.valueOf(varNum));
-                disassemble(code.getLocalVariable(mAddress + 1, varNum));
-                break;
-            case Opcode.IINC:
-                print(String.valueOf(varNum = readUnsignedByte()));
-                print(" ");
-                int incValue = readByte();
-                if (incValue >= 0) {
-                    print("+");
-                }
-                print(String.valueOf(incValue));
-                disassemble(code.getLocalVariable(mAddress, varNum));
-                break;
-
-                // End opcodes that load or store local variables.
-
-                // Opcodes that branch to another address.
-            case Opcode.GOTO:
-            case Opcode.JSR:
-            case Opcode.IFNULL:
-            case Opcode.IFNONNULL:
-            case Opcode.IF_ACMPEQ:
-            case Opcode.IF_ACMPNE:
-            case Opcode.IFEQ:
-            case Opcode.IFNE:
-            case Opcode.IFLT:
-            case Opcode.IFGE:
-            case Opcode.IFGT:
-            case Opcode.IFLE:
-            case Opcode.IF_ICMPEQ:
-            case Opcode.IF_ICMPNE:
-            case Opcode.IF_ICMPLT:
-            case Opcode.IF_ICMPGE:
-            case Opcode.IF_ICMPGT:
-            case Opcode.IF_ICMPLE:
-                print(getLabel(mAddress + readShort()));
-                break;
-            case Opcode.GOTO_W:
-            case Opcode.JSR_W:
-                print(getLabel(mAddress + readInt()));
-                break;
-
-                // End opcodes that branch to another address.
-
-                // Miscellaneous opcodes...
-            case Opcode.BIPUSH:
-                int value = readByte();
-                print(String.valueOf(value));
-                printCharLiteral(value);
-                break;
-            case Opcode.SIPUSH:
-                value = readShort();
-                print(String.valueOf(value));
-                printCharLiteral(value);
-                break;
-
-            case Opcode.NEWARRAY:
-                int atype = readByte();
-                switch (atype) {
-                case 4: // T_BOOLEAN
-                    print("boolean");
-                    break;
-                case 5: // T_CHAR
-                    print("char");
-                    break;
-                case 6: // T_FLOAT
-                    print("float");
-                    break;
-                case 7: // T_DOUBLE
-                    print("double");
-                    break;
-                case 8: // T_BYTE
-                    print("byte");
-                    break;
-                case 9: // T_SHORT
-                    print("short");
-                    break;
-                case 10: // T_INT
-                    print("int");
-                    break;
-                case 11: // T_LONG
-                    print("long");
-                    break;
-                default:
-                    print("T_" + atype);
-                    break;
-                }
-                break;
-
-            case Opcode.TABLESWITCH:
-            case Opcode.LOOKUPSWITCH:
-                int opcodeAddress = mAddress;
-                // Read padding until address is 32 bit word aligned.
-                while (((mAddress + 1) & 3) != 0) {
-                    ++mAddress;
-                }
-                String defaultLocation = getLabel(opcodeAddress + readInt());
-                int[] cases;
-                String[] locations;
-                
-                if (opcode == Opcode.TABLESWITCH) {
-                    int lowValue = readInt();
-                    int highValue = readInt();
-                    int caseCount = highValue - lowValue + 1;
-                    print("// " + caseCount + " cases");
-                    try {
-                        cases = new int[caseCount];
-                    } catch (NegativeArraySizeException e) {
-                        break;
-                    }
-                    locations = new String[caseCount];
-                    for (int i=0; i<caseCount; i++) {
-                        cases[i] = lowValue + i;
-                        locations[i] = getLabel(opcodeAddress + readInt());
-                    }
-                } else {
-                    int caseCount = readInt();
-                    print("// " + caseCount + " cases");
-                    try {
-                        cases = new int[caseCount];
-                    } catch (NegativeArraySizeException e) {
-                        break;
-                    }
-                    locations = new String[caseCount];
-                    for (int i=0; i<caseCount; i++) {
-                        cases[i] = readInt();
-                        locations[i] = getLabel(opcodeAddress + readInt());
-                    }
-                }
-
-                println();
-
-                print(indent, "    default: goto ");
-                println(defaultLocation);
-
-                String prefix = indent + "    " + "case ";
-                for (int i=0; i<cases.length; i++) {
-                    print(prefix + cases[i]);
-                    print(": goto ");
-                    print(locations[i]);
-                    printCharLiteral(cases[i]);
-                    println();
-                }
-
-                break;
-
-            case Opcode.WIDE:
-                opcode = mByteCodes[++mAddress];
-                print(Opcode.getMnemonic(opcode));
-                print(" ");
-
-                switch (opcode) {
-
-                default:
-                    break;
-
-                case Opcode.ILOAD: case Opcode.ISTORE:
-                case Opcode.LLOAD: case Opcode.LSTORE:
-                case Opcode.FLOAD: case Opcode.FSTORE:
-                case Opcode.DLOAD: case Opcode.DSTORE:
-                case Opcode.ALOAD: case Opcode.ASTORE:
+                case Opcode.ILOAD:
+                case Opcode.LLOAD:
+                case Opcode.FLOAD:
+                case Opcode.DLOAD:
+                case Opcode.ALOAD:
                 case Opcode.RET:
-                    print(String.valueOf(readUnsignedShort()));
+                    int varNum = readUnsignedByte();
+                    print(String.valueOf(varNum));
+                    disassemble(code.getLocalVariable(mAddress, varNum));
+                    break;
+                case Opcode.ISTORE:
+                case Opcode.LSTORE:
+                case Opcode.FSTORE:
+                case Opcode.DSTORE:
+                case Opcode.ASTORE:
+                    varNum = readUnsignedByte();
+                    print(String.valueOf(varNum));
+                    disassemble(code.getLocalVariable(mAddress + 1, varNum));
                     break;
                 case Opcode.IINC:
-                    print(String.valueOf(readUnsignedShort()));
+                    print(String.valueOf(varNum = readUnsignedByte()));
                     print(" ");
-                    incValue = readShort();
+                    int incValue = readByte();
                     if (incValue >= 0) {
                         print("+");
                     }
                     print(String.valueOf(incValue));
+                    disassemble(code.getLocalVariable(mAddress, varNum));
                     break;
-                }
 
-                break;
+                // End opcodes that load or store local variables.
+
+                // Opcodes that branch to another address.
+                case Opcode.GOTO:
+                case Opcode.JSR:
+                case Opcode.IFNULL:
+                case Opcode.IFNONNULL:
+                case Opcode.IF_ACMPEQ:
+                case Opcode.IF_ACMPNE:
+                case Opcode.IFEQ:
+                case Opcode.IFNE:
+                case Opcode.IFLT:
+                case Opcode.IFGE:
+                case Opcode.IFGT:
+                case Opcode.IFLE:
+                case Opcode.IF_ICMPEQ:
+                case Opcode.IF_ICMPNE:
+                case Opcode.IF_ICMPLT:
+                case Opcode.IF_ICMPGE:
+                case Opcode.IF_ICMPGT:
+                case Opcode.IF_ICMPLE:
+                    print(getLabel(mAddress + readShort()));
+                    break;
+                case Opcode.GOTO_W:
+                case Opcode.JSR_W:
+                    print(getLabel(mAddress + readInt()));
+                    break;
+
+                // End opcodes that branch to another address.
+
+                // Miscellaneous opcodes...
+                case Opcode.BIPUSH:
+                    int value = readByte();
+                    print(String.valueOf(value));
+                    printCharLiteral(value);
+                    break;
+                case Opcode.SIPUSH:
+                    value = readShort();
+                    print(String.valueOf(value));
+                    printCharLiteral(value);
+                    break;
+
+                case Opcode.NEWARRAY:
+                    int atype = readByte();
+                    switch (atype) {
+                        case 4: // T_BOOLEAN
+                            print("boolean");
+                            break;
+                        case 5: // T_CHAR
+                            print("char");
+                            break;
+                        case 6: // T_FLOAT
+                            print("float");
+                            break;
+                        case 7: // T_DOUBLE
+                            print("double");
+                            break;
+                        case 8: // T_BYTE
+                            print("byte");
+                            break;
+                        case 9: // T_SHORT
+                            print("short");
+                            break;
+                        case 10: // T_INT
+                            print("int");
+                            break;
+                        case 11: // T_LONG
+                            print("long");
+                            break;
+                        default:
+                            print("T_" + atype);
+                            break;
+                    }
+                    break;
+
+                case Opcode.TABLESWITCH:
+                case Opcode.LOOKUPSWITCH:
+                    int opcodeAddress = mAddress;
+                    // Read padding until address is 32 bit word aligned.
+                    while (((mAddress + 1) & 3) != 0) {
+                        ++mAddress;
+                    }
+                    String defaultLocation = getLabel(opcodeAddress + readInt());
+                    int[] cases;
+                    String[] locations;
+
+                    if (opcode == Opcode.TABLESWITCH) {
+                        int lowValue = readInt();
+                        int highValue = readInt();
+                        int caseCount = highValue - lowValue + 1;
+                        print("// " + caseCount + " cases");
+                        try {
+                            cases = new int[caseCount];
+                        } catch (NegativeArraySizeException e) {
+                            break;
+                        }
+                        locations = new String[caseCount];
+                        for (int i = 0; i < caseCount; i++) {
+                            cases[i] = lowValue + i;
+                            locations[i] = getLabel(opcodeAddress + readInt());
+                        }
+                    } else {
+                        int caseCount = readInt();
+                        print("// " + caseCount + " cases");
+                        try {
+                            cases = new int[caseCount];
+                        } catch (NegativeArraySizeException e) {
+                            break;
+                        }
+                        locations = new String[caseCount];
+                        for (int i = 0; i < caseCount; i++) {
+                            cases[i] = readInt();
+                            locations[i] = getLabel(opcodeAddress + readInt());
+                        }
+                    }
+
+                    println();
+
+                    print(indent, "    default: goto ");
+                    println(defaultLocation);
+
+                    String prefix = indent + "    " + "case ";
+                    for (int i = 0; i < cases.length; i++) {
+                        print(prefix + cases[i]);
+                        print(": goto ");
+                        print(locations[i]);
+                        printCharLiteral(cases[i]);
+                        println();
+                    }
+
+                    break;
+
+                case Opcode.WIDE:
+                    opcode = mByteCodes[++mAddress];
+                    print(Opcode.getMnemonic(opcode));
+                    print(" ");
+
+                    switch (opcode) {
+
+                        default:
+                            break;
+
+                        case Opcode.ILOAD:
+                        case Opcode.ISTORE:
+                        case Opcode.LLOAD:
+                        case Opcode.LSTORE:
+                        case Opcode.FLOAD:
+                        case Opcode.FSTORE:
+                        case Opcode.DLOAD:
+                        case Opcode.DSTORE:
+                        case Opcode.ALOAD:
+                        case Opcode.ASTORE:
+                        case Opcode.RET:
+                            print(String.valueOf(readUnsignedShort()));
+                            break;
+                        case Opcode.IINC:
+                            print(String.valueOf(readUnsignedShort()));
+                            print(" ");
+                            incValue = readShort();
+                            if (incValue >= 0) {
+                                print("+");
+                            }
+                            print(String.valueOf(incValue));
+                            break;
+                    }
+
+                    break;
             } // end huge switch
 
             println();
@@ -1140,7 +1163,7 @@ class AssemblyStylePrinter implements DisassemblyTool.Printer {
     private void gatherLabels() {
         mLabels = new IntHashMap<Object>();
         mCatchLocations = new IntHashMap<List<ExceptionHandler>>
-            (mExceptionHandlers.length * 2 + 1);
+                (mExceptionHandlers.length * 2 + 1);
 
         // Gather labels for any exception handlers.
         for (int i = mExceptionHandlers.length - 1; i >= 0; i--) {
@@ -1163,249 +1186,294 @@ class AssemblyStylePrinter implements DisassemblyTool.Printer {
 
             switch (opcode) {
 
-            default:
-                break;
+                default:
+                    break;
 
                 // Opcodes that use labels.
 
-            case Opcode.GOTO:
-            case Opcode.JSR:
-            case Opcode.IFNULL:
-            case Opcode.IFNONNULL:
-            case Opcode.IF_ACMPEQ:
-            case Opcode.IF_ACMPNE:
-            case Opcode.IFEQ:
-            case Opcode.IFNE:
-            case Opcode.IFLT:
-            case Opcode.IFGE:
-            case Opcode.IFGT:
-            case Opcode.IFLE:
-            case Opcode.IF_ICMPEQ:
-            case Opcode.IF_ICMPNE:
-            case Opcode.IF_ICMPLT:
-            case Opcode.IF_ICMPGE:
-            case Opcode.IF_ICMPGT:
-            case Opcode.IF_ICMPLE:
-                createLabel(new Integer(mAddress + readShort()));
-                break;
+                case Opcode.GOTO:
+                case Opcode.JSR:
+                case Opcode.IFNULL:
+                case Opcode.IFNONNULL:
+                case Opcode.IF_ACMPEQ:
+                case Opcode.IF_ACMPNE:
+                case Opcode.IFEQ:
+                case Opcode.IFNE:
+                case Opcode.IFLT:
+                case Opcode.IFGE:
+                case Opcode.IFGT:
+                case Opcode.IFLE:
+                case Opcode.IF_ICMPEQ:
+                case Opcode.IF_ICMPNE:
+                case Opcode.IF_ICMPLT:
+                case Opcode.IF_ICMPGE:
+                case Opcode.IF_ICMPGT:
+                case Opcode.IF_ICMPLE:
+                    createLabel(new Integer(mAddress + readShort()));
+                    break;
 
-            case Opcode.GOTO_W:
-            case Opcode.JSR_W:
-                createLabel(new Integer(mAddress + readInt()));
-                break;
+                case Opcode.GOTO_W:
+                case Opcode.JSR_W:
+                    createLabel(new Integer(mAddress + readInt()));
+                    break;
 
-            case Opcode.TABLESWITCH:
-            case Opcode.LOOKUPSWITCH:
-                int opcodeAddress = mAddress;
-                // Read padding until address is 32 bit word aligned.
-                while (((mAddress + 1) & 3) != 0) {
-                    ++mAddress;
-                }
-                
-                // Read the default location.
-                
-
-                createLabel(new Integer(opcodeAddress + readInt()));
-                
-                if (opcode == Opcode.TABLESWITCH) {
-                    int lowValue = readInt();
-                    int highValue = readInt();
-                    int caseCount = highValue - lowValue + 1;
-
-                    for (int i=0; i<caseCount; i++) {
-                        // Read the branch location.
-                        createLabel(new Integer(opcodeAddress + readInt()));
+                case Opcode.TABLESWITCH:
+                case Opcode.LOOKUPSWITCH:
+                    int opcodeAddress = mAddress;
+                    // Read padding until address is 32 bit word aligned.
+                    while (((mAddress + 1) & 3) != 0) {
+                        ++mAddress;
                     }
-                } else {
-                    int caseCount = readInt();
 
-                    for (int i=0; i<caseCount; i++) {
-                        // Skip the case value.
-                        mAddress += 4;
-                        // Read the branch location.
-                        createLabel(new Integer(opcodeAddress + readInt()));
+                    // Read the default location.
+
+
+                    createLabel(new Integer(opcodeAddress + readInt()));
+
+                    if (opcode == Opcode.TABLESWITCH) {
+                        int lowValue = readInt();
+                        int highValue = readInt();
+                        int caseCount = highValue - lowValue + 1;
+
+                        for (int i = 0; i < caseCount; i++) {
+                            // Read the branch location.
+                            createLabel(new Integer(opcodeAddress + readInt()));
+                        }
+                    } else {
+                        int caseCount = readInt();
+
+                        for (int i = 0; i < caseCount; i++) {
+                            // Skip the case value.
+                            mAddress += 4;
+                            // Read the branch location.
+                            createLabel(new Integer(opcodeAddress + readInt()));
+                        }
                     }
-                }
-                break;
+                    break;
 
                 // All other operations are skipped. The amount to skip
                 // depends on the operand size.
 
                 // Opcodes with no operands...
 
-            case Opcode.NOP:
-            case Opcode.BREAKPOINT:
-            case Opcode.ACONST_NULL:
-            case Opcode.ICONST_M1:
-            case Opcode.ICONST_0:
-            case Opcode.ICONST_1:
-            case Opcode.ICONST_2:
-            case Opcode.ICONST_3:
-            case Opcode.ICONST_4:
-            case Opcode.ICONST_5:
-            case Opcode.LCONST_0:
-            case Opcode.LCONST_1:
-            case Opcode.FCONST_0:
-            case Opcode.FCONST_1:
-            case Opcode.FCONST_2:
-            case Opcode.DCONST_0:
-            case Opcode.DCONST_1:
-            case Opcode.POP:
-            case Opcode.POP2:
-            case Opcode.DUP:
-            case Opcode.DUP_X1:
-            case Opcode.DUP_X2:
-            case Opcode.DUP2:
-            case Opcode.DUP2_X1:
-            case Opcode.DUP2_X2:
-            case Opcode.SWAP:
-            case Opcode.IADD:  case Opcode.LADD: 
-            case Opcode.FADD:  case Opcode.DADD:
-            case Opcode.ISUB:  case Opcode.LSUB:
-            case Opcode.FSUB:  case Opcode.DSUB:
-            case Opcode.IMUL:  case Opcode.LMUL:
-            case Opcode.FMUL:  case Opcode.DMUL:
-            case Opcode.IDIV:  case Opcode.LDIV:
-            case Opcode.FDIV:  case Opcode.DDIV:
-            case Opcode.IREM:  case Opcode.LREM:
-            case Opcode.FREM:  case Opcode.DREM:
-            case Opcode.INEG:  case Opcode.LNEG:
-            case Opcode.FNEG:  case Opcode.DNEG:
-            case Opcode.ISHL:  case Opcode.LSHL:
-            case Opcode.ISHR:  case Opcode.LSHR:
-            case Opcode.IUSHR: case Opcode.LUSHR:
-            case Opcode.IAND:  case Opcode.LAND:
-            case Opcode.IOR:   case Opcode.LOR:
-            case Opcode.IXOR:  case Opcode.LXOR:
-            case Opcode.FCMPL: case Opcode.DCMPL:
-            case Opcode.FCMPG: case Opcode.DCMPG:
-            case Opcode.LCMP: 
-            case Opcode.I2L:
-            case Opcode.I2F:
-            case Opcode.I2D:
-            case Opcode.L2I:
-            case Opcode.L2F:
-            case Opcode.L2D:
-            case Opcode.F2I:
-            case Opcode.F2L:
-            case Opcode.F2D:
-            case Opcode.D2I:
-            case Opcode.D2L:
-            case Opcode.D2F:
-            case Opcode.I2B:
-            case Opcode.I2C:
-            case Opcode.I2S:
-            case Opcode.IRETURN:
-            case Opcode.LRETURN:
-            case Opcode.FRETURN:
-            case Opcode.DRETURN:
-            case Opcode.ARETURN:
-            case Opcode.RETURN:
-            case Opcode.IALOAD:
-            case Opcode.LALOAD:
-            case Opcode.FALOAD:
-            case Opcode.DALOAD:
-            case Opcode.AALOAD:
-            case Opcode.BALOAD:
-            case Opcode.CALOAD:
-            case Opcode.SALOAD:
-            case Opcode.IASTORE:
-            case Opcode.LASTORE:
-            case Opcode.FASTORE:
-            case Opcode.DASTORE:
-            case Opcode.AASTORE:
-            case Opcode.BASTORE:
-            case Opcode.CASTORE:
-            case Opcode.SASTORE:
-            case Opcode.ARRAYLENGTH:
-            case Opcode.ATHROW:
-            case Opcode.MONITORENTER:
-            case Opcode.MONITOREXIT:
-            case Opcode.ILOAD_0: case Opcode.ISTORE_0:
-            case Opcode.ILOAD_1: case Opcode.ISTORE_1:
-            case Opcode.ILOAD_2: case Opcode.ISTORE_2:
-            case Opcode.ILOAD_3: case Opcode.ISTORE_3:
-            case Opcode.LLOAD_0: case Opcode.LSTORE_0:
-            case Opcode.LLOAD_1: case Opcode.LSTORE_1:
-            case Opcode.LLOAD_2: case Opcode.LSTORE_2:
-            case Opcode.LLOAD_3: case Opcode.LSTORE_3:
-            case Opcode.FLOAD_0: case Opcode.FSTORE_0:
-            case Opcode.FLOAD_1: case Opcode.FSTORE_1:
-            case Opcode.FLOAD_2: case Opcode.FSTORE_2:
-            case Opcode.FLOAD_3: case Opcode.FSTORE_3:
-            case Opcode.DLOAD_0: case Opcode.DSTORE_0:
-            case Opcode.DLOAD_1: case Opcode.DSTORE_1:
-            case Opcode.DLOAD_2: case Opcode.DSTORE_2:
-            case Opcode.DLOAD_3: case Opcode.DSTORE_3:
-            case Opcode.ALOAD_0: case Opcode.ASTORE_0:
-            case Opcode.ALOAD_1: case Opcode.ASTORE_1:
-            case Opcode.ALOAD_2: case Opcode.ASTORE_2:
-            case Opcode.ALOAD_3: case Opcode.ASTORE_3:
-                break;
+                case Opcode.NOP:
+                case Opcode.BREAKPOINT:
+                case Opcode.ACONST_NULL:
+                case Opcode.ICONST_M1:
+                case Opcode.ICONST_0:
+                case Opcode.ICONST_1:
+                case Opcode.ICONST_2:
+                case Opcode.ICONST_3:
+                case Opcode.ICONST_4:
+                case Opcode.ICONST_5:
+                case Opcode.LCONST_0:
+                case Opcode.LCONST_1:
+                case Opcode.FCONST_0:
+                case Opcode.FCONST_1:
+                case Opcode.FCONST_2:
+                case Opcode.DCONST_0:
+                case Opcode.DCONST_1:
+                case Opcode.POP:
+                case Opcode.POP2:
+                case Opcode.DUP:
+                case Opcode.DUP_X1:
+                case Opcode.DUP_X2:
+                case Opcode.DUP2:
+                case Opcode.DUP2_X1:
+                case Opcode.DUP2_X2:
+                case Opcode.SWAP:
+                case Opcode.IADD:
+                case Opcode.LADD:
+                case Opcode.FADD:
+                case Opcode.DADD:
+                case Opcode.ISUB:
+                case Opcode.LSUB:
+                case Opcode.FSUB:
+                case Opcode.DSUB:
+                case Opcode.IMUL:
+                case Opcode.LMUL:
+                case Opcode.FMUL:
+                case Opcode.DMUL:
+                case Opcode.IDIV:
+                case Opcode.LDIV:
+                case Opcode.FDIV:
+                case Opcode.DDIV:
+                case Opcode.IREM:
+                case Opcode.LREM:
+                case Opcode.FREM:
+                case Opcode.DREM:
+                case Opcode.INEG:
+                case Opcode.LNEG:
+                case Opcode.FNEG:
+                case Opcode.DNEG:
+                case Opcode.ISHL:
+                case Opcode.LSHL:
+                case Opcode.ISHR:
+                case Opcode.LSHR:
+                case Opcode.IUSHR:
+                case Opcode.LUSHR:
+                case Opcode.IAND:
+                case Opcode.LAND:
+                case Opcode.IOR:
+                case Opcode.LOR:
+                case Opcode.IXOR:
+                case Opcode.LXOR:
+                case Opcode.FCMPL:
+                case Opcode.DCMPL:
+                case Opcode.FCMPG:
+                case Opcode.DCMPG:
+                case Opcode.LCMP:
+                case Opcode.I2L:
+                case Opcode.I2F:
+                case Opcode.I2D:
+                case Opcode.L2I:
+                case Opcode.L2F:
+                case Opcode.L2D:
+                case Opcode.F2I:
+                case Opcode.F2L:
+                case Opcode.F2D:
+                case Opcode.D2I:
+                case Opcode.D2L:
+                case Opcode.D2F:
+                case Opcode.I2B:
+                case Opcode.I2C:
+                case Opcode.I2S:
+                case Opcode.IRETURN:
+                case Opcode.LRETURN:
+                case Opcode.FRETURN:
+                case Opcode.DRETURN:
+                case Opcode.ARETURN:
+                case Opcode.RETURN:
+                case Opcode.IALOAD:
+                case Opcode.LALOAD:
+                case Opcode.FALOAD:
+                case Opcode.DALOAD:
+                case Opcode.AALOAD:
+                case Opcode.BALOAD:
+                case Opcode.CALOAD:
+                case Opcode.SALOAD:
+                case Opcode.IASTORE:
+                case Opcode.LASTORE:
+                case Opcode.FASTORE:
+                case Opcode.DASTORE:
+                case Opcode.AASTORE:
+                case Opcode.BASTORE:
+                case Opcode.CASTORE:
+                case Opcode.SASTORE:
+                case Opcode.ARRAYLENGTH:
+                case Opcode.ATHROW:
+                case Opcode.MONITORENTER:
+                case Opcode.MONITOREXIT:
+                case Opcode.ILOAD_0:
+                case Opcode.ISTORE_0:
+                case Opcode.ILOAD_1:
+                case Opcode.ISTORE_1:
+                case Opcode.ILOAD_2:
+                case Opcode.ISTORE_2:
+                case Opcode.ILOAD_3:
+                case Opcode.ISTORE_3:
+                case Opcode.LLOAD_0:
+                case Opcode.LSTORE_0:
+                case Opcode.LLOAD_1:
+                case Opcode.LSTORE_1:
+                case Opcode.LLOAD_2:
+                case Opcode.LSTORE_2:
+                case Opcode.LLOAD_3:
+                case Opcode.LSTORE_3:
+                case Opcode.FLOAD_0:
+                case Opcode.FSTORE_0:
+                case Opcode.FLOAD_1:
+                case Opcode.FSTORE_1:
+                case Opcode.FLOAD_2:
+                case Opcode.FSTORE_2:
+                case Opcode.FLOAD_3:
+                case Opcode.FSTORE_3:
+                case Opcode.DLOAD_0:
+                case Opcode.DSTORE_0:
+                case Opcode.DLOAD_1:
+                case Opcode.DSTORE_1:
+                case Opcode.DLOAD_2:
+                case Opcode.DSTORE_2:
+                case Opcode.DLOAD_3:
+                case Opcode.DSTORE_3:
+                case Opcode.ALOAD_0:
+                case Opcode.ASTORE_0:
+                case Opcode.ALOAD_1:
+                case Opcode.ASTORE_1:
+                case Opcode.ALOAD_2:
+                case Opcode.ASTORE_2:
+                case Opcode.ALOAD_3:
+                case Opcode.ASTORE_3:
+                    break;
 
                 // Opcodes with one operand byte...
 
-            case Opcode.LDC:
-            case Opcode.ILOAD: case Opcode.ISTORE:
-            case Opcode.LLOAD: case Opcode.LSTORE:
-            case Opcode.FLOAD: case Opcode.FSTORE:
-            case Opcode.DLOAD: case Opcode.DSTORE:
-            case Opcode.ALOAD: case Opcode.ASTORE:
-            case Opcode.RET:
-            case Opcode.IINC:
-            case Opcode.BIPUSH:
-            case Opcode.NEWARRAY:
-                mAddress += 1;
-                break;
+                case Opcode.LDC:
+                case Opcode.ILOAD:
+                case Opcode.ISTORE:
+                case Opcode.LLOAD:
+                case Opcode.LSTORE:
+                case Opcode.FLOAD:
+                case Opcode.FSTORE:
+                case Opcode.DLOAD:
+                case Opcode.DSTORE:
+                case Opcode.ALOAD:
+                case Opcode.ASTORE:
+                case Opcode.RET:
+                case Opcode.IINC:
+                case Opcode.BIPUSH:
+                case Opcode.NEWARRAY:
+                    mAddress += 1;
+                    break;
 
                 // Opcodes with two operand bytes...
 
-            case Opcode.LDC_W:
-            case Opcode.LDC2_W:
-            case Opcode.NEW:
-            case Opcode.ANEWARRAY:
-            case Opcode.CHECKCAST:
-            case Opcode.INSTANCEOF:
-            case Opcode.GETSTATIC:
-            case Opcode.PUTSTATIC:
-            case Opcode.GETFIELD:
-            case Opcode.PUTFIELD:
-            case Opcode.INVOKEVIRTUAL:
-            case Opcode.INVOKESPECIAL:
-            case Opcode.INVOKESTATIC:
-            case Opcode.SIPUSH:
-                mAddress += 2;
-                break;
+                case Opcode.LDC_W:
+                case Opcode.LDC2_W:
+                case Opcode.NEW:
+                case Opcode.ANEWARRAY:
+                case Opcode.CHECKCAST:
+                case Opcode.INSTANCEOF:
+                case Opcode.GETSTATIC:
+                case Opcode.PUTSTATIC:
+                case Opcode.GETFIELD:
+                case Opcode.PUTFIELD:
+                case Opcode.INVOKEVIRTUAL:
+                case Opcode.INVOKESPECIAL:
+                case Opcode.INVOKESTATIC:
+                case Opcode.SIPUSH:
+                    mAddress += 2;
+                    break;
 
                 // Opcodes with three operand bytes...
 
-            case Opcode.MULTIANEWARRAY:
-                mAddress += 3;
-                break;
+                case Opcode.MULTIANEWARRAY:
+                    mAddress += 3;
+                    break;
 
                 // Opcodes with four operand bytes...
 
-            case Opcode.INVOKEINTERFACE:
-            case Opcode.INVOKEDYNAMIC:
-                mAddress += 4;
-                break;
+                case Opcode.INVOKEINTERFACE:
+                case Opcode.INVOKEDYNAMIC:
+                    mAddress += 4;
+                    break;
 
                 // Wide opcode has a variable sized operand.
 
-            case Opcode.WIDE:
-                opcode = mByteCodes[++mAddress];
-                mAddress += 2;
-                if (opcode == Opcode.IINC) {
+                case Opcode.WIDE:
+                    opcode = mByteCodes[++mAddress];
                     mAddress += 2;
-                }
-                break;
+                    if (opcode == Opcode.IINC) {
+                        mAddress += 2;
+                    }
+                    break;
             } // end huge switch
         } // end for loop
 
         Integer[] keys = new Integer[mLabels.size()];
         mLabels.keySet().toArray(keys);
         Arrays.sort(keys);
-        for (int i=0; i<keys.length; i++) {
+        for (int i = 0; i < keys.length; i++) {
             mLabels.put(keys[i], "L" + (i + 1) + '_' + keys[i]);
         }
     }
@@ -1427,7 +1495,7 @@ class AssemblyStylePrinter implements DisassemblyTool.Printer {
         if (label == null || (!(label instanceof String))) {
             return "L?_" + address;
         } else {
-            return (String)label;
+            return (String) label;
         }
     }
 
@@ -1450,7 +1518,7 @@ class AssemblyStylePrinter implements DisassemblyTool.Printer {
         List<ExceptionHandler> handlers = mCatchLocations.get(labelKey);
 
         if (handlers != null) {
-            for (int i=0; i<handlers.size(); i++) {
+            for (int i = 0; i < handlers.size(); i++) {
                 ExceptionHandler handler = handlers.get(i);
                 print(indent, "try (");
                 print(getLabel(handler.getStartLocation().getLocation()));
@@ -1468,8 +1536,7 @@ class AssemblyStylePrinter implements DisassemblyTool.Printer {
     }
 
     private StackMapTableAttr.StackMapFrame stackMap(String indent,
-                                                     StackMapTableAttr.StackMapFrame frame)
-    {
+                                                     StackMapTableAttr.StackMapFrame frame) {
         if (frame == null) {
             return null;
         }
@@ -1493,7 +1560,7 @@ class AssemblyStylePrinter implements DisassemblyTool.Printer {
     private void print(StackMapTableAttr.VerificationTypeInfo[] infos) {
         print('{');
         int num = 0;
-        for (int i=0; i<infos.length; i++) {
+        for (int i = 0; i < infos.length; i++) {
             if (i > 0) {
                 print(", ");
             }
@@ -1523,17 +1590,17 @@ class AssemblyStylePrinter implements DisassemblyTool.Printer {
     }
 
     private int readUnsignedShort() {
-        return 
-            ((mByteCodes[++mAddress] & 0xff) << 8) | 
-            ((mByteCodes[++mAddress] & 0xff) << 0);
+        return
+                ((mByteCodes[++mAddress] & 0xff) << 8) |
+                        ((mByteCodes[++mAddress] & 0xff) << 0);
     }
 
     private int readInt() {
         return
-            (mByteCodes[++mAddress] << 24) | 
-            ((mByteCodes[++mAddress] & 0xff) << 16) |
-            ((mByteCodes[++mAddress] & 0xff) << 8) |
-            ((mByteCodes[++mAddress] & 0xff) << 0);
+                (mByteCodes[++mAddress] << 24) |
+                        ((mByteCodes[++mAddress] & 0xff) << 16) |
+                        ((mByteCodes[++mAddress] & 0xff) << 8) |
+                        ((mByteCodes[++mAddress] & 0xff) << 0);
     }
 
     private void print(Object text) {
@@ -1560,31 +1627,31 @@ class AssemblyStylePrinter implements DisassemblyTool.Printer {
 
     private void printCharLiteral(int value) {
         if (value >= 0 && value <= 65535) {
-            int type = Character.getType((char)value);
+            int type = Character.getType((char) value);
             switch (type) {
-            case Character.UPPERCASE_LETTER:
-            case Character.LOWERCASE_LETTER:
-            case Character.TITLECASE_LETTER:
-            case Character.MODIFIER_LETTER:
-            case Character.OTHER_LETTER:
-            case Character.NON_SPACING_MARK:
-            case Character.ENCLOSING_MARK:
-            case Character.COMBINING_SPACING_MARK:
-            case Character.DECIMAL_DIGIT_NUMBER:
-            case Character.LETTER_NUMBER:
-            case Character.OTHER_NUMBER:
-            case Character.DASH_PUNCTUATION:
-            case Character.START_PUNCTUATION:
-            case Character.END_PUNCTUATION:
-            case Character.CONNECTOR_PUNCTUATION:
-            case Character.OTHER_PUNCTUATION:
-            case Character.MATH_SYMBOL:
-            case Character.CURRENCY_SYMBOL:
-            case Character.MODIFIER_SYMBOL:
-            case Character.OTHER_SYMBOL:
-                print(" // '");
-                print(String.valueOf((char)value));
-                print("'");
+                case Character.UPPERCASE_LETTER:
+                case Character.LOWERCASE_LETTER:
+                case Character.TITLECASE_LETTER:
+                case Character.MODIFIER_LETTER:
+                case Character.OTHER_LETTER:
+                case Character.NON_SPACING_MARK:
+                case Character.ENCLOSING_MARK:
+                case Character.COMBINING_SPACING_MARK:
+                case Character.DECIMAL_DIGIT_NUMBER:
+                case Character.LETTER_NUMBER:
+                case Character.OTHER_NUMBER:
+                case Character.DASH_PUNCTUATION:
+                case Character.START_PUNCTUATION:
+                case Character.END_PUNCTUATION:
+                case Character.CONNECTOR_PUNCTUATION:
+                case Character.OTHER_PUNCTUATION:
+                case Character.MATH_SYMBOL:
+                case Character.CURRENCY_SYMBOL:
+                case Character.MODIFIER_SYMBOL:
+                case Character.OTHER_SYMBOL:
+                    print(" // '");
+                    print(String.valueOf((char) value));
+                    print("'");
             }
         }
     }
@@ -1595,48 +1662,48 @@ class AssemblyStylePrinter implements DisassemblyTool.Printer {
 
     /**
      * Orders members in this canonical sequence:
-     *
+     * <p/>
      * - statics
-     *   - fields
-     *   - initializer
-     *   - methods
+     * - fields
+     * - initializer
+     * - methods
      * - non-statics
-     *   - fields
-     *   - constructors
-     *   - methods
-     *
+     * - fields
+     * - constructors
+     * - methods
+     * <p/>
      * Fields, constructors, and methods are sorted:
      * - public
-     *   - final
-     *   - non-final
-     *   - transient
+     * - final
+     * - non-final
+     * - transient
      * - protected
-     *   - final
-     *   - non-final
-     *   - transient
+     * - final
+     * - non-final
+     * - transient
      * - package
-     *   - final
-     *   - non-final
-     *   - transient
+     * - final
+     * - non-final
+     * - transient
      * - private
-     *   - final
-     *   - non-final
-     *   - transient
+     * - final
+     * - non-final
+     * - transient
      */
     private class MemberComparator implements Comparator<Object> {
         public int compare(Object a, Object b) {
             Modifiers aFlags, bFlags;
 
             if (a instanceof FieldInfo) {
-                aFlags = ((FieldInfo)a).getModifiers();
+                aFlags = ((FieldInfo) a).getModifiers();
             } else {
-                aFlags = ((MethodInfo)a).getModifiers();
+                aFlags = ((MethodInfo) a).getModifiers();
             }
 
             if (b instanceof FieldInfo) {
-                bFlags = ((FieldInfo)b).getModifiers();
+                bFlags = ((FieldInfo) b).getModifiers();
             } else {
-                bFlags = ((MethodInfo)b).getModifiers();
+                bFlags = ((MethodInfo) b).getModifiers();
             }
 
             // static before non-static
@@ -1661,9 +1728,9 @@ class AssemblyStylePrinter implements DisassemblyTool.Printer {
                 }
 
                 // initializers and constructors before regular methods
-                String aName = ((MethodInfo)a).getName();
-                String bName = ((MethodInfo)b).getName();
-                
+                String aName = ((MethodInfo) a).getName();
+                String bName = ((MethodInfo) b).getName();
+
                 if ("<init>".equals(aName) || "<clinit>".equals(aName)) {
                     if ("<init>".equals(bName) || "<clinit>".equals(bName)) {
                     } else {

@@ -16,10 +16,6 @@
 
 package com.flaptor.indextank.storage;
 
-import java.io.IOException;
-
-import org.apache.thrift.TException;
-
 import com.flaptor.indextank.rpc.LogBatch;
 import com.flaptor.indextank.rpc.LogPage;
 import com.flaptor.indextank.rpc.LogPageToken;
@@ -28,6 +24,9 @@ import com.flaptor.indextank.rpc.PageType;
 import com.flaptor.indextank.storage.Segment.MissingSegmentException;
 import com.flaptor.indextank.util.FormatLogger;
 import com.google.common.collect.Lists;
+import org.apache.thrift.TException;
+
+import java.io.IOException;
 
 public class LogReader {
 
@@ -39,14 +38,14 @@ public class LogReader {
     private final int liveSegmentSize;
 
     private final int indexSegmentSize;
-    
+
     public LogReader(LogCleaner cleaner, LogDealer dealer, LogRoot root, int liveSegmentSize, int indexSegmentSize) {
         this.dealer = dealer;
         this.root = root;
         this.liveSegmentSize = liveSegmentSize;
         this.indexSegmentSize = indexSegmentSize;
     }
-    
+
     public LogReader(LogCleaner cleaner, LogDealer dealer) {
         this(cleaner, dealer, new LogRoot(), RawLog.DEFAULT_SEGMENT_SIZE, IndexLog.DEFAULT_SEGMENT_SIZE);
     }
@@ -58,7 +57,7 @@ public class LogReader {
         indexLog.markReadNow();
         Segment segment;
         long nextTimestamp = dealer.nextTimestamp;
-        
+
         if (token.is_set_timestamp()) {
             long timestamp = token.get_timestamp();
             switch (token.get_type()) {
@@ -132,7 +131,7 @@ public class LogReader {
                 }
             }
         }
-        
+
         if (segment == null) {
             return endPage();
         } else {
@@ -158,10 +157,10 @@ public class LogReader {
 
     private LogPage buildPage(RawLog liveLog, IndexLog log, Segment segment, LogPageToken token, long nextTimestamp) {
         long position = token.get_file_position();
-        
+
         // get a portion reader for the current segment and the position denoted by the token
         SegmentReader reader = segment.portionReader(position, root.getReadingPageSize());
-        
+
         LogPage page = new LogPage(new LogBatch(Lists.<LogRecord>newArrayList()));
 
         // iterate the portion and load the records in the returned page 
@@ -244,9 +243,15 @@ public class LogReader {
             token.unset_file_position();
         } else {
             switch (segment.type) {
-                case OPTIMIZED:   token.set_type(PageType.optimized);   break;
-                case SORTED:      token.set_type(PageType.index);       break;
-                case RAW:         token.set_type(PageType.live);        break;
+                case OPTIMIZED:
+                    token.set_type(PageType.optimized);
+                    break;
+                case SORTED:
+                    token.set_type(PageType.index);
+                    break;
+                case RAW:
+                    token.set_type(PageType.live);
+                    break;
             }
             token.set_timestamp(segment.timestamp);
             token.set_file_position(newPosition);

@@ -16,12 +16,12 @@
 
 package org.cojen.classfile;
 
+import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.io.PrintWriter;
 
 /**
  * CodeAssembler implementation that prints out instructions using a Java-like
@@ -53,22 +53,20 @@ public class CodeAssemblerPrinter extends AbstractCodeAssembler implements CodeA
     private Map<List<TypeDesc>, String> mTypeDescArrayNames;
 
     public CodeAssemblerPrinter(TypeDesc[] paramTypes, boolean isStatic,
-                                PrintWriter writer)
-    {
+                                PrintWriter writer) {
         this(paramTypes, isStatic, writer, null, null, null);
     }
 
     /**
      * @param linePrefix optional prefix for each line
      * @param lineSuffix optional suffix for each line
-     * @param builder when specified, generated method calls are invoked on
-     * local variable by this name
+     * @param builder    when specified, generated method calls are invoked on
+     *                   local variable by this name
      */
     public CodeAssemblerPrinter(TypeDesc[] paramTypes, boolean isStatic,
                                 PrintWriter writer,
                                 String linePrefix, String lineSuffix,
-                                String builder)
-    {
+                                String builder) {
         mIsStatic = isStatic;
         mWriter = writer;
         mLinePrefix = linePrefix;
@@ -85,7 +83,7 @@ public class CodeAssemblerPrinter extends AbstractCodeAssembler implements CodeA
         mParams = new LocalVariable[paramTypes.length];
 
         int varNum = (isStatic) ? 0 : 1;
-        for (int i = 0; i<paramTypes.length; i++) {
+        for (int i = 0; i < paramTypes.length; i++) {
             String varName = "var_" + (++mLocalCounter);
             println("LocalVariable " + varName + " = " +
                     mBulder + "getParameter(" + i + ')');
@@ -103,7 +101,7 @@ public class CodeAssemblerPrinter extends AbstractCodeAssembler implements CodeA
         return mParams[index];
     }
 
-    public LocalVariable createLocalVariable(String name, 
+    public LocalVariable createLocalVariable(String name,
                                              TypeDesc type) {
         String varName = "var_" + (++mLocalCounter);
         if (name != null) {
@@ -130,7 +128,7 @@ public class CodeAssemblerPrinter extends AbstractCodeAssembler implements CodeA
                 (catchClassName == null ? "null" : ('"' + catchClassName + '"')) +
                 ')');
     }
-    
+
     public void mapLineNumber(int lineNumber) {
         separatorLine();
         println(mBulder + "mapLineNumber(" + lineNumber + ')');
@@ -154,7 +152,7 @@ public class CodeAssemblerPrinter extends AbstractCodeAssembler implements CodeA
         } else {
             println(mBulder + "loadConstant(" + getTypeDescName(type) + ')');
         }
-        
+
     }
 
     public void loadConstant(boolean value) {
@@ -319,21 +317,21 @@ public class CodeAssemblerPrinter extends AbstractCodeAssembler implements CodeA
 
     public void convert(TypeDesc fromType, TypeDesc toType, int fpConvertMode) {
         switch (fpConvertMode) {
-        default:
-            convert(fromType, toType);
-            break;
-        case CONVERT_FP_BITS:
-            println(mBulder + "convert(" +
-                    getTypeDescName(fromType) + ", " +
-                    getTypeDescName(toType) + ", " +
-                    mBulder + ".CONVERT_FP_BITS" + ')');
-            break;
-        case CONVERT_FP_RAW_BITS:
-            println(mBulder + "convert(" +
-                    getTypeDescName(fromType) + ", " +
-                    getTypeDescName(toType) + ", " +
-                    mBulder + ".CONVERT_FP_RAW_BITS" + ')');
-            break;
+            default:
+                convert(fromType, toType);
+                break;
+            case CONVERT_FP_BITS:
+                println(mBulder + "convert(" +
+                        getTypeDescName(fromType) + ", " +
+                        getTypeDescName(toType) + ", " +
+                        mBulder + ".CONVERT_FP_BITS" + ')');
+                break;
+            case CONVERT_FP_RAW_BITS:
+                println(mBulder + "convert(" +
+                        getTypeDescName(fromType) + ", " +
+                        getTypeDescName(toType) + ", " +
+                        mBulder + ".CONVERT_FP_RAW_BITS" + ')');
+                break;
         }
     }
 
@@ -538,7 +536,7 @@ public class CodeAssemblerPrinter extends AbstractCodeAssembler implements CodeA
                 getLabelName(location) + ", \"" + choice + "\")");
     }
 
-    public void switchBranch(int[] cases, 
+    public void switchBranch(int[] cases,
                              Location[] locations, Location defaultLocation) {
 
         StringBuffer buf = new StringBuffer(cases.length * 15);
@@ -546,7 +544,7 @@ public class CodeAssemblerPrinter extends AbstractCodeAssembler implements CodeA
         buf.append(mBulder + "switchBranch(");
 
         buf.append("new int[] {");
-        for (int i=0; i<cases.length; i++) {
+        for (int i = 0; i < cases.length; i++) {
             if (i > 0) {
                 buf.append(", ");
             }
@@ -557,7 +555,7 @@ public class CodeAssemblerPrinter extends AbstractCodeAssembler implements CodeA
         buf.append(", ");
 
         buf.append("new Location[] {");
-        for (int i=0; i<locations.length; i++) {
+        for (int i = 0; i < locations.length; i++) {
             if (i > 0) {
                 buf.append(", ");
             }
@@ -582,7 +580,7 @@ public class CodeAssemblerPrinter extends AbstractCodeAssembler implements CodeA
 
     public void math(byte opcode) {
         println
-            (mBulder + "math(Opcode." + Opcode.getMnemonic(opcode).toUpperCase() + ')');
+                (mBulder + "math(Opcode." + Opcode.getMnemonic(opcode).toUpperCase() + ')');
     }
 
     public void arrayLength() {
@@ -643,9 +641,9 @@ public class CodeAssemblerPrinter extends AbstractCodeAssembler implements CodeA
 
     private String getLabelName(Location location) {
         if (location instanceof NamedLabel) {
-            return ((NamedLabel)location).mName;
+            return ((NamedLabel) location).mName;
         } else {
-            return ((NamedLabel)createLabel()).mName;
+            return ((NamedLabel) createLabel()).mName;
         }
     }
 
@@ -710,7 +708,7 @@ public class CodeAssemblerPrinter extends AbstractCodeAssembler implements CodeA
             buf.append(name);
             buf.append(" = new TypeDesc[] {");
 
-            for (int i=0; i<types.length; i++) {
+            for (int i = 0; i < types.length; i++) {
                 if (i > 0) {
                     buf.append(", ");
                 }
@@ -743,7 +741,7 @@ public class CodeAssemblerPrinter extends AbstractCodeAssembler implements CodeA
         }
 
         StringBuffer buf = new StringBuffer(length + 16);
-        for (i=0; i<length; i++) {
+        for (i = 0; i < length; i++) {
             char c = value.charAt(i);
             if (c >= 32 && c <= 126 && c != '"' && c != '\\' && (!forChar || c != '\'')) {
                 buf.append(c);
@@ -751,41 +749,41 @@ public class CodeAssemblerPrinter extends AbstractCodeAssembler implements CodeA
             }
 
             switch (c) {
-            case '\0':
-                buf.append("\\0");
-                break;
-            case '"':
-                buf.append("\\\"");
-                break;
-            case '\'':
-                buf.append("\\'");
-                break;
-            case '\\':
-                buf.append("\\\\");
-                break;
-            case '\b':
-                buf.append("\\b");
-                break;
-            case '\f':
-                buf.append("\\f");
-                break;
-            case '\n':
-                buf.append("\\n");
-                break;
-            case '\r':
-                buf.append("\\r");
-                break;
-            case '\t':
-                buf.append("\\t");
-                break;
-            default:
-                String u = Integer.toHexString(c).toLowerCase();
-                buf.append("\\u");
-                for (int len = u.length(); len < 4; len++) {
-                    buf.append('0');
-                }
-                buf.append(u);
-                break;
+                case '\0':
+                    buf.append("\\0");
+                    break;
+                case '"':
+                    buf.append("\\\"");
+                    break;
+                case '\'':
+                    buf.append("\\'");
+                    break;
+                case '\\':
+                    buf.append("\\\\");
+                    break;
+                case '\b':
+                    buf.append("\\b");
+                    break;
+                case '\f':
+                    buf.append("\\f");
+                    break;
+                case '\n':
+                    buf.append("\\n");
+                    break;
+                case '\r':
+                    buf.append("\\r");
+                    break;
+                case '\t':
+                    buf.append("\\t");
+                    break;
+                default:
+                    String u = Integer.toHexString(c).toLowerCase();
+                    buf.append("\\u");
+                    for (int len = u.length(); len < 4; len++) {
+                        buf.append('0');
+                    }
+                    buf.append(u);
+                    break;
             }
         }
 
@@ -806,27 +804,27 @@ public class CodeAssemblerPrinter extends AbstractCodeAssembler implements CodeA
         public String getName() {
             return mName;
         }
-        
+
         public void setName(String name) {
             println(mName + ".setName(" + name + ')');
         }
-        
+
         public TypeDesc getType() {
             return mType;
         }
-        
+
         public boolean isDoubleWord() {
             return mType.isDoubleWord();
         }
-        
+
         public int getNumber() {
             return mNumber;
         }
-        
+
         public Location getStartLocation() {
             return null;
         }
-        
+
         public Location getEndLocation() {
             return null;
         }
@@ -847,7 +845,7 @@ public class CodeAssemblerPrinter extends AbstractCodeAssembler implements CodeA
             println(mName + ".setLocation()");
             return this;
         }
-        
+
         public int getLocation() {
             return -1;
         }

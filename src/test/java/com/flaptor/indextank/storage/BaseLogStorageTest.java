@@ -17,28 +17,24 @@
 
 package com.flaptor.indextank.storage;
 
-import java.io.File;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.thrift.TException;
-
 import com.flaptor.indextank.IndexTankTestCase;
 import com.flaptor.indextank.rpc.LogBatch;
 import com.flaptor.indextank.rpc.LogPage;
 import com.flaptor.indextank.rpc.LogPageToken;
 import com.flaptor.indextank.rpc.LogRecord;
-import com.flaptor.indextank.storage.IndexesLogServer;
-import com.flaptor.indextank.storage.LogRoot;
-import com.flaptor.indextank.storage.RecordMerger;
 import com.flaptor.util.CollectionsUtil.PeekingIterator;
 import com.flaptor.util.FileUtil;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import org.apache.thrift.TException;
+
+import java.io.File;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 public abstract class BaseLogStorageTest extends IndexTankTestCase {
 
@@ -83,14 +79,14 @@ public abstract class BaseLogStorageTest extends IndexTankTestCase {
     protected void assertRecordDocIds(List<LogRecord> records, String... docids) {
         assertEquals("Segment should have " + docids.length + " records", docids.length, records.size());
         for (int i = 0; i < docids.length; i++) {
-            assertEquals("Record " + (i+1) + " should have docid=" + docids[i], docids[i], records.get(i).get_docid());
+            assertEquals("Record " + (i + 1) + " should have docid=" + docids[i], docids[i], records.get(i).get_docid());
         }
     }
 
     protected void assertRecordIds(List<LogRecord> records, long... ids) {
         assertEquals("Segment should have " + ids.length + " records", ids.length, records.size());
         for (int i = 0; i < ids.length; i++) {
-            assertEquals("Record " + (i+1) + " should have id=" + ids[i], ids[i], records.get(i).get_id());
+            assertEquals("Record " + (i + 1) + " should have id=" + ids[i], ids[i], records.get(i).get_id());
         }
     }
 
@@ -101,6 +97,7 @@ public abstract class BaseLogStorageTest extends IndexTankTestCase {
         }
         return b;
     }
+
     static LogRecord addRecord(String docid, String code) {
         LogRecord r = new LogRecord();
         r.set_deleted(false);
@@ -108,6 +105,7 @@ public abstract class BaseLogStorageTest extends IndexTankTestCase {
         r.set_index_code(code);
         return r;
     }
+
     static LogRecord addRecord(String docid, long id) {
         LogRecord r = new LogRecord();
         r.set_deleted(false);
@@ -115,38 +113,39 @@ public abstract class BaseLogStorageTest extends IndexTankTestCase {
         r.set_id(id);
         return r;
     }
-    
+
     static LogRecord deleteRecord(String docid) {
         LogRecord r = new LogRecord();
         r.set_deleted(true);
         r.set_docid(docid);
         return r;
     }
-    
+
     static LogRecord text(LogRecord r, String text) {
         return field(r, "text", text);
     }
-    
+
     static LogRecord field(LogRecord r, String field, String value) {
         r.put_to_fields(field, value);
         return r;
     }
-    
+
     static LogRecord variable(LogRecord r, int var, double value) {
         r.put_to_variables(var, value);
         return r;
     }
-    
+
     static LogRecord category(LogRecord r, String field, String value) {
         r.put_to_categories(field, value);
         return r;
     }
-    
+
     static {
         String[] lines = new String[50];
         Arrays.fill(lines, "some text goes here some text goes here some text goes here");
-        LONG_TEXT = Joiner.on("\n").join(lines); 
+        LONG_TEXT = Joiner.on("\n").join(lines);
     }
+
     protected static String LONG_TEXT;
 
 }

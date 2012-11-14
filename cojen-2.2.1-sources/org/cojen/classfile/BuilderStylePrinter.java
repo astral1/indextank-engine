@@ -16,18 +16,13 @@
 
 package org.cojen.classfile;
 
-import java.io.PrintWriter;
-
-import org.cojen.classfile.constant.ConstantClassInfo;
 import org.cojen.classfile.constant.ConstantDoubleInfo;
-import org.cojen.classfile.constant.ConstantFieldInfo;
 import org.cojen.classfile.constant.ConstantFloatInfo;
 import org.cojen.classfile.constant.ConstantIntegerInfo;
-import org.cojen.classfile.constant.ConstantInterfaceMethodInfo;
 import org.cojen.classfile.constant.ConstantLongInfo;
-import org.cojen.classfile.constant.ConstantMethodInfo;
-import org.cojen.classfile.constant.ConstantNameAndTypeInfo;
 import org.cojen.classfile.constant.ConstantStringInfo;
+
+import java.io.PrintWriter;
 
 /**
  * Disassembles a ClassFile into a Java source file, which when run, produces
@@ -63,9 +58,9 @@ class BuilderStylePrinter implements DisassemblyTool.Printer {
         println("import org.cojen.classfile.Opcode;");
         println("import org.cojen.classfile.TypeDesc;");
 
-        disassemble(cf, (String)null);
+        disassemble(cf, (String) null);
     }
-    
+
     private void disassemble(ClassFile cf, String innerClassSuffix) {
         println();
         if (innerClassSuffix == null) {
@@ -160,7 +155,7 @@ class BuilderStylePrinter implements DisassemblyTool.Printer {
         }
 
         String[] interfaces = cf.getInterfaces();
-        for (int i=0; i<interfaces.length; i++) {
+        for (int i = 0; i < interfaces.length; i++) {
             println("cf.addInterface(\"" + escape(interfaces[i]) + "\");");
         }
 
@@ -172,7 +167,7 @@ class BuilderStylePrinter implements DisassemblyTool.Printer {
         FieldInfo[] fields = cf.getFields();
         boolean createdFieldVariable = false;
 
-        for (int i=0; i<fields.length; i++) {
+        for (int i = 0; i < fields.length; i++) {
             if (i == 0) {
                 println();
                 println("//");
@@ -203,16 +198,16 @@ class BuilderStylePrinter implements DisassemblyTool.Printer {
                 print("fi.setConstantValue(");
                 if (constant instanceof ConstantStringInfo) {
                     print("\"");
-                    String value = ((ConstantStringInfo)constant).getValue();
+                    String value = ((ConstantStringInfo) constant).getValue();
                     print(escape(value));
                     print("\"");
                 } else if (constant instanceof ConstantIntegerInfo) {
-                    print(String.valueOf(((ConstantIntegerInfo)constant).getValue()));
+                    print(String.valueOf(((ConstantIntegerInfo) constant).getValue()));
                 } else if (constant instanceof ConstantLongInfo) {
-                    print(String.valueOf(((ConstantLongInfo)constant).getValue()));
+                    print(String.valueOf(((ConstantLongInfo) constant).getValue()));
                     print("L");
                 } else if (constant instanceof ConstantFloatInfo) {
-                    float value = ((ConstantFloatInfo)constant).getValue();
+                    float value = ((ConstantFloatInfo) constant).getValue();
                     if (value != value) {
                         print("0.0f/0.0f");
                     } else if (value == Float.NEGATIVE_INFINITY) {
@@ -224,7 +219,7 @@ class BuilderStylePrinter implements DisassemblyTool.Printer {
                         print("f");
                     }
                 } else if (constant instanceof ConstantDoubleInfo) {
-                    double value = ((ConstantDoubleInfo)constant).getValue();
+                    double value = ((ConstantDoubleInfo) constant).getValue();
                     if (value != value) {
                         print("0.0d/0.0d");
                     } else if (value == Float.NEGATIVE_INFINITY) {
@@ -247,7 +242,7 @@ class BuilderStylePrinter implements DisassemblyTool.Printer {
         }
 
         MethodInfo[] methods = cf.getConstructors();
-        for (int i=0; i<methods.length; i++) {
+        for (int i = 0; i < methods.length; i++) {
             if (i == 0) {
                 println();
                 println("//");
@@ -260,7 +255,7 @@ class BuilderStylePrinter implements DisassemblyTool.Printer {
         }
 
         methods = cf.getMethods();
-        for (int i=0; i<methods.length; i++) {
+        for (int i = 0; i < methods.length; i++) {
             if (i == 0) {
                 println();
                 println("//");
@@ -275,7 +270,7 @@ class BuilderStylePrinter implements DisassemblyTool.Printer {
 
         final ClassFile[] innerClasses = cf.getInnerClasses();
 
-        for (int i=0; i<innerClasses.length; i++) {
+        for (int i = 0; i < innerClasses.length; i++) {
             if (i == 0) {
                 println();
                 println("//");
@@ -285,7 +280,7 @@ class BuilderStylePrinter implements DisassemblyTool.Printer {
 
             println();
             println("// " + innerClasses[i]);
-            
+
             if (i == 0) {
                 print("ClassFile ");
             }
@@ -326,7 +321,7 @@ class BuilderStylePrinter implements DisassemblyTool.Printer {
         }
 
         methods = cf.getConstructors();
-        for (int i=0; i<methods.length; i++) {
+        for (int i = 0; i < methods.length; i++) {
             println();
             println("// " + methods[i]);
             println("private static void createConstructor_" + (i + 1) + "(ClassFile cf) {");
@@ -337,7 +332,7 @@ class BuilderStylePrinter implements DisassemblyTool.Printer {
         }
 
         methods = cf.getMethods();
-        for (int i=0; i<methods.length; i++) {
+        for (int i = 0; i < methods.length; i++) {
             println();
             println("// " + methods[i]);
             println("private static void createMethod_" + (i + 1) + "(ClassFile cf) {");
@@ -347,7 +342,7 @@ class BuilderStylePrinter implements DisassemblyTool.Printer {
             println("}");
         }
 
-        for (int i=0; i<innerClasses.length; i++) {
+        for (int i = 0; i < innerClasses.length; i++) {
             String suffix = "_" + (i + 1);
             if (innerClassSuffix != null) {
                 suffix = innerClassSuffix + suffix;
@@ -388,7 +383,7 @@ class BuilderStylePrinter implements DisassemblyTool.Printer {
             println("mi.markDeprecated();");
         }
         TypeDesc[] exceptions = mi.getExceptions();
-        for (int j=0; j<exceptions.length; j++) {
+        for (int j = 0; j < exceptions.length; j++) {
             print("mi.addException(");
             print(exceptions[j]);
             println(");");
@@ -401,10 +396,10 @@ class BuilderStylePrinter implements DisassemblyTool.Printer {
             TypeDesc[] paramTypes = mi.getMethodDescriptor().getParameterTypes();
             boolean isStatic = mi.getModifiers().isStatic();
             String indentStr = generateIndent(mIndent);
-            
+
             new CodeDisassembler(mi).disassemble
-                (new CodeAssemblerPrinter(paramTypes, isStatic,
-                                          mOut, indentStr, ";", "b."));
+                    (new CodeAssemblerPrinter(paramTypes, isStatic,
+                            mOut, indentStr, ";", "b."));
         }
     }
 
@@ -513,7 +508,7 @@ class BuilderStylePrinter implements DisassemblyTool.Printer {
 
         print("new TypeDesc[] {");
 
-        for (int i=0; i<params.length; i++) {
+        for (int i = 0; i < params.length; i++) {
             if (i > 0) {
                 print(", ");
             }
@@ -540,7 +535,7 @@ class BuilderStylePrinter implements DisassemblyTool.Printer {
 
     private void indent() {
         if (mNeedIndent) {
-            for (int i=mIndent; --i>= 0; ) {
+            for (int i = mIndent; --i >= 0; ) {
                 mOut.print(' ');
             }
             mNeedIndent = false;
@@ -549,7 +544,7 @@ class BuilderStylePrinter implements DisassemblyTool.Printer {
 
     private String generateIndent(int amount) {
         StringBuffer buf = new StringBuffer(amount);
-        for (int i=0; i<amount; i++) {
+        for (int i = 0; i < amount; i++) {
             buf.append(' ');
         }
         return buf.toString();

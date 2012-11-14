@@ -16,16 +16,15 @@
 
 package com.flaptor.indextank.api.resources;
 
-import java.io.IOException;
-import java.util.logging.Logger;
-
+import com.flaptor.indextank.api.IndexEngineApi;
+import com.ghosthack.turismo.action.Action;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.json.simple.parser.ParseException;
 
-import com.flaptor.indextank.api.IndexEngineApi;
-import com.ghosthack.turismo.action.Action;
+import java.io.IOException;
+import java.util.logging.Logger;
 
 public class DeleteDocs extends Action {
 
@@ -36,36 +35,36 @@ public class DeleteDocs extends Action {
         IndexEngineApi api = (IndexEngineApi) ctx().getAttribute("api");
         try {
             Object parse = JSONValue.parseWithException(req().getReader());
-            if(parse instanceof JSONObject) { // 200, 400, 404, 409, 503
+            if (parse instanceof JSONObject) { // 200, 400, 404, 409, 503
                 JSONObject jo = (JSONObject) parse;
                 try {
                     deleteDocument(api, jo);
                     res().setStatus(200);
                     return;
-                    
-                } catch(Exception e) {
+
+                } catch (Exception e) {
                     e.printStackTrace();
-                    if(LOG_ENABLED) LOG.severe(e.getMessage());
+                    if (LOG_ENABLED) LOG.severe(e.getMessage());
                     res().setStatus(400);
                     print("Invalid or missing argument"); // TODO: descriptive error msg
                     return;
                 }
-            } else if(parse instanceof JSONArray) {
+            } else if (parse instanceof JSONArray) {
                 JSONArray statuses = new JSONArray();
                 JSONArray ja = (JSONArray) parse;
-                if(!validateDocuments(ja)) {
+                if (!validateDocuments(ja)) {
                     res().setStatus(400);
                     print("Invalid or missing argument"); // TODO: descriptive error msg
                     return;
                 }
                 boolean hasError = false;
-                for(Object o: ja) {
+                for (Object o : ja) {
                     JSONObject jo = (JSONObject) o;
                     JSONObject status = new JSONObject();
                     try {
                         deleteDocument(api, jo);
                         status.put("added", true);
-                    } catch(Exception e) {
+                    } catch (Exception e) {
                         status.put("added", false);
                         status.put("error", "Invalid or missing argument"); // TODO: descriptive error msg
                         hasError = true;
@@ -76,11 +75,11 @@ public class DeleteDocs extends Action {
                 return;
             }
         } catch (IOException e) {
-            if(LOG_ENABLED) LOG.severe("DELETE doc, parse input " + e.getMessage());
+            if (LOG_ENABLED) LOG.severe("DELETE doc, parse input " + e.getMessage());
         } catch (ParseException e) {
-            if(LOG_ENABLED) LOG.severe("DELETE doc, parse input " + e.getMessage());
+            if (LOG_ENABLED) LOG.severe("DELETE doc, parse input " + e.getMessage());
         } catch (Exception e) {
-            if(LOG_ENABLED) LOG.severe("DELETE doc " + e.getMessage());
+            if (LOG_ENABLED) LOG.severe("DELETE doc " + e.getMessage());
         }
         res().setStatus(503);
         print("Service unavailable"); // TODO: descriptive error msg
@@ -96,9 +95,9 @@ public class DeleteDocs extends Action {
     }
 
     private boolean validateDocuments(JSONArray ja) {
-        for(Object o: ja) {
+        for (Object o : ja) {
             JSONObject jo = (JSONObject) o;
-            if(!validateDocument(jo)) {
+            if (!validateDocument(jo)) {
                 return false;
             }
         }

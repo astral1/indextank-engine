@@ -16,15 +16,14 @@
 
 package org.cojen.classfile.attribute;
 
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.IOException;
 import org.cojen.classfile.Attribute;
 import org.cojen.classfile.ConstantPool;
 
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
+
 /**
- * 
- *
  * @author Brian S O'Neill
  */
 public class UnknownAttr extends Attribute {
@@ -36,8 +35,7 @@ public class UnknownAttr extends Attribute {
     }
 
     public UnknownAttr(ConstantPool cp, String name, int length, DataInput din)
-        throws IOException
-    {
+            throws IOException {
         super(cp, name);
         mData = new byte[length];
         din.readFully(mData);
@@ -46,7 +44,7 @@ public class UnknownAttr extends Attribute {
     public int getLength() {
         return mData.length;
     }
-    
+
     public void writeDataTo(DataOutput dout) throws IOException {
         dout.write(mData);
     }

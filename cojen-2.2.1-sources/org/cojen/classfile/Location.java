@@ -25,8 +25,8 @@ public interface Location extends Comparable<Location> {
     /**
      * Returns -1 if the location isn't yet fully resolved.
      *
-     * @exception IllegalStateException when the location is unknown and cannot
-     * be resolved.
+     * @throws IllegalStateException when the location is unknown and cannot
+     *                               be resolved.
      */
     int getLocation() throws IllegalStateException;
 }

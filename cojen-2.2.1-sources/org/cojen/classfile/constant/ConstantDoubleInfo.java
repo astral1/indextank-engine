@@ -16,20 +16,20 @@
 
 package org.cojen.classfile.constant;
 
+import org.cojen.classfile.ConstantInfo;
+
 import java.io.DataOutput;
 import java.io.IOException;
-import org.cojen.classfile.ConstantInfo;
-import org.cojen.classfile.ConstantPool;
 
 /**
  * This class corresponds to the CONSTANT_Double_info structure as defined in
  * section 4.4.5 of <i>The Java Virtual Machine Specification</i>.
- * 
+ *
  * @author Brian S O'Neill
  */
 public class ConstantDoubleInfo extends ConstantInfo {
     private final double mValue;
-    
+
     public ConstantDoubleInfo(double value) {
         super(TAG_DOUBLE);
         mValue = value;
@@ -41,20 +41,20 @@ public class ConstantDoubleInfo extends ConstantInfo {
 
     public int hashCode() {
         long bits = Double.doubleToLongBits(mValue);
-        return (int)(bits ^ (bits >>> 32));
+        return (int) (bits ^ (bits >>> 32));
     }
-    
+
     public boolean equals(Object obj) {
         if (this == obj) {
             return true;
         }
         if (obj instanceof ConstantDoubleInfo) {
-            ConstantDoubleInfo other = (ConstantDoubleInfo)obj;
+            ConstantDoubleInfo other = (ConstantDoubleInfo) obj;
             return mValue == other.mValue;
         }
         return false;
     }
-    
+
     protected int getEntryCount() {
         return 2;
     }

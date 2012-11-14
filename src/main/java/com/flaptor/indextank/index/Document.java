@@ -16,29 +16,29 @@
 
 package com.flaptor.indextank.index;
 
+import com.google.common.base.Preconditions;
+
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import com.google.common.base.Preconditions;
-
 public class Document implements Serializable {
     private static final long serialVersionUID = 1L;
-    private Map<String,String> fields;
+    private Map<String, String> fields;
 
     public Document() {
-        this.fields = new HashMap<String,String>();
+        this.fields = new HashMap<String, String>();
     }
 
-    public Document(Map<String,String> fields) {
+    public Document(Map<String, String> fields) {
         Preconditions.checkNotNull(fields);
         this.fields = fields;
     }
 
     public void setField(String key, String value) {
-        fields.put(key,value);
+        fields.put(key, value);
     }
 
     public String getField(String key) {
@@ -51,11 +51,11 @@ public class Document implements Serializable {
 
     @Override
     public String toString() {
-    	return fields.toString();
+        return fields.toString();
     }
-    
+
     public Map<String, String> asMap() {
-    	return Collections.unmodifiableMap(fields);
+        return Collections.unmodifiableMap(fields);
     }
 
 

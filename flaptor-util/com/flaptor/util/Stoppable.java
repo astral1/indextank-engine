@@ -16,7 +16,7 @@ limitations under the License.
 
 package com.flaptor.util;
 
-/** 
+/**
  * This interface represents a class that can be stopped.
  * The stopping process this interface describes has 2 phases: first the
  * class is requested to stop, and after some period of time it is stopped.
@@ -25,7 +25,8 @@ package com.flaptor.util;
  * The 2 phases stop procedure leads to think of the class as having 3
  * distinct states: running, stop requested and stopped. So it may be
  * useful to use internally RunningState to describe this situation.
- * @see RunningState 
+ *
+ * @see RunningState
  */
 public interface Stoppable {
     /**
@@ -33,10 +34,11 @@ public interface Stoppable {
      * depending of the implementation of the run method, BUT the method must
      * return immediately (i.e. be non-blocking).
      */
-	public void requestStop();
+    public void requestStop();
 
     /**
      * Says whether or not the class is stopped.
+     *
      * @return true if stopped, false otherwise.
      */
     public boolean isStopped();

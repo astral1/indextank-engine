@@ -45,7 +45,7 @@ public class SkippingIterable<E> extends AbstractIterable<E> {
         public void remove() {
             delegate.remove();
         }
-        
+
         public static <E> Iterator<E> skipping(Iterator<E> it, int skip) {
             return new SkippingIterator<E>(it, skip);
         }
@@ -53,7 +53,7 @@ public class SkippingIterable<E> extends AbstractIterable<E> {
 
     private int skip;
     private Iterable<E> delegate;
-    
+
     public SkippingIterable(Iterable<E> delegate, int skip) {
         this.skip = skip;
         this.delegate = delegate;

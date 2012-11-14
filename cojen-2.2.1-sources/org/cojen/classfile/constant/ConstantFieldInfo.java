@@ -16,33 +16,33 @@
 
 package org.cojen.classfile.constant;
 
+import org.cojen.classfile.ConstantInfo;
+
 import java.io.DataOutput;
 import java.io.IOException;
-import org.cojen.classfile.ConstantInfo;
-import org.cojen.classfile.ConstantPool;
 
 /**
  * This class corresponds to the CONSTANT_Fieldref_info structure as defined in
  * section 4.4.2 of <i>The Java Virtual Machine Specification</i>.
- * 
+ *
  * @author Brian S O'Neill
  */
 public class ConstantFieldInfo extends ConstantInfo {
     private final ConstantClassInfo mParentClass;
     private final ConstantNameAndTypeInfo mNameAndType;
-    
+
     public ConstantFieldInfo(ConstantClassInfo parentClass,
                              ConstantNameAndTypeInfo nameAndType) {
         super(TAG_FIELD);
-        
+
         mParentClass = parentClass;
         mNameAndType = nameAndType;
     }
-    
+
     public ConstantClassInfo getParentClass() {
         return mParentClass;
     }
-    
+
     public ConstantNameAndTypeInfo getNameAndType() {
         return mNameAndType;
     }
@@ -50,17 +50,17 @@ public class ConstantFieldInfo extends ConstantInfo {
     public int hashCode() {
         return mNameAndType.hashCode();
     }
-    
+
     public boolean equals(Object obj) {
         if (obj instanceof ConstantFieldInfo) {
-            ConstantFieldInfo other = (ConstantFieldInfo)obj;
-            return (mParentClass.equals(other.mParentClass) && 
+            ConstantFieldInfo other = (ConstantFieldInfo) obj;
+            return (mParentClass.equals(other.mParentClass) &&
                     mNameAndType.equals(other.mNameAndType));
         }
-        
+
         return false;
     }
-    
+
     public void writeTo(DataOutput dout) throws IOException {
         super.writeTo(dout);
         dout.writeShort(mParentClass.getIndex());

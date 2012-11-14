@@ -56,14 +56,14 @@ public class RangeQuery extends QueryNode {
         this.includeStart = includeStart;
         this.includeEnd = includeEnd;
     }
-    
+
     /**
      * @return a lucene query.
      * @see org.apache.lucene.search.Query
      */
     public org.apache.lucene.search.Query getLuceneQuery() {
-    	//Translation from Lucene 2.4. We need to check if it is actually the exact same thing to do.
-    	return new TermRangeQuery(field,start,end,includeStart,includeEnd);
+        //Translation from Lucene 2.4. We need to check if it is actually the exact same thing to do.
+        return new TermRangeQuery(field, start, end, includeStart, includeEnd);
         //return new ConstantScoreRangeQuery(field,start,end,includeStart,includeEnd);
     }
 
@@ -72,19 +72,19 @@ public class RangeQuery extends QueryNode {
         if (!super.equals(obj))
             return false;
         RangeQuery q = (RangeQuery) obj;
-        return     field.equals(q.field)
+        return field.equals(q.field)
                 && start.equals(q.start)
                 && end.equals(q.end)
                 && includeStart == q.includeStart
                 && includeEnd == q.includeEnd;
     }
-    
+
     @Override
     public int hashCode() {
-        return    field.hashCode()
-                ^ start.hashCode() 
-                ^ end.hashCode() 
-                ^ Boolean.valueOf(includeStart).hashCode() 
+        return field.hashCode()
+                ^ start.hashCode()
+                ^ end.hashCode()
+                ^ Boolean.valueOf(includeStart).hashCode()
                 ^ Boolean.valueOf(includeEnd).hashCode()
                 ^ super.hashCode();
     }

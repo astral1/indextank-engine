@@ -16,10 +16,11 @@
 
 package org.cojen.classfile;
 
+import org.cojen.classfile.constant.ConstantClassInfo;
+
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-import org.cojen.classfile.constant.ConstantClassInfo;
 
 /**
  * This class corresponds to the exception_table structure as defined in
@@ -32,12 +33,12 @@ public class ExceptionHandler<L extends Location> implements LocationRange<L> {
     private L mEnd;
     private L mCatch;
     private ConstantClassInfo mCatchType;
-    
+
     /**
      * @param startLocation
      * @param endLocation
      * @param catchLocation
-     * @param catchType if null, then catch every object.
+     * @param catchType     if null, then catch every object.
      */
     public ExceptionHandler(L startLocation,
                             L endLocation,
@@ -48,19 +49,19 @@ public class ExceptionHandler<L extends Location> implements LocationRange<L> {
         mCatch = catchLocation;
         mCatchType = catchType;
     }
-    
+
     public L getStartLocation() {
         return mStart;
     }
-    
+
     public L getEndLocation() {
         return mEnd;
     }
-    
+
     public L getCatchLocation() {
         return mCatch;
     }
-    
+
     /**
      * Returns null if every object is caught by this handler.
      */
@@ -76,8 +77,7 @@ public class ExceptionHandler<L extends Location> implements LocationRange<L> {
         ConstantClassInfo catchType = getCatchType();
         if (catchType == null) {
             catch_type = 0;
-        }
-        else {
+        } else {
             catch_type = catchType.getIndex();
         }
 
@@ -94,14 +94,13 @@ public class ExceptionHandler<L extends Location> implements LocationRange<L> {
     private void check(String type, int addr) throws IllegalStateException {
         if (addr < 0 || addr > 65535) {
             throw new IllegalStateException("Value for " + type + " out of " +
-                                            "valid range: " + addr);
+                    "valid range: " + addr);
 
         }
     }
 
     public static ExceptionHandler<FixedLocation> readFrom(ConstantPool cp, DataInput din)
-        throws IOException
-    {
+            throws IOException {
         int start_pc = din.readUnsignedShort();
         int end_pc = din.readUnsignedShort();
         int handler_pc = din.readUnsignedShort();
@@ -111,12 +110,12 @@ public class ExceptionHandler<L extends Location> implements LocationRange<L> {
         if (catch_type == 0) {
             catchTypeConstant = null;
         } else {
-            catchTypeConstant = (ConstantClassInfo)cp.getConstant(catch_type);
+            catchTypeConstant = (ConstantClassInfo) cp.getConstant(catch_type);
         }
 
         return new ExceptionHandler<FixedLocation>(new FixedLocation(start_pc),
-                                                   new FixedLocation(end_pc),
-                                                   new FixedLocation(handler_pc),
-                                                   catchTypeConstant);
+                new FixedLocation(end_pc),
+                new FixedLocation(handler_pc),
+                catchTypeConstant);
     }
 }

@@ -16,23 +16,19 @@
 
 package org.cojen.classfile.attribute;
 
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.IOException;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import org.cojen.classfile.Attribute;
 import org.cojen.classfile.ConstantPool;
 import org.cojen.classfile.MethodInfo;
 import org.cojen.classfile.TypeDesc;
-
 import org.cojen.classfile.constant.ConstantClassInfo;
 
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- * 
- *
  * @author Brian S O'Neill
  */
 public class StackMapTableAttr extends Attribute {
@@ -41,8 +37,7 @@ public class StackMapTableAttr extends Attribute {
     private int mLength;
 
     public StackMapTableAttr(ConstantPool cp, String name, int length, DataInput din)
-        throws IOException
-    {
+            throws IOException {
         super(cp, name);
 
         int size = din.readUnsignedShort();
@@ -50,7 +45,7 @@ public class StackMapTableAttr extends Attribute {
 
         InitialFrame first = new InitialFrame();
         StackMapFrame last = first;
-        for (int i=0; i<size; i++) {
+        for (int i = 0; i < size; i++) {
             StackMapFrame frame = StackMapFrame.read(last, cp, din);
             if (frame != null) {
                 last = frame;
@@ -107,8 +102,7 @@ public class StackMapTableAttr extends Attribute {
 
     public static abstract class StackMapFrame {
         static StackMapFrame read(StackMapFrame prev, ConstantPool cp, DataInput din)
-            throws IOException
-        {
+                throws IOException {
             int frameType = din.readUnsignedByte();
 
             if (frameType <= 63) {
@@ -220,7 +214,7 @@ public class StackMapTableAttr extends Attribute {
                 offset = 1;
             }
 
-            for (int i=0; i<paramTypes.length; i++) {
+            for (int i = 0; i < paramTypes.length; i++) {
                 infos[offset + i] = VerificationTypeInfo.forType(cp, paramTypes[i]);
             }
 
@@ -263,8 +257,7 @@ public class StackMapTableAttr extends Attribute {
 
         SameLocalsOneStackItemFrame(StackMapFrame prev,
                                     int offsetDelta, ConstantPool cp, DataInput din)
-            throws IOException
-        {
+                throws IOException {
             super(prev);
             mOffsetDelta = offsetDelta;
             mStackItemInfo = VerificationTypeInfo.read(cp, din);
@@ -297,8 +290,7 @@ public class StackMapTableAttr extends Attribute {
         private final VerificationTypeInfo mStackItemInfo;
 
         SameLocalsOneStackItemFrameExtended(StackMapFrame prev, ConstantPool cp, DataInput din)
-            throws IOException
-        {
+                throws IOException {
             super(prev);
             mOffsetDelta = din.readUnsignedShort();
             mStackItemInfo = VerificationTypeInfo.read(cp, din);
@@ -404,8 +396,7 @@ public class StackMapTableAttr extends Attribute {
         private transient VerificationTypeInfo[] mLocalInfos;
 
         AppendFrame(StackMapFrame prev, int numLocals, ConstantPool cp, DataInput din)
-            throws IOException
-        {
+                throws IOException {
             super(prev);
             mOffsetDelta = din.readUnsignedShort();
             mAppendInfos = VerificationTypeInfo.read(cp, din, numLocals);
@@ -427,7 +418,7 @@ public class StackMapTableAttr extends Attribute {
             if (mLocalInfos == null) {
                 VerificationTypeInfo[] prevInfos = getPrevious().getLocalInfos();
                 VerificationTypeInfo[] infos =
-                    new VerificationTypeInfo[prevInfos.length + mAppendInfos.length];
+                        new VerificationTypeInfo[prevInfos.length + mAppendInfos.length];
                 System.arraycopy(prevInfos, 0, infos, 0, prevInfos.length);
                 System.arraycopy(mAppendInfos, 0, infos, prevInfos.length, mAppendInfos.length);
                 mLocalInfos = infos;
@@ -503,58 +494,56 @@ public class StackMapTableAttr extends Attribute {
         static final VerificationTypeInfo[] EMPTY_ARRAY = new VerificationTypeInfo[0];
 
         static VerificationTypeInfo read(ConstantPool cp, DataInput din)
-            throws IOException
-        {
+                throws IOException {
             int type = din.readUnsignedByte();
             switch (type) {
-            case 0:
-                return TopVariableInfo.THE;
-            case 1:
-                return IntegerVariableInfo.THE;
-            case 2:
-                return FloatVariableInfo.THE;
-            case 3:
-                return DoubleVariableInfo.THE;
-            case 4:
-                return LongVariableInfo.THE;
-            case 5:
-                return NullVariableInfo.THE;
-            case 6:
-                return UninitThisVariableInfo.THE;
-            case 7:
-                return new ObjectVariableInfo(cp, din);
-            case 8:
-                return new UninitVariableInfo(cp, din);
+                case 0:
+                    return TopVariableInfo.THE;
+                case 1:
+                    return IntegerVariableInfo.THE;
+                case 2:
+                    return FloatVariableInfo.THE;
+                case 3:
+                    return DoubleVariableInfo.THE;
+                case 4:
+                    return LongVariableInfo.THE;
+                case 5:
+                    return NullVariableInfo.THE;
+                case 6:
+                    return UninitThisVariableInfo.THE;
+                case 7:
+                    return new ObjectVariableInfo(cp, din);
+                case 8:
+                    return new UninitVariableInfo(cp, din);
             }
             return null;
         }
 
         static VerificationTypeInfo forType(ConstantPool cp, TypeDesc type) {
             switch (type.getTypeCode()) {
-            default:
-                return TopVariableInfo.THE;
-            case TypeDesc.OBJECT_CODE:
-                return new ObjectVariableInfo(cp, type);
-            case TypeDesc.BOOLEAN_CODE:
-            case TypeDesc.BYTE_CODE:
-            case TypeDesc.CHAR_CODE:
-            case TypeDesc.SHORT_CODE:
-            case TypeDesc.INT_CODE:
-                return IntegerVariableInfo.THE;
-            case TypeDesc.LONG_CODE:
-                return LongVariableInfo.THE;
-            case TypeDesc.FLOAT_CODE:
-                return FloatVariableInfo.THE;
-            case TypeDesc.DOUBLE_CODE:
-                return DoubleVariableInfo.THE;
+                default:
+                    return TopVariableInfo.THE;
+                case TypeDesc.OBJECT_CODE:
+                    return new ObjectVariableInfo(cp, type);
+                case TypeDesc.BOOLEAN_CODE:
+                case TypeDesc.BYTE_CODE:
+                case TypeDesc.CHAR_CODE:
+                case TypeDesc.SHORT_CODE:
+                case TypeDesc.INT_CODE:
+                    return IntegerVariableInfo.THE;
+                case TypeDesc.LONG_CODE:
+                    return LongVariableInfo.THE;
+                case TypeDesc.FLOAT_CODE:
+                    return FloatVariableInfo.THE;
+                case TypeDesc.DOUBLE_CODE:
+                    return DoubleVariableInfo.THE;
             }
         }
 
         private static VerificationTypeInfo[] read(ConstantPool cp, DataInput din, int num)
-            throws IOException
-        {
+                throws IOException {
             VerificationTypeInfo[] infos = new VerificationTypeInfo[num];
-            for (int i=0; i<num; i++) {
+            for (int i = 0; i < num; i++) {
                 infos[i] = read(cp, din);
             }
             return infos;

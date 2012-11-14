@@ -16,15 +16,15 @@
 
 package com.flaptor.indextank.index.term.query;
 
-import java.util.List;
-
 import com.flaptor.indextank.util.IdentityUnion;
 import com.flaptor.indextank.util.SkippableIterable;
+
+import java.util.List;
 
 class OrMerger extends IdentityUnion<RawMatch> {
 
     @SuppressWarnings("unchecked")
-	OrMerger(SkippableIterable<RawMatch> left, SkippableIterable<RawMatch> right) {
+    OrMerger(SkippableIterable<RawMatch> left, SkippableIterable<RawMatch> right) {
         super(left, right);
     }
 
@@ -35,7 +35,7 @@ class OrMerger extends IdentityUnion<RawMatch> {
             score += p.getScore();
         }
         result.setScore(score);
-        
+
         return true; // every element of the union should be returned
     }
 }

@@ -31,10 +31,10 @@ limitations under the License.
 */
 package com.flaptor.indextank.query;
 
-import java.io.Serializable;
-
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
+
+import java.io.Serializable;
 
 /**
  * @author Flaptor Development Team
@@ -51,22 +51,22 @@ public final class AndQuery extends BinaryQuery implements Serializable {
     public org.apache.lucene.search.Query getLuceneQuery() {
         BooleanQuery bq = new BooleanQuery();
         if (leftQuery instanceof AndQuery) {
-        	for (BooleanClause bc : ((BooleanQuery)leftQuery.getLuceneQuery()).getClauses()) {
-        		bq.add(bc);
-        	}
+            for (BooleanClause bc : ((BooleanQuery) leftQuery.getLuceneQuery()).getClauses()) {
+                bq.add(bc);
+            }
         } else {
             bq.add(leftQuery.getLuceneQuery(), BooleanClause.Occur.MUST);
         }
         if (rightQuery instanceof AndQuery) {
-        	for (BooleanClause bc : ((BooleanQuery)rightQuery.getLuceneQuery()).getClauses()) {
-        		bq.add(bc);
-        	}        	
+            for (BooleanClause bc : ((BooleanQuery) rightQuery.getLuceneQuery()).getClauses()) {
+                bq.add(bc);
+            }
         } else {
             bq.add(rightQuery.getLuceneQuery(), BooleanClause.Occur.MUST);
         }
         return bq;
     }
-    
+
     @Override
     public String toString() {
         return "( " + leftQuery.toString() + " ) AND ( " + rightQuery.toString() + " )" + boostString();

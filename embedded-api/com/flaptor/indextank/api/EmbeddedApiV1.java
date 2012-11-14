@@ -34,7 +34,7 @@ public class EmbeddedApiV1 extends RoutesList {
         put("/indexes/:name/docs", new Docs());
 
         delete("/indexes/:name/docs", new DeleteDocs());
-        
+
         get("/indexes", new Action() {
             public void run() {
                 // dummy response for embedded server

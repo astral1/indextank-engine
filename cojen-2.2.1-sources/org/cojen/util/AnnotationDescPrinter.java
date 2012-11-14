@@ -34,9 +34,9 @@
 
 package org.cojen.util;
 
-import java.lang.annotation.Annotation;
-
 import org.cojen.classfile.TypeDesc;
+
+import java.lang.annotation.Annotation;
 
 /**
  * Prints machine readable, self-describing, annotation descriptors.
@@ -61,27 +61,27 @@ public class AnnotationDescPrinter extends AnnotationVisitor<Object, Object> {
     }
 
     static final char
-        TAG_BOOLEAN    = 'Z',
-        TAG_BYTE       = 'B',
-        TAG_SHORT      = 'S',
-        TAG_CHAR       = 'C',
-        TAG_INT        = 'I',
-        TAG_LONG       = 'J',
-        TAG_FLOAT      = 'F',
-        TAG_DOUBLE     = 'D',
-        TAG_VOID       = 'V',
-        TAG_OBJECT     = 'L',
-        TAG_ARRAY      = '[',
-        TAG_STRING     = 's',
-        TAG_CLASS      = 'c',
-        TAG_ENUM       = 'e',
-        TAG_ANNOTATION = '@';
+            TAG_BOOLEAN = 'Z',
+            TAG_BYTE = 'B',
+            TAG_SHORT = 'S',
+            TAG_CHAR = 'C',
+            TAG_INT = 'I',
+            TAG_LONG = 'J',
+            TAG_FLOAT = 'F',
+            TAG_DOUBLE = 'D',
+            TAG_VOID = 'V',
+            TAG_OBJECT = 'L',
+            TAG_ARRAY = '[',
+            TAG_STRING = 's',
+            TAG_CLASS = 'c',
+            TAG_ENUM = 'e',
+            TAG_ANNOTATION = '@';
 
     private final StringBuilder mBuilder;
 
     /**
      * @param sort when true, sort annotation members by name (case sensitive)
-     * @param b StringBuilder to get printed results
+     * @param b    StringBuilder to get printed results
      */
     public AnnotationDescPrinter(boolean sort, StringBuilder b) {
         super(sort);
@@ -164,7 +164,7 @@ public class AnnotationDescPrinter extends AnnotationVisitor<Object, Object> {
     public Object visit(String name, int pos, String value, Object param) {
         appendName(name, pos, TAG_STRING);
         int length = value.length();
-        for (int i=0; i<length; i++) {
+        for (int i = 0; i < length; i++) {
             char c = value.charAt(i);
             if (c == '\\' || c == ';') {
                 mBuilder.append('\\');

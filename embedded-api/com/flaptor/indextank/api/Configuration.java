@@ -17,7 +17,7 @@
 package com.flaptor.indextank.api;
 
 public class Configuration {
-    
+
     public static String host = "localhost";
     public static Integer port = 20220;
     public static Integer indexerPort = port + 1;

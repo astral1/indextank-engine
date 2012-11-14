@@ -31,17 +31,17 @@ limitations under the License.
 */
 package com.flaptor.indextank.query;
 
-import java.io.Serializable;
-
 import com.flaptor.indextank.index.scorer.MatchFilter;
 import com.google.common.collect.Multimap;
+
+import java.io.Serializable;
 
 /**
  * Wrapper for IndexTank queries, holds query metadata.
  */
 public final class Query implements Serializable {
     private static final long serialVersionUID = 1L;
-    
+
     private QueryNode root;
     private String originalStr;
     private QueryVariables vars;
@@ -49,25 +49,27 @@ public final class Query implements Serializable {
     private Multimap<String, String> filteringFacets;
     private MatchFilter rangeFilter;
 
-	/**
+    /**
      * Default constructor.
+     *
      * @param originalStr the original user generated query string, if applicable.
      */
     public Query(QueryNode root, String originalStr, QueryVariables vars, Multimap<String, String> filteringFacets, MatchFilter rangeFilter) {
         this.root = root;
         this.originalStr = originalStr;
         this.vars = vars;
-		this.filteringFacets = filteringFacets;
-		this.rangeFilter = rangeFilter;
-        this.now = (int)(System.currentTimeMillis()/1000);
+        this.filteringFacets = filteringFacets;
+        this.rangeFilter = rangeFilter;
+        this.now = (int) (System.currentTimeMillis() / 1000);
     }
-    
+
     public Query(QueryNode root, String originalStr, QueryVariables vars) {
-    	this(root, originalStr, vars, null, null);
+        this(root, originalStr, vars, null, null);
     }
-    
+
     /**
      * Abstract method that returns the original user-generated query string.
+     *
      * @return The original user-generated query string, or null.
      */
     public String getOriginalStr() {
@@ -76,6 +78,7 @@ public final class Query implements Serializable {
 
     /**
      * Returns the query root node.
+     *
      * @return the query root node.
      */
     public QueryNode getRoot() {
@@ -91,6 +94,7 @@ public final class Query implements Serializable {
 
     /**
      * Returns the query variables.
+     *
      * @returns the query variables.
      */
     public QueryVariables getVars() {
@@ -98,12 +102,12 @@ public final class Query implements Serializable {
     }
 
     public Multimap<String, String> getFilteringFacets() {
-    	return filteringFacets;
+        return filteringFacets;
     }
 
     public MatchFilter getRangeFilter() {
-		return rangeFilter;
-	}
+        return rangeFilter;
+    }
 
     public String toString() {
         return root.toString();
@@ -168,5 +172,5 @@ public final class Query implements Serializable {
         return true;
     }
 
-    
+
 }

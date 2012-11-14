@@ -34,14 +34,29 @@
 
 package org.cojen.util;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.cojen.classfile.TypeDesc;
 import org.cojen.classfile.attribute.Annotation;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.cojen.util.AnnotationDescPrinter.TAG_ANNOTATION;
+import static org.cojen.util.AnnotationDescPrinter.TAG_ARRAY;
+import static org.cojen.util.AnnotationDescPrinter.TAG_BOOLEAN;
+import static org.cojen.util.AnnotationDescPrinter.TAG_BYTE;
+import static org.cojen.util.AnnotationDescPrinter.TAG_CHAR;
+import static org.cojen.util.AnnotationDescPrinter.TAG_CLASS;
+import static org.cojen.util.AnnotationDescPrinter.TAG_DOUBLE;
+import static org.cojen.util.AnnotationDescPrinter.TAG_ENUM;
+import static org.cojen.util.AnnotationDescPrinter.TAG_FLOAT;
+import static org.cojen.util.AnnotationDescPrinter.TAG_INT;
+import static org.cojen.util.AnnotationDescPrinter.TAG_LONG;
+import static org.cojen.util.AnnotationDescPrinter.TAG_OBJECT;
+import static org.cojen.util.AnnotationDescPrinter.TAG_SHORT;
+import static org.cojen.util.AnnotationDescPrinter.TAG_STRING;
+import static org.cojen.util.AnnotationDescPrinter.TAG_VOID;
+
 // Import the tags.
-import static org.cojen.util.AnnotationDescPrinter.*;
 
 /**
  * Parses an annotation descriptor String to a Cojen Annotation definition.
@@ -83,8 +98,8 @@ public class AnnotationDescParser {
             rootAnnotation = buildRootAnnotation(rootAnnotationType);
         } else if (!rootAnnotationType.equals(rootAnnotation.getType())) {
             throw new IllegalArgumentException
-                ("Annotation type of \"" + rootAnnotationType +
-                 "\" does not match expected type of \"" + rootAnnotation.getType());
+                    ("Annotation type of \"" + rootAnnotationType +
+                            "\" does not match expected type of \"" + rootAnnotation.getType());
         }
 
         parseAnnotation(rootAnnotation, rootAnnotationType);
@@ -149,8 +164,7 @@ public class AnnotationDescParser {
         return dest.makeMemberValue(mvList.toArray(mvArray));
     }
 
-    private Annotation.MemberValue parseProperty(Annotation dest, char propTag, TypeDesc propType)
-    {
+    private Annotation.MemberValue parseProperty(Annotation dest, char propTag, TypeDesc propType) {
         Annotation.MemberValue mv;
 
         try {
@@ -183,43 +197,43 @@ public class AnnotationDescParser {
                 String valueStr = mStr.substring(mPos, endPos);
 
                 switch (propTag) {
-                default:
-                    throw error("Invalid tag");
+                    default:
+                        throw error("Invalid tag");
 
-                case TAG_BYTE: {
-                    mv = dest.makeMemberValue(Byte.parseByte(valueStr));
-                    break;
-                }
+                    case TAG_BYTE: {
+                        mv = dest.makeMemberValue(Byte.parseByte(valueStr));
+                        break;
+                    }
 
-                case TAG_SHORT: {
-                    mv = dest.makeMemberValue(Short.parseShort(valueStr));
-                    break;
-                }
+                    case TAG_SHORT: {
+                        mv = dest.makeMemberValue(Short.parseShort(valueStr));
+                        break;
+                    }
 
-                case TAG_INT: {
-                    mv = dest.makeMemberValue(Integer.parseInt(valueStr));
-                    break;
-                }
+                    case TAG_INT: {
+                        mv = dest.makeMemberValue(Integer.parseInt(valueStr));
+                        break;
+                    }
 
-                case TAG_LONG: {
-                    mv = dest.makeMemberValue(Long.parseLong(valueStr));
-                    break;
-                }
+                    case TAG_LONG: {
+                        mv = dest.makeMemberValue(Long.parseLong(valueStr));
+                        break;
+                    }
 
-                case TAG_FLOAT: {
-                    mv = dest.makeMemberValue(Float.parseFloat(valueStr));
-                    break;
-                }
+                    case TAG_FLOAT: {
+                        mv = dest.makeMemberValue(Float.parseFloat(valueStr));
+                        break;
+                    }
 
-                case TAG_DOUBLE: {
-                    mv = dest.makeMemberValue(Double.parseDouble(valueStr));
-                    break;
-                }
+                    case TAG_DOUBLE: {
+                        mv = dest.makeMemberValue(Double.parseDouble(valueStr));
+                        break;
+                    }
 
-                case TAG_ENUM: {
-                    mv = dest.makeMemberValue(propType, valueStr);
-                    break;
-                }
+                    case TAG_ENUM: {
+                        mv = dest.makeMemberValue(propType, valueStr);
+                        break;
+                    }
                 }
 
                 mPos = endPos + 1;
@@ -236,51 +250,51 @@ public class AnnotationDescParser {
             int endPos;
 
             switch (mStr.charAt(mPos)) {
-            default:
-                throw error("Invalid tag");
+                default:
+                    throw error("Invalid tag");
 
-            case TAG_ARRAY:
-                mPos++;
-                return parseTypeDesc().toArrayType();
+                case TAG_ARRAY:
+                    mPos++;
+                    return parseTypeDesc().toArrayType();
 
-            case TAG_STRING:
-                mPos++;
-                return TypeDesc.STRING;
+                case TAG_STRING:
+                    mPos++;
+                    return TypeDesc.STRING;
 
-            case TAG_CLASS:
-                mPos++;
-                return TypeDesc.forClass(Class.class);
+                case TAG_CLASS:
+                    mPos++;
+                    return TypeDesc.forClass(Class.class);
 
-            case TAG_ANNOTATION:
-                mPos++;
-                return parseTypeDesc();
+                case TAG_ANNOTATION:
+                    mPos++;
+                    return parseTypeDesc();
 
-            case TAG_ENUM:
-                mPos++;
-                endPos = nextTerminator();
-                int dot = mStr.lastIndexOf('.', endPos);
-                if (dot < mPos) {
-                    throw error("Invalid enumeration");
-                }
-                TypeDesc type = TypeDesc.forClass(mStr.substring(mPos, dot));
-                mPos = dot + 1;
-                return type;
+                case TAG_ENUM:
+                    mPos++;
+                    endPos = nextTerminator();
+                    int dot = mStr.lastIndexOf('.', endPos);
+                    if (dot < mPos) {
+                        throw error("Invalid enumeration");
+                    }
+                    TypeDesc type = TypeDesc.forClass(mStr.substring(mPos, dot));
+                    mPos = dot + 1;
+                    return type;
 
-            case TAG_BOOLEAN:
-            case TAG_BYTE:
-            case TAG_SHORT:
-            case TAG_CHAR:
-            case TAG_INT:
-            case TAG_LONG:
-            case TAG_FLOAT:
-            case TAG_DOUBLE:
-            case TAG_VOID:
-                endPos = mPos + 1;
-                break;
+                case TAG_BOOLEAN:
+                case TAG_BYTE:
+                case TAG_SHORT:
+                case TAG_CHAR:
+                case TAG_INT:
+                case TAG_LONG:
+                case TAG_FLOAT:
+                case TAG_DOUBLE:
+                case TAG_VOID:
+                    endPos = mPos + 1;
+                    break;
 
-            case TAG_OBJECT:
-                endPos = nextTerminator() + 1;
-                break;
+                case TAG_OBJECT:
+                    endPos = nextTerminator() + 1;
+                    break;
             }
 
             TypeDesc type = TypeDesc.forDescriptor(mStr.substring(mPos, endPos));
@@ -326,7 +340,7 @@ public class AnnotationDescParser {
 
     private IllegalArgumentException error(String message) {
         message = "Illegal annotation descriptor: " + message +
-            " at position " + mPos + " of " + mStr;
+                " at position " + mPos + " of " + mStr;
         return new IllegalArgumentException(message);
     }
 }

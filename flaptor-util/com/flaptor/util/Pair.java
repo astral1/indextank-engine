@@ -19,34 +19,34 @@ package com.flaptor.util;
 import java.io.Serializable;
 
 /**
-    This class represents a pair of objects.
-    It's useful when you need to make clear that the number of
-    objects you're storing is exactly 2.
-    One or both objects can be null.
-*/
+ * This class represents a pair of objects.
+ * It's useful when you need to make clear that the number of
+ * objects you're storing is exactly 2.
+ * One or both objects can be null.
+ */
 @SuppressWarnings("serial")
 public class Pair<T1, T2> implements Serializable, Comparable<Pair<? extends Comparable<? super T1>, ? extends Comparable<? super T2>>> {
     final private T1 fst;
     final private T2 lst;
-    
+
     /**
-        Constructor.
-    */
+     * Constructor.
+     */
     public Pair(T1 first, T2 last) {
         fst = first;
         lst = last;
     }
 
     /**
-        Returns the first object of the pair.
-    */
+     * Returns the first object of the pair.
+     */
     public T1 first() {
         return fst;
     }
 
     /**
-        Return the last object of the pair.
-    */
+     * Return the last object of the pair.
+     */
     public T2 last() {
         return lst;
     }
@@ -54,13 +54,13 @@ public class Pair<T1, T2> implements Serializable, Comparable<Pair<? extends Com
     public String toString() {
         StringBuffer buf = new StringBuffer();
         buf.append("(")
-            .append(fst)
-            .append(" ; ")
-            .append(lst)
-            .append(")");
+                .append(fst)
+                .append(" ; ")
+                .append(lst)
+                .append(")");
         return buf.toString();
     }
-       
+
     @Override
     public int hashCode() {
         final int PRIME = 31;
@@ -78,7 +78,7 @@ public class Pair<T1, T2> implements Serializable, Comparable<Pair<? extends Com
             return false;
         if (getClass() != obj.getClass())
             return false;
-        final Pair<?,?> other = (Pair<?,?>) obj;
+        final Pair<?, ?> other = (Pair<?, ?>) obj;
         if (null == fst) {
             if (null != other.fst)
                 return false;
@@ -95,11 +95,11 @@ public class Pair<T1, T2> implements Serializable, Comparable<Pair<? extends Com
     /**
      * compares the first element and if it is equal, compares the last
      */
-	public int compareTo(Pair<? extends Comparable<? super T1>, ? extends Comparable<? super T2>> p) {
-		int ret = -p.first().compareTo(this.first());
-		if (ret != 0) return ret;
-		else return -p.last().compareTo(this.last());
-	}
-	
+    public int compareTo(Pair<? extends Comparable<? super T1>, ? extends Comparable<? super T2>> p) {
+        int ret = -p.first().compareTo(this.first());
+        if (ret != 0) return ret;
+        else return -p.last().compareTo(this.last());
+    }
+
 }
 

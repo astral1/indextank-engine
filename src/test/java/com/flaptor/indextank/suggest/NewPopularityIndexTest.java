@@ -17,53 +17,54 @@
 
 package com.flaptor.indextank.suggest;
 
-import static com.flaptor.util.TestInfo.TestType.UNIT;
-
-import java.io.File;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
-
 import com.flaptor.indextank.IndexTankTestCase;
 import com.flaptor.util.FileUtil;
 import com.flaptor.util.TestInfo;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 
+import java.io.File;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
+
+import static com.flaptor.util.TestInfo.TestType.UNIT;
+
 public class NewPopularityIndexTest extends IndexTankTestCase {
 
     private NewPopularityIndex index;
 
-    private String[] words = {  "hola",
-                                "chau",
-                                "chacinado",
-                                "chacinado",
-                                "chancho",
-                                "chanchon",
-                                "chancha",
-                                "chanchito",
-                                "chanchito",
-                                "chanchitos",
-                                "chanchos",
-                                "chanchos",
-                                "chanchos",
-                                "chanchas",
-                                "chapalmalal",
-                                "chapelco",
-                                "chapelco",
-                                "chapelco",
-                                "chapelco",
-                                "charco",
-                                "chaucha",
-                                "chino",
-                                "chino",
-                                "chino",
-                                "chino",
-                                "chino",
-                                "choique",
-                                };
+    private String[] words = {"hola",
+            "chau",
+            "chacinado",
+            "chacinado",
+            "chancho",
+            "chanchon",
+            "chancha",
+            "chanchito",
+            "chanchito",
+            "chanchitos",
+            "chanchos",
+            "chanchos",
+            "chanchos",
+            "chanchas",
+            "chapalmalal",
+            "chapelco",
+            "chapelco",
+            "chapelco",
+            "chapelco",
+            "charco",
+            "chaucha",
+            "chino",
+            "chino",
+            "chino",
+            "chino",
+            "chino",
+            "choique",
+    };
+
     @Override
-	protected void setUp() throws Exception {
+    protected void setUp() throws Exception {
         super.setUp();
         Random r = new Random(2);
         List<String> wordslist = Lists.newArrayList(words);
@@ -72,15 +73,15 @@ public class NewPopularityIndexTest extends IndexTankTestCase {
         for (String s : wordslist) {
             index.addTerm(s);
         }
-	}
-	
+    }
+
     @Override
-	protected void tearDown() throws Exception {
+    protected void tearDown() throws Exception {
         super.tearDown();
-	}
-	
-	@TestInfo(testType=UNIT)
-	public void testSomething() {
+    }
+
+    @TestInfo(testType = UNIT)
+    public void testSomething() {
         assertEquals("hola", index.getMostPopular("hol").get(0));
         assertEquals("chapelco", index.getMostPopular("cha").get(0));
         assertEquals("chino", index.getMostPopular("ch").get(0));
@@ -89,10 +90,10 @@ public class NewPopularityIndexTest extends IndexTankTestCase {
         assertEquals("chanchos", index.getMostPopular("chan").get(0));
         assertEquals("chanchito", index.getMostPopular("chan").get(1));
         assertTrue(ImmutableSet.of("chancho", "chanchon", "chancha", "chanchas").contains(index.getMostPopular("chan").get(2)));
-	}
-	
-	@TestInfo(testType=UNIT)
-	public void testSerialization() throws Exception {
+    }
+
+    @TestInfo(testType = UNIT)
+    public void testSerialization() throws Exception {
         File f = FileUtil.createTempDir("NewPopularityIndexTest", ".tmp");
         index = new NewPopularityIndex(f);
         for (String s : words) {
@@ -102,14 +103,14 @@ public class NewPopularityIndexTest extends IndexTankTestCase {
         index = new NewPopularityIndex(f);
         //Now, we execute the basic test
         testSomething();
-	}
+    }
 
-    @TestInfo(testType=UNIT)
+    @TestInfo(testType = UNIT)
     public void testGetCount() throws Exception {
-        for (String word: words){
+        for (String word : words) {
             List<String> tmpList = Lists.newArrayList(words);
             tmpList.retainAll(Lists.newArrayList(word));
             assertEquals(tmpList.size(), index.getCount(word));
-        } 
-    } 
+        }
+    }
 }

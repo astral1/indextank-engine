@@ -16,9 +16,7 @@
 
 package com.flaptor.indextank.index.lsi;
 
-import java.io.IOException;
-import java.io.Reader;
-
+import com.flaptor.indextank.index.lsi.term.PayloadEncoder;
 import com.flaptor.indextank.query.analyzers.FilteredTokenStreamComponents;
 import org.apache.lucene.analysis.KeywordTokenizer;
 import org.apache.lucene.analysis.ReusableAnalyzerBase;
@@ -26,10 +24,10 @@ import org.apache.lucene.analysis.TokenFilter;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.analysis.tokenattributes.PayloadAttribute;
-import org.apache.lucene.analysis.tokenattributes.TermAttribute;
 import org.apache.lucene.index.Payload;
 
-import com.flaptor.indextank.index.lsi.term.PayloadEncoder;
+import java.io.IOException;
+import java.io.Reader;
 
 public class PayloadAnalyzer extends ReusableAnalyzerBase {
 
@@ -40,27 +38,27 @@ public class PayloadAnalyzer extends ReusableAnalyzerBase {
         return components.add(Filter.class);
     }
 
-	public static class Filter extends TokenFilter {
+    public static class Filter extends TokenFilter {
         private CharTermAttribute termAtt;
-		private PayloadAttribute payAtt;
+        private PayloadAttribute payAtt;
 
-		public Filter(TokenStream input) {
-			super(input);
+        public Filter(TokenStream input) {
+            super(input);
             termAtt = addAttribute(CharTermAttribute.class);
-			payAtt = addAttribute(PayloadAttribute.class);
-		}
+            payAtt = addAttribute(PayloadAttribute.class);
+        }
 
-		@Override
-		public final boolean incrementToken() throws IOException {
-			boolean result = false;
-			if (input.incrementToken()) {
-				String docid = termAtt.toString();
+        @Override
+        public final boolean incrementToken() throws IOException {
+            boolean result = false;
+            if (input.incrementToken()) {
+                String docid = termAtt.toString();
                 setTermBuffer(termAtt, LsiIndex.PAYLOAD_TERM_TEXT);
-				payAtt.setPayload(new Payload(PayloadEncoder.encodePayloadId(docid)));
-				return true;
-			}
-			return result;
-		}
+                payAtt.setPayload(new Payload(PayloadEncoder.encodePayloadId(docid)));
+                return true;
+            }
+            return result;
+        }
 
         private void setTermBuffer(CharTermAttribute termAttr, String buffer) {
             int length = buffer.length();
@@ -68,5 +66,5 @@ public class PayloadAnalyzer extends ReusableAnalyzerBase {
             termAttr.copyBuffer(buffer.toCharArray(), 0, length);
             termAttr.setLength(length);
         }
-	}
+    }
 }
