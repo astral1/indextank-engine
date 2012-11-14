@@ -16,7 +16,7 @@
     "base_port": 20220,
     "xmx": 600,
     "analyzer_config": {
-        "factory": "org.apache.lucene.analysis.kr.IndexEngineKoreanAnalyzer",
+        "factory": "com.flaptor.indextank.query.IndexEngineKoreanAnalyzer",
         "configuration": {
            "match_version": "LUCENE_36"
         }

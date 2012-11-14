@@ -1,7 +1,8 @@
-package org.apache.lucene.analysis.kr;
+package com.flaptor.indextank.query;
 
 import com.google.common.collect.Maps;
 import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.kr.KoreanAnalyzer;
 import org.apache.lucene.util.Version;
 
 import java.util.Map;

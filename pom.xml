@@ -24,25 +24,6 @@
         <defaultGoal>assembly:single</defaultGoal>
         <plugins>
             <plugin>
-                <groupId>de.jflex</groupId>
-                <artifactId>maven-jflex-plugin</artifactId>
-                <version>1.4.3-r1</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>kranalyzer</outputDirectory>
-                            <lexDefinitions>
-                                <lexDefintion>kranalyzer/org/apache/lucene/analysis/kr/KoreanTokenizerImpl.jflex
-                                </lexDefintion>
-                            </lexDefinitions>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
                 <artifactId>maven-eclipse-plugin</artifactId>
                 <version>2.8</version>
                 <configuration>
@@ -85,7 +66,7 @@
                                 <source>${basedir}/lucene-experimental</source>
                                 <source>${basedir}/cojen-2.2.1-sources</source>
                                 <source>${basedir}/embedded-api</source>
-                                <source>${basedir}/kranalyzer</source>
+                                <!--<source>${basedir}/kranalyzer</source>-->
                             </sources>
                         </configuration>
                     </execution>
@@ -137,11 +118,11 @@
             <artifactId>lucene-core</artifactId>
             <version>${lucene.version}</version>
         </dependency>
-        <!--dependency>
-          <groupId>org.apache.lucene</groupId>
-          <artifactId>lucene-snowball</artifactId>
-          <version>${lucene.version}</version>
-        </dependency-->
+        <dependency>
+            <groupId>org.apache.lucene.korean</groupId>
+            <artifactId>korean-analyzer</artifactId>
+            <version>${lucene.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.apache.lucene</groupId>
             <artifactId>lucene-analyzers</artifactId>
